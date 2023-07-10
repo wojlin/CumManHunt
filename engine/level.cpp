@@ -106,6 +106,7 @@ class Level {
     vector<SSector> subSectors;
     vector<Node> nodes;
     vector<Sector> sectors;
+    vector<vector<bool>> rejectTable;
 
     
 
@@ -254,14 +255,13 @@ class Level {
 
     void loadReject(ifstream *file, WAD::lumpInfo_t lump)
     {
-        file->seekg(lump.filepos);
         int num = lump.size;
-        cout << num << endl;
-
         char buffer[num];
-        file->read(buffer, num);
+        char bits_array[num*8];
 
-        cout << "read" << endl;
+        file->seekg(lump.filepos);
+        file->read(buffer, num);     
+        
         for(int i =0; i<num;i++)
         {
             unsigned int hexValue = static_cast<unsigned char>(buffer[i]);
@@ -271,10 +271,32 @@ class Level {
                 bits[i] = bits[bits.size() - i - 1];
                 bits[bits.size() - i - 1] = temp;
             }
-            cout << hexValue << " -> " << bits << std::endl;            
-        }
-        cout << endl;
 
+            std::string binaryString = bits.to_string();
+            const char* binaryCharArray = binaryString.c_str();
+
+            for(int x = 0; x <8; x++)
+            {
+                bits_array[(i*8)+x] = binaryCharArray[x];
+            }           
+        }
+
+        int sectors_amount = sectors.size();
+        rejectTable.resize(sectors_amount, std::vector<bool>(sectors_amount, false));
+
+        for(int y = 0; y<sectors_amount; y++)
+        {
+            for(int x = 0; x<sectors_amount; x++)
+            {
+                int index = (y*sectors_amount)+x;
+                bool state = false;
+                if(bits_array[index] == '1')
+                {
+                    state = true;
+                }
+                rejectTable[y][x] = state;
+            }
+        }   
     }
 
     void loadBlockmap(ifstream *file, WAD::lumpInfo_t lump)
@@ -394,6 +416,17 @@ class Level {
             cout << setw(10) << sectors[x].tagNumber << endl;
         }
 
+        cout << endl << "|REJECT TABLE|" << endl;
+
+        for(int y = 0; y<rejectTable.size(); y++)
+        {
+            for(int x = 0; x<rejectTable.size(); x++)
+            {
+                cout << rejectTable[y][x];
+            }
+            cout << endl;
+        }
+
     }
 
 };
@@ -401,7 +434,8 @@ class Level {
 
 int main()
 {
-    WAD wad = WAD("DOOM2.WAD");
+    WAD wad = WAD("../tests/DOOM2.WAD");
+
     std::cout << "Path: " << wad.filePath << std::endl;
     cout << endl << "HEADER:" << endl;
     std::cout << "Identification: " << wad.header.identification << std::endl;

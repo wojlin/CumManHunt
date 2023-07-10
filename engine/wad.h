@@ -52,6 +52,7 @@ class WAD {
 
         if (!file) {
             cout << "Error opening file." << std::endl;
+            exit(0);
             return;
         }
 
