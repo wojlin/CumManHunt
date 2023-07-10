@@ -98,6 +98,14 @@ class Level {
         int16_t tagNumber;
     };
 
+    struct BLOCKMAPHeader 
+    {
+        int16_t originX;
+        int16_t originY;
+        int16_t numColumns;
+        int16_t numRows;
+    };
+
     vector<Thing> things;
     vector<Linedef> linedefs;
     vector<Sidedef> sidedefs;
@@ -108,7 +116,9 @@ class Level {
     vector<Sector> sectors;
     vector<vector<bool>> rejectTable;
 
-    
+    BLOCKMAPHeader blockmapHeader;
+    vector<int16_t> blockmapOffsets;
+    vector<vector<uint16_t>> blockmapBlockLists;
 
     Level(string path, WAD::levelInfo_t levelData)
     {
@@ -301,6 +311,44 @@ class Level {
 
     void loadBlockmap(ifstream *file, WAD::lumpInfo_t lump)
     {
+        file->seekg(lump.filepos);     
+        file->read(reinterpret_cast<char*>(&blockmapHeader), sizeof(BLOCKMAPHeader));
+        int N = blockmapHeader.numColumns * blockmapHeader.numRows;
+        int start_offset = lump.filepos + 8;
+        int end_offset = start_offset + 2 * (N - 1) + 2;
+        int readAmount = end_offset - start_offset;
+        file->seekg(start_offset, std::ios::beg);
+        for(int i = 0; i < readAmount / 2; i ++)
+        {
+            int16_t value;
+            file->read(reinterpret_cast<char*>(&value), 2);
+            blockmapOffsets.push_back(value);
+        }
+
+        file->seekg(end_offset, std::ios::beg);
+
+        vector<uint16_t> list;
+
+        int header_and_offests_size = 8 + readAmount;
+        int blocklist_size = lump.size - header_and_offests_size;
+        for(int i = 0; i < blocklist_size / 2; i ++)
+        {
+            uint16_t value;
+            file->read(reinterpret_cast<char*>(&value), 2);
+            cout << value << endl;
+            if(value == 0)
+            {
+
+            }else if(value == 65535)
+            {
+                blockmapBlockLists.push_back(list);
+                list.clear();
+            }else
+            {
+                list.push_back(value);
+            }
+        }
+        
 
     }
 
@@ -427,6 +475,26 @@ class Level {
             cout << endl;
         }
 
+        cout << endl << "|BLOCKMAP|" << endl;
+
+        cout << "Origin X: " << blockmapHeader.originX << std::endl;
+        cout << "Origin Y: " << blockmapHeader.originY << std::endl;
+        cout << "Number of Columns: " << blockmapHeader.numColumns << std::endl;
+        cout << "Number of Rows: " << blockmapHeader.numRows << std::endl;
+        cout << "Offsets:" << endl;
+        for(int y = 0; y<blockmapOffsets.size(); y++)
+        {
+            cout << blockmapOffsets[y] << endl;
+        }
+        cout << "Block Lists:" << endl;
+        for(int y = 0; y<blockmapBlockLists.size(); y++)
+        {
+            cout << y << ":" << endl;
+            for(int x = 0; x<blockmapBlockLists[y].size(); x++)
+            {
+                cout << "   " << blockmapBlockLists[y][x] << endl;
+            }
+        }
     }
 
 };
