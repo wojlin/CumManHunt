@@ -4,3 +4,5 @@
 .vscode/*
 .vscode/
 .vscode
+engine/level
+engine/wad
