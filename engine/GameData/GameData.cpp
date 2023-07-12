@@ -20,10 +20,8 @@ int main()
     
     LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
     
-    
-    resources.readSprite("BLUDA0");
-    //level.printLevelInfo();
-    
+    //resources.readSprite("BLUDA0");
+    level.printLevelInfo();
 
     /*
     cout << endl << "ENTRIES:" << endl;

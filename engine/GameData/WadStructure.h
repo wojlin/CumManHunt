@@ -70,122 +70,124 @@ class WADStructure {
         free(directory);
     }
 
-
-    void readHeader(ifstream *file) {  
-      char identification[4];
-        int numlumps;
-        int infotableofs;
-
-        file->read(reinterpret_cast<char*>(&identification), sizeof(identification));
-        file->read(reinterpret_cast<char*>(&numlumps), sizeof(numlumps));
-        file->read(reinterpret_cast<char*>(&infotableofs), sizeof(infotableofs));
-
-        header.identification = identification;
-        header.numlumps = numlumps;
-        header.infotableofs = infotableofs;
-    }      
-
-    void readDirectory(ifstream *file) {  
-
-        const int entrySize = 16;  // Length of each entry
-        int numEntries = header.numlumps;  // Number of entries in the directory
-        int startPos = header.infotableofs;
+    private:
 
 
-        directory = (lumpInfo_t*)malloc(numEntries * sizeof(lumpInfo_t));
-        if (!directory) {
-            cerr << "Failed to allocate memory." << endl;
-            file->close();
-        }
+        void readHeader(ifstream *file) {  
+        char identification[4];
+            int numlumps;
+            int infotableofs;
 
-        file->seekg(startPos);
+            file->read(reinterpret_cast<char*>(&identification), sizeof(identification));
+            file->read(reinterpret_cast<char*>(&numlumps), sizeof(numlumps));
+            file->read(reinterpret_cast<char*>(&infotableofs), sizeof(infotableofs));
 
-        for (int i = 0; i < numEntries; ++i) {
-            char entryData[entrySize];
-            file->read(entryData, entrySize);
-            directoryCount++;
-            memcpy(&directory[i].filepos, entryData, sizeof(int));
-            memcpy(&directory[i].size, entryData + sizeof(int), sizeof(int));
-            memcpy(directory[i].name, entryData + 2 * sizeof(int), 8);
-            directory[i].name[8] = '\0';  // Ensure null termination
-        }
+            header.identification = identification;
+            header.numlumps = numlumps;
+            header.infotableofs = infotableofs;
+        }      
 
-    }  
+        void readDirectory(ifstream *file) {  
 
-    void readLevelsList()
-    {
-        
+            const int entrySize = 16;  // Length of each entry
+            int numEntries = header.numlumps;  // Number of entries in the directory
+            int startPos = header.infotableofs;
 
-        for (int i = 0; i < header.numlumps; i++) 
-        {   
-            
-            if(directory[i].size == 0)
-            {
-                levelInfo_t level;
-                strcpy(level.name, directory[i].name);
 
-                for (int y = 1; y <= 10; y++) 
-                {   
-
-                    if(strcmp("THINGS", directory[i+y].name) == 0)
-                    {
-                        level.THINGS = directory[i+y];
-                    }
-                    else if(strcmp("LINEDEFS", directory[i+y].name) == 0)
-                    {
-                        level.LINEDEFS = directory[i+y];
-                    }
-                    else if(strcmp("SIDEDEFS", directory[i+y].name) == 0)
-                    {
-                        level.SIDEDEFS = directory[i+y];
-                    }
-                    else if(strcmp("VERTEXES", directory[i+y].name) == 0)
-                    {   
-                        level.VERTEXES = directory[i+y];
-                    }
-                    else if(strcmp("SEGS", directory[i+y].name) == 0)
-                    {
-                        level.SEGS = directory[i+y];
-                    }
-                    else if(strcmp("SSECTORS", directory[i+y].name) == 0)
-                    {
-                        level.SSECTORS = directory[i+y];
-                    }
-                    else if(strcmp("NODES", directory[i+y].name) == 0)
-                    {
-                        level.NODES = directory[i+y];
-                    }
-                    else if(strcmp("SECTORS", directory[i+y].name) == 0)
-                    {
-                        level.SECTORS = directory[i+y];
-                    }
-                    else if(strcmp("REJECT", directory[i+y].name) == 0)
-                    {
-                        level.REJECT = directory[i+y];
-                    }
-                   else if(strcmp("BLOCKMAP", directory[i+y].name) == 0)
-                    {
-                        level.BLOCKMAP = directory[i+y];
-                    }else
-                    {
-                        continue;
-                    }
-                }
-
-                levelsList.push_back(level);
-                i += 10;
-
-                if(directory[i+1].size != 0)
-                {
-                    break;
-                }               
+            directory = (lumpInfo_t*)malloc(numEntries * sizeof(lumpInfo_t));
+            if (!directory) {
+                cerr << "Failed to allocate memory." << endl;
+                file->close();
             }
+
+            file->seekg(startPos);
+
+            for (int i = 0; i < numEntries; ++i) {
+                char entryData[entrySize];
+                file->read(entryData, entrySize);
+                directoryCount++;
+                memcpy(&directory[i].filepos, entryData, sizeof(int));
+                memcpy(&directory[i].size, entryData + sizeof(int), sizeof(int));
+                memcpy(directory[i].name, entryData + 2 * sizeof(int), 8);
+                directory[i].name[8] = '\0';  // Ensure null termination
+            }
+
+        }  
+
+        void readLevelsList()
+        {
+            
+
+            for (int i = 0; i < header.numlumps; i++) 
+            {   
+                
+                if(directory[i].size == 0)
+                {
+                    levelInfo_t level;
+                    strcpy(level.name, directory[i].name);
+
+                    for (int y = 1; y <= 10; y++) 
+                    {   
+
+                        if(strcmp("THINGS", directory[i+y].name) == 0)
+                        {
+                            level.THINGS = directory[i+y];
+                        }
+                        else if(strcmp("LINEDEFS", directory[i+y].name) == 0)
+                        {
+                            level.LINEDEFS = directory[i+y];
+                        }
+                        else if(strcmp("SIDEDEFS", directory[i+y].name) == 0)
+                        {
+                            level.SIDEDEFS = directory[i+y];
+                        }
+                        else if(strcmp("VERTEXES", directory[i+y].name) == 0)
+                        {   
+                            level.VERTEXES = directory[i+y];
+                        }
+                        else if(strcmp("SEGS", directory[i+y].name) == 0)
+                        {
+                            level.SEGS = directory[i+y];
+                        }
+                        else if(strcmp("SSECTORS", directory[i+y].name) == 0)
+                        {
+                            level.SSECTORS = directory[i+y];
+                        }
+                        else if(strcmp("NODES", directory[i+y].name) == 0)
+                        {
+                            level.NODES = directory[i+y];
+                        }
+                        else if(strcmp("SECTORS", directory[i+y].name) == 0)
+                        {
+                            level.SECTORS = directory[i+y];
+                        }
+                        else if(strcmp("REJECT", directory[i+y].name) == 0)
+                        {
+                            level.REJECT = directory[i+y];
+                        }
+                    else if(strcmp("BLOCKMAP", directory[i+y].name) == 0)
+                        {
+                            level.BLOCKMAP = directory[i+y];
+                        }else
+                        {
+                            continue;
+                        }
+                    }
+
+                    levelsList.push_back(level);
+                    i += 10;
+
+                    if(directory[i+1].size != 0)
+                    {
+                        break;
+                    }               
+                }
+            }
+
+            levelsAmount = levelsList.size();
+
         }
-
-        levelsAmount = levelsList.size();
-
-    }
-     
+        
 
 
 };
