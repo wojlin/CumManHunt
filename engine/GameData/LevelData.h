@@ -7,12 +7,12 @@
 #include <cstring>
 #include <vector>
 
-#include "wad.h"
+#include "WadStructure.h"
 
 using namespace std;
 
 
-class Level {      
+class LevelData {      
   public: 
     string filePath = "";
     char levelName[9];
@@ -120,30 +120,30 @@ class Level {
     vector<int16_t> blockmapOffsets;
     vector<vector<uint16_t>> blockmapBlockLists;
 
-    Level(string path, WAD::levelInfo_t levelData)
+    LevelData(string path, WADStructure::levelInfo_t *levelData)
     {
         filePath = path;
         std::ifstream file(filePath, std::ios::binary);
 
-        strcpy(levelName, levelData.name);
+        strcpy(levelName, levelData->name);
 
         
-        loadThings(&file, levelData.THINGS);
-        loadLinedefs(&file, levelData.LINEDEFS);
-        loadSidedefs(&file, levelData.SIDEDEFS);
-        loadVertexes(&file, levelData.VERTEXES);
-        loadSegs(&file, levelData.SEGS);
-        loadSSectors(&file, levelData.SSECTORS);
-        loadNodes(&file, levelData.NODES);
-        loadSectors(&file, levelData.SECTORS);
-        loadReject(&file, levelData.REJECT);
-        loadBlockmap(&file, levelData.BLOCKMAP);
+        loadThings(&file, levelData->THINGS);
+        loadLinedefs(&file, levelData->LINEDEFS);
+        loadSidedefs(&file, levelData->SIDEDEFS);
+        loadVertexes(&file, levelData->VERTEXES);
+        loadSegs(&file, levelData->SEGS);
+        loadSSectors(&file, levelData->SSECTORS);
+        loadNodes(&file, levelData->NODES);
+        loadSectors(&file, levelData->SECTORS);
+        loadReject(&file, levelData->REJECT);
+        loadBlockmap(&file, levelData->BLOCKMAP);
         
 
         file.close();
     }
 
-    void loadThings(ifstream *file, WAD::lumpInfo_t lump)
+    void loadThings(ifstream *file, WADStructure::lumpInfo_t lump)
     {
         file->seekg(lump.filepos);
         std::size_t num = lump.size / sizeof(Thing);
@@ -158,7 +158,7 @@ class Level {
         }
     }
 
-    void loadLinedefs(ifstream *file, WAD::lumpInfo_t lump)
+    void loadLinedefs(ifstream *file, WADStructure::lumpInfo_t lump)
     {
         file->seekg(lump.filepos);
         std::size_t num = lump.size / sizeof(Linedef);
@@ -173,7 +173,7 @@ class Level {
         }
     }
 
-    void loadSidedefs(ifstream *file, WAD::lumpInfo_t lump)
+    void loadSidedefs(ifstream *file, WADStructure::lumpInfo_t lump)
     {
         file->seekg(lump.filepos);
         std::size_t num = lump.size / sizeof(Sidedef);
@@ -188,7 +188,7 @@ class Level {
         }
     }
 
-    void loadVertexes(ifstream *file, WAD::lumpInfo_t lump)
+    void loadVertexes(ifstream *file, WADStructure::lumpInfo_t lump)
     {
         file->seekg(lump.filepos);
         std::size_t num = lump.size / sizeof(Vertex);
@@ -203,7 +203,7 @@ class Level {
         }
     }
 
-    void loadSegs(ifstream *file, WAD::lumpInfo_t lump)
+    void loadSegs(ifstream *file, WADStructure::lumpInfo_t lump)
     {
         file->seekg(lump.filepos);
         std::size_t num = lump.size / sizeof(Seg);
@@ -218,7 +218,7 @@ class Level {
         }
     }
 
-    void loadSSectors(ifstream *file, WAD::lumpInfo_t lump)
+    void loadSSectors(ifstream *file, WADStructure::lumpInfo_t lump)
     {
         file->seekg(lump.filepos);
         std::size_t num = lump.size / sizeof(SSector);
@@ -233,7 +233,7 @@ class Level {
         }
     }
 
-    void loadNodes(ifstream *file, WAD::lumpInfo_t lump)
+    void loadNodes(ifstream *file, WADStructure::lumpInfo_t lump)
     {
         file->seekg(lump.filepos);
         std::size_t num = lump.size / sizeof(Node);
@@ -248,7 +248,7 @@ class Level {
         }
     }
 
-    void loadSectors(ifstream *file, WAD::lumpInfo_t lump)
+    void loadSectors(ifstream *file, WADStructure::lumpInfo_t lump)
     {
         file->seekg(lump.filepos);
         std::size_t num = lump.size / sizeof(Sector);
@@ -263,7 +263,7 @@ class Level {
         }
     }
 
-    void loadReject(ifstream *file, WAD::lumpInfo_t lump)
+    void loadReject(ifstream *file, WADStructure::lumpInfo_t lump)
     {
         int num = lump.size;
         char buffer[num];
@@ -309,7 +309,7 @@ class Level {
         }   
     }
 
-    void loadBlockmap(ifstream *file, WAD::lumpInfo_t lump)
+    void loadBlockmap(ifstream *file, WADStructure::lumpInfo_t lump)
     {
         file->seekg(lump.filepos);     
         file->read(reinterpret_cast<char*>(&blockmapHeader), sizeof(BLOCKMAPHeader));
@@ -335,7 +335,7 @@ class Level {
         {
             uint16_t value;
             file->read(reinterpret_cast<char*>(&value), 2);
-            cout << value << endl;
+            //cout << value << endl;
             if(value == 0)
             {
 
@@ -354,7 +354,7 @@ class Level {
 
     void printLevelInfo()
     {
-
+        cout << endl << "LEVEL:" << endl;
         cout << "name: " << levelName << endl;
         cout << "things amount: " << things.size() << endl; 
         cout << "linedefs amount: " << linedefs.size() << endl; 
@@ -498,57 +498,3 @@ class Level {
     }
 
 };
-
-
-int main()
-{
-    WAD wad = WAD("../tests/DOOM2.WAD");
-
-    std::cout << "Path: " << wad.filePath << std::endl;
-    cout << endl << "HEADER:" << endl;
-    std::cout << "Identification: " << wad.header.identification << std::endl;
-    std::cout << "Numlumps: " << wad.header.numlumps << std::endl;
-    std::cout << "Infotableofs: " << wad.header.infotableofs << std::endl;
-    cout << endl << "INFO:" << endl;
-    cout << "levels amount: " << wad.levelsAmount << endl;
-
-    cout << endl << "LEVEL:" << endl;
-    Level level = Level(wad.filePath, wad.levelsList[0]);
-    
-    
-    level.printLevelInfo();
-    
-
-    /*
-    cout << endl << "ENTRIES:" << endl;
-    cout << setw(5) << "[ENTRY]" << setw(10) << "[NAME]" << setw(10) << "[SIZE]" << setw(10) << "[FILEPOS]" << endl;
-    for (int i = 0; i < wad.header.numlumps; ++i) {
-        cout << setw(5) << i + 1;
-        cout << setw(10) << wad.directory[i].name;
-        cout << setw(10) << wad.directory[i].size;
-        cout << setw(10) << wad.directory[i].filepos;
-        cout << endl;
-    }
-    */
-
-
-    /*
-    for (size_t i = 0; i < wad.levelsAmount; ++i) {
-        cout << wad.levelsList[i].name << endl;
-    }
-    */
-   
-    /*
-    int num = wad.directory.filepos;
-
-    unsigned char* bytePtr = reinterpret_cast<unsigned char*>(&num);
-
-    // Output each byte in hexadecimal format
-    for (int i = 0; i < sizeof(num); ++i) {
-        std::cout << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(bytePtr[i]) << " ";
-    }
-
-    std::cout << std::endl;
-    */
-
-}

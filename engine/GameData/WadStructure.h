@@ -10,7 +10,7 @@
 using namespace std;
 
 
-class WAD {      
+class WADStructure {      
   public: 
     bool parsed = false;
     string filePath = "";
@@ -44,9 +44,10 @@ class WAD {
     lumpInfo_t* directory;
     vector<levelInfo_t> levelsList; 
     int levelsAmount;
+    int directoryCount = 0;
 
 
-    WAD(string path){
+    WADStructure(string path){
         filePath = path;
         std::ifstream file(path, std::ios::binary);
 
@@ -65,7 +66,7 @@ class WAD {
         file.close();
     }
 
-    ~WAD() {
+    ~WADStructure() {
         free(directory);
     }
 
@@ -102,7 +103,7 @@ class WAD {
         for (int i = 0; i < numEntries; ++i) {
             char entryData[entrySize];
             file->read(entryData, entrySize);
-
+            directoryCount++;
             memcpy(&directory[i].filepos, entryData, sizeof(int));
             memcpy(&directory[i].size, entryData + sizeof(int), sizeof(int));
             memcpy(directory[i].name, entryData + 2 * sizeof(int), 8);
