@@ -24,6 +24,8 @@ int main()
     
     LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
    
+    
+    playpal.printInfo();
     //resources.readSprite("BLUDA0");
     //level.printLevelInfo();
 
