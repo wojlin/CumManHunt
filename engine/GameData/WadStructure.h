@@ -70,6 +70,22 @@ class WADStructure {
         free(directory);
     }
 
+    lumpInfo_t findLump(string lumpName)
+    {
+        bool markerFound = false;
+        for(int i = 0; i < directoryCount;i++)
+        {
+            if(lumpName == directory[i].name)
+            {
+                markerFound = true;
+                return directory[i];
+            }
+        }
+
+        cout << "COLORMAP not found in WAD file!" << endl;
+        exit(0);
+    }
+
     private:
 
 
