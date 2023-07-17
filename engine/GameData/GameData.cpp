@@ -21,11 +21,13 @@ int main()
     cout << endl << "INFO:" << endl;
     cout << "levels amount: " << wad.levelsAmount << endl;
     cout << "sprites amount: " << resources.getSpritesAmount() << endl;
-    
+    cout << "palletes amount: " << playpal.getPalletesAmount() << endl;
+    cout << "colormaps amount: " << colormap.getColorMapsAmount() << endl;
+
     LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
    
-    
-    playpal.printInfo();
+    //colormap.printInfo();
+    //playpal.printInfo();
     //resources.readSprite("BLUDA0");
     //level.printLevelInfo();
 

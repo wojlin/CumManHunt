@@ -1,4 +1,5 @@
 #include <map>
+#include <math.h>
 
 struct color_t
 {
@@ -29,6 +30,11 @@ class PlayPalData
             cout << "r:" << unsigned(color.red) << ",   g:"<< unsigned(color.green) << ",   b:" << unsigned(color.blue) << endl;
         }
 
+        int getPalletesAmount()
+        {
+            return PALLETES_AMOUNT;
+        }
+
         void printInfo()
         {
             for(int i = 0; i < PALLETES_AMOUNT; i++)
@@ -47,18 +53,23 @@ class PlayPalData
         WADStructure::lumpInfo_t playPalLump;
 
         int PALLETE_COLORS = 255;
-        int PALLETES_AMOUNT = 14;
-
-
-        
+        int PALLETES_AMOUNT;
 
         vector<vector<color_t>> pallete;
 
         void readPlayPal()
         {
-            cout << playPalLump.name << endl;
-            cout << playPalLump.size << endl;
-            cout << playPalLump.filepos << endl;
+            float amount = playPalLump.size / (PALLETE_COLORS * 3 * sizeof(uint8_t));
+            
+            if (roundf(amount) != amount) {
+                cout << "Error reading PLAYPAL data" << std::endl;
+                exit(0);
+                return;
+            } 
+
+            PALLETES_AMOUNT = roundf(amount);
+
+            
 
             std::ifstream file(filePath, std::ios::binary);
             file.seekg(playPalLump.filepos);
