@@ -1,5 +1,7 @@
 
 #include "LevelData.h"
+#include "ColorMapData.h"
+#include "PlayPalData.h"
 #include "ResourcesData.h"
 
 using namespace std;
@@ -7,6 +9,8 @@ using namespace std;
 int main()
 {
     WADStructure wad = WADStructure("../../tests/DOOM2.WAD");
+    PlayPalData playpal = PlayPalData(&wad);
+    ColorMapData colormap = ColorMapData(&wad);
     ResourcesData resources = ResourcesData(&wad);
 
     cout << "Path: \""<< wad.filePath << "\"" << endl;
@@ -17,11 +21,15 @@ int main()
     cout << endl << "INFO:" << endl;
     cout << "levels amount: " << wad.levelsAmount << endl;
     cout << "sprites amount: " << resources.getSpritesAmount() << endl;
-    
+    cout << "palletes amount: " << playpal.getPalletesAmount() << endl;
+    cout << "colormaps amount: " << colormap.getColorMapsAmount() << endl;
+
     LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
-    
+   
+    //colormap.printInfo();
+    //playpal.printInfo();
     //resources.readSprite("BLUDA0");
-    level.printLevelInfo();
+    //level.printLevelInfo();
 
     /*
     cout << endl << "ENTRIES:" << endl;
