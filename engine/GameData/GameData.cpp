@@ -13,7 +13,7 @@ int main()
     EndoomData endoom = EndoomData(&wad);
     PlayPalData playpal = PlayPalData(&wad);
     ColorMapData colormap = ColorMapData(&wad);
-    ResourcesData resources = ResourcesData(&wad);
+    ResourcesData resources = ResourcesData(&wad, &playpal);
 
     cout << "Path: \""<< wad.filePath << "\"" << endl;
     cout << endl << "HEADER:" << endl;
@@ -30,11 +30,13 @@ int main()
    
     
    
-    endoom.printEndoom();
+    //endoom.printEndoom();
     //endoom.printInfo();
     //colormap.printInfo();
     //playpal.printInfo();
-    //resources.readSprite("BLUDA0");
+    Image image = resources.readSprite("SARGB1");
+    image.printInfo();
+    image.saveAsFile("/home/anon/PROJECTS/CumManHunt/out.bmp");
     //level.printLevelInfo();
 
     /*

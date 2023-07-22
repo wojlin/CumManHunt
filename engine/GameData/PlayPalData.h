@@ -21,7 +21,7 @@ class PlayPalData
 
         color_t getColor(int palleteNumber, uint8_t index)
         {
-            return pallete[palleteNumber][index];
+            return pallete[palleteNumber][unsigned(index)];
         }
 
         void printColor(int palleteNumber, uint8_t index)
