@@ -21,16 +21,17 @@ public:
 
         // Set up the BMP header
         header.bfType = 0x4D42; // BM (Bitmap signature)
+        header.bfSize = sizeof(BMPHeader) + pixelData_.size();
         header.bfReserved1 = 0;
         header.bfReserved2 = 0;
-        header.bfOffBits = sizeof(BMPHeader); // Offset to the pixel data
-        header.biSize = sizeof(BMPHeader) - 14; // Size of the info header
+        header.bfOffBits = sizeof(BMPHeader);
+        header.biSize = 40; // Size of the info header
         header.biWidth = width_;
         header.biHeight = -height_; // Negative height to indicate top-down image
         header.biPlanes = 1;
         header.biBitCount = 32; // 32-bit (RGBA) image
         header.biCompression = 0; // No compression
-        header.biSizeImage = width_ * height_ * 4; // Image data size in bytes
+        header.biSizeImage = pixelData_.size(); // Image data size in bytes
         header.biXPelsPerMeter = 0;
         header.biYPelsPerMeter = 0;
         header.biClrUsed = 0;
@@ -40,7 +41,7 @@ public:
         file.write(reinterpret_cast<const char*>(&header), sizeof(BMPHeader));
 
         // Write the pixel data (RGBA) to the file
-        file.write(reinterpret_cast<const char*>(pixelData_.data()), header.biSizeImage);
+        file.write(reinterpret_cast<const char*>(pixelData_.data()), pixelData_.size());
 
         file.close();
     }

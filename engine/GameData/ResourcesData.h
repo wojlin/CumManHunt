@@ -66,21 +66,14 @@ class Image
             cout << "Saving image to \"" << filePath << " \"..." << endl;
             BMPImage image(width, height);
 
-            for(int x = 0; x < width; x++)
+            for(int x = 0; x < columns.size(); x++)
             {   
-                for(int a = 0; a < columns[x].rowStart; a++)
-                { 
-                    image.setPixel(x, a, 0, 0, 0, 0);
-                }
                 for(int b = 0; b < columns[x].pixelCount; b++)
                 {
                     color_t pixel = columns[x].pixels[b];
-                    image.setPixel(x, columns[x].rowStart + b, pixel.red, pixel.green, pixel.blue, 255);
+                    image.setPixel(columns[x].column, columns[x].rowStart + b, pixel.red, pixel.green, pixel.blue, 255);
                 }
-                for(int c = 0; c < height - columns[x].rowStart - columns[x].pixelCount; c++)
-                { 
-                    image.setPixel(x, columns[x].rowStart + columns[x].pixelCount + c, 0, 0, 0, 0);
-                }
+
             }
             image.createImage(filePath);
             cout << "Image Saved!" << endl;
