@@ -23,33 +23,40 @@ int main()
     cout << endl << "INFO:" << endl;
     cout << "levels amount: " << wad.levelsAmount << endl;
     cout << "sprites amount: " << resources.getSpritesAmount() << endl;
-    cout << "palletes amount: " << playpal.getPalletesAmount() << endl;
+    cout << "flats amount: " << resources.getFlatsAmount() << endl;
+    cout << "pallets amount: " << playpal.getPalletesAmount() << endl;
     cout << "colormaps amount: " << colormap.getColorMapsAmount() << endl;
 
     LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
    
     
-   
+    //SPRITE TEST
+    string name1 = "CHGGA0";
+    Image image1 = resources.readSprite(name1);
+    image1.printInfo();
+    image1.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name1 + ".bmp");
+
+
+    //PATCH TEST
+    string name2 = "DOOR9_1";
+    Image image2 = resources.readPatch(name2);
+    image2.printInfo();
+    image2.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name2 + ".bmp");
+
+    //FLAT TEST
+    string name3 = "CONS1_5";
+    Image image3 = resources.readFlat(name3);
+    image3.printInfo();
+    image3.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name3 + ".bmp");
+
+
     //endoom.printEndoom();
     //endoom.printInfo();
     //colormap.printInfo();
     //playpal.printInfo();
-    Image image = resources.readSprite("SARGB1");
-    image.printInfo();
-    image.saveAsFile("/home/anon/PROJECTS/CumManHunt/out.bmp");
+
     //level.printLevelInfo();
 
-    /*
-    cout << endl << "ENTRIES:" << endl;
-    cout << setw(5) << "[ENTRY]" << setw(10) << "[NAME]" << setw(10) << "[SIZE]" << setw(10) << "[FILEPOS]" << endl;
-    for (int i = 0; i < wad.header.numlumps; ++i) {
-        cout << setw(5) << i + 1;
-        cout << setw(10) << wad.directory[i].name;
-        cout << setw(10) << wad.directory[i].size;
-        cout << setw(10) << wad.directory[i].filepos;
-        cout << endl;
-    }
-    */
 
 
     /*

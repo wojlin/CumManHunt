@@ -86,6 +86,20 @@ class WADStructure {
         exit(0);
     }
 
+    void printInfo()
+    {
+        cout << endl << "ENTRIES:" << endl;
+        cout << setw(5) << "[ENTRY]" << setw(10) << "[NAME]" << setw(10) << "[SIZE]" << setw(10) << "[FILEPOS]" << endl;
+        for (int i = 0; i < header.numlumps; ++i) 
+        {
+            cout << setw(5) << i + 1;
+            cout << setw(10) << directory[i].name;
+            cout << setw(10) << directory[i].size;
+            cout << setw(10) << directory[i].filepos;
+            cout << endl;
+        }
+    }
+
     private:
 
 

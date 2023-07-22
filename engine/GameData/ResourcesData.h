@@ -100,13 +100,57 @@ class ResourcesData
             filePath = wad->filePath;
             std::ifstream file(filePath, std::ios::binary);
             readSprites(wad);
+            readFlats(wad);
+            readPatches(wad);
 
             file.close();
         }
 
-        Image readSprite(string name)
+        Image readFlat(string name)
         {
+            ifstream file(filePath, std::ios::binary);
+            int width = 64;
+            int height = 64;
 
+            WADStructure::lumpInfo_t* spriteInfo;
+
+            spriteInfo = flatsMap[name];
+
+            if(spriteInfo == 0)
+            {
+                std::cout << "The '" << name << "' is not in the game resources." << std::endl;
+                exit(0);
+            }
+
+            
+
+
+            vector<imageColumn_t> columns;
+            file.seekg(spriteInfo->filepos);
+            for(int x =0; x<width; x++)
+            {
+                imageColumn_t column;
+                column.pixelCount = height;
+                column.rowStart = 0;
+                column.column = x;
+                for(int y =0; y<height; y++)
+                {
+                    file.seekg(spriteInfo->filepos + (width * y) + x);
+                    uint8_t value;
+                    file.read(reinterpret_cast<char*>(&value), sizeof(value));
+                    column.pixels.push_back(playpal->getColor(0, value));
+                }
+                columns.push_back(column);
+            }
+
+            file.close();
+
+            return Image(width, height, 0, 0, columns);
+
+        }
+
+        Image readPatch(string name)
+        {
             struct spriteData_t
             {
                 uint16_t width;  // Width of graphic 
@@ -125,7 +169,19 @@ class ResourcesData
             spriteData_t spriteData;
 
             ifstream file(filePath, std::ios::binary);
-            WADStructure::lumpInfo_t* spriteInfo = spritesMap[name];
+
+            
+
+            WADStructure::lumpInfo_t* spriteInfo;
+
+            spriteInfo = patchesMap[name];
+
+            if(spriteInfo == 0)
+            {
+                std::cout << "The '" << name << "' is not in the game resources." << std::endl;
+                exit(0);
+            }
+
             file.seekg(spriteInfo->filepos);
             file.read(reinterpret_cast<char*>(&spriteData), sizeof(spriteData));
             for(int i = 0; i < spriteData.width; i++)
@@ -172,6 +228,91 @@ class ResourcesData
                     file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
                 }
             }
+            file.close();
+            return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns);
+
+        }
+
+        Image readSprite(string name)
+        {
+            struct spriteData_t
+            {
+                uint16_t width;  // Width of graphic 
+                uint16_t height;  // Height of graphic 
+                int16_t leftOffset;  // Offset in pixels to the left of the origin 
+                int16_t topOffset;  // Offset in pixels below the origin 
+            };
+
+            struct postData_t
+            {
+                uint8_t topDelta; // Starting offset of the span (Y position) 
+                uint8_t length; // Number of pixels in this span 
+            };
+
+            vector<uint32_t> spriteDataColumnsPos; //Array of column offsets relative to the beginning of the patch header
+            spriteData_t spriteData;
+
+            ifstream file(filePath, std::ios::binary);
+
+            
+
+            WADStructure::lumpInfo_t* spriteInfo;
+
+            spriteInfo = spritesMap[name];
+
+            if(spriteInfo == 0)
+            {
+                std::cout << "The '" << name << "' is not in the game resources." << std::endl;
+                exit(0);
+            }
+
+            file.seekg(spriteInfo->filepos);
+            file.read(reinterpret_cast<char*>(&spriteData), sizeof(spriteData));
+            for(int i = 0; i < spriteData.width; i++)
+            {
+                uint32_t value;
+                file.read(reinterpret_cast<char*>(&value), sizeof(value));
+                spriteDataColumnsPos.push_back(value);
+            }
+
+            vector<imageColumn_t> columns;
+
+            for(int i =0; i<spriteDataColumnsPos.size(); i++)
+            {   
+                postData_t postData;
+                int startingPos = spriteInfo->filepos + spriteDataColumnsPos[i];
+                file.seekg(startingPos, std::ios::beg);
+
+                uint8_t dummy = 0;
+                uint8_t rowstart = 0;
+                while(rowstart != 255)
+                {
+                    file.read(reinterpret_cast<char*>(&rowstart), sizeof(rowstart));
+                    if(rowstart == 255)
+                    {
+                        break;
+                    }
+                    uint8_t pixelcount = 0;
+                    file.read(reinterpret_cast<char*>(&pixelcount), sizeof(pixelcount));               
+                    imageColumn_t column;
+                    column.column = i;
+                    column.rowStart = unsigned(rowstart);
+                    column.pixelCount = unsigned(pixelcount);
+                    
+                    file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
+
+                    for(int y = 0; y < pixelcount; y++)
+                    {
+                        uint8_t value = 0;
+                        file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
+                        color_t color = playpal->getColor(0, value);
+                        column.pixels.push_back(color);
+                    }
+                    columns.push_back(column);
+                    file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
+                }
+            }
+            file.close();
             return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns);
 
         }
@@ -181,15 +322,30 @@ class ResourcesData
             return spritesAmount;
         }
 
+        int getFlatsAmount()
+        {
+            return flatsAmount;
+        }
+
+        int getPatchesAmount()
+        {
+            return patchesAmount;
+        }
+
     private:
 
         string filePath;
 
         map<std::string, WADStructure::lumpInfo_t*> spritesMap;
+        map<std::string, WADStructure::lumpInfo_t*> flatsMap;
+        map<std::string, WADStructure::lumpInfo_t*> patchesMap;
         int spritesAmount = 0;
-        map<std::string, WADStructure::lumpInfo_t> flatsMap;
+        int flatsAmount = 0;
+        int patchesAmount = 0;
 
         PlayPalData* playpal;
+
+        
 
         void readSprites(WADStructure *wad)
         {
@@ -211,6 +367,50 @@ class ResourcesData
                 }
             }
             cout << "reading sprites..." << endl;
+        }
+
+        void readFlats(WADStructure *wad)
+        {
+            bool markerFound = false;
+            for(int i = 0; i < wad->directoryCount;i++)
+            {
+                if(strcmp("F_START", wad->directory[i].name) == 0)
+                {
+                    markerFound = true;
+                }
+                else if(strcmp("F_END", wad->directory[i].name) == 0)
+                {
+                    markerFound = false;
+                }
+                else if(markerFound == true)
+                {
+                    flatsMap[wad->directory[i].name] = &(wad->directory[i]);
+                    flatsAmount++;
+                }
+            }
+            cout << "reading flats..." << endl;
+        }
+
+        void readPatches(WADStructure *wad)
+        {
+            bool markerFound = false;
+            for(int i = 0; i < wad->directoryCount;i++)
+            {
+                if(strcmp("P_START", wad->directory[i].name) == 0)
+                {
+                    markerFound = true;
+                }
+                else if(strcmp("P_END", wad->directory[i].name) == 0)
+                {
+                    markerFound = false;
+                }
+                else if(markerFound == true)
+                {
+                    patchesMap[wad->directory[i].name] = &(wad->directory[i]);
+                    patchesAmount++;
+                }
+            }
+            cout << "reading patches..." << endl;
         }
 
 
