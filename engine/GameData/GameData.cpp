@@ -3,12 +3,14 @@
 #include "ColorMapData.h"
 #include "PlayPalData.h"
 #include "ResourcesData.h"
+#include "EndoomData.h"
 
 using namespace std;
 
 int main()
 {
     WADStructure wad = WADStructure("../../tests/DOOM2.WAD");
+    EndoomData endoom = EndoomData(&wad);
     PlayPalData playpal = PlayPalData(&wad);
     ColorMapData colormap = ColorMapData(&wad);
     ResourcesData resources = ResourcesData(&wad);
@@ -26,6 +28,10 @@ int main()
 
     LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
    
+    
+   
+    endoom.printEndoom();
+    //endoom.printInfo();
     //colormap.printInfo();
     //playpal.printInfo();
     //resources.readSprite("BLUDA0");

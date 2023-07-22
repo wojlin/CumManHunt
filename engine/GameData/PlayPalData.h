@@ -57,6 +57,7 @@ class PlayPalData
 
         vector<vector<color_t>> pallete;
 
+
         void readPlayPal()
         {
             float amount = playPalLump.size / (PALLETE_COLORS * 3 * sizeof(uint8_t));
