@@ -102,6 +102,7 @@ class ResourcesData
             readSprites(wad);
             readFlats(wad);
             readPatches(wad);
+            readPNames(wad);
 
             file.close();
         }
@@ -332,6 +333,39 @@ class ResourcesData
             return patchesAmount;
         }
 
+        char* getPNameByIndex(int index)
+        {
+            for(int i = 0; i < pnames.size(); i++)
+            {
+                if(i == index)
+                {
+                    return pnames[i];
+                }
+            }
+            cout << "pname of index '"<< index << "' does not exist" << endl;
+            exit(0);
+        }
+
+        int getPNameIndexByName(char* name)
+        {
+            for(int i = 0; i < pnames.size(); i++)
+            {
+                if(strcmp(pnames[i], name) == 0)
+                {
+                    return i;
+                }
+            }
+            cout << "pname of name '"<< name << "' does not exist" << endl;
+            exit(0);
+        }
+
+        int getPNamesAmount()
+        {
+            return numMapPatches;
+        }
+
+        
+
     private:
 
         string filePath;
@@ -339,13 +373,37 @@ class ResourcesData
         map<std::string, WADStructure::lumpInfo_t*> spritesMap;
         map<std::string, WADStructure::lumpInfo_t*> flatsMap;
         map<std::string, WADStructure::lumpInfo_t*> patchesMap;
+
+        vector<char*> pnames;
+        int32_t numMapPatches;
+
         int spritesAmount = 0;
         int flatsAmount = 0;
         int patchesAmount = 0;
 
+
         PlayPalData* playpal;
 
         
+        void readPNames(WADStructure *wad)
+        {
+            WADStructure::lumpInfo_t colormapLump = wad->findLump("PNAMES");
+
+            std::ifstream file(filePath, std::ios::binary);
+            file.seekg(colormapLump.filepos);
+
+            file.read(reinterpret_cast<char*>(&numMapPatches), sizeof(numMapPatches)); 
+
+            for(int i = 0; i < numMapPatches; i++)
+            {
+                char name[8];
+                file.read(reinterpret_cast<char*>(&name), sizeof(char[8])); 
+                pnames.push_back(name);
+            } 
+
+            file.close();
+
+        }
 
         void readSprites(WADStructure *wad)
         {

@@ -24,30 +24,32 @@ int main()
     cout << "levels amount: " << wad.levelsAmount << endl;
     cout << "sprites amount: " << resources.getSpritesAmount() << endl;
     cout << "flats amount: " << resources.getFlatsAmount() << endl;
+    cout << "patches amount: " << resources.getPatchesAmount() << endl;
     cout << "pallets amount: " << playpal.getPalletesAmount() << endl;
     cout << "colormaps amount: " << colormap.getColorMapsAmount() << endl;
-
+    cout << "pnames amount: " << resources.getPNamesAmount() << endl;
+    cout << endl;
     LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
    
     
     //SPRITE TEST
     string name1 = "CHGGA0";
     Image image1 = resources.readSprite(name1);
-    image1.printInfo();
-    image1.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name1 + ".bmp");
+    //image1.printInfo();
+    //image1.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name1 + ".bmp");
 
 
     //PATCH TEST
     string name2 = "DOOR9_1";
     Image image2 = resources.readPatch(name2);
-    image2.printInfo();
-    image2.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name2 + ".bmp");
+    //image2.printInfo();
+    //image2.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name2 + ".bmp");
 
     //FLAT TEST
     string name3 = "CONS1_5";
     Image image3 = resources.readFlat(name3);
-    image3.printInfo();
-    image3.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name3 + ".bmp");
+    //image3.printInfo();
+    //image3.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name3 + ".bmp");
 
 
     //endoom.printEndoom();
