@@ -4,6 +4,7 @@
 #include "PlayPalData.h"
 #include "ResourcesData.h"
 #include "EndoomData.h"
+#include "AudioData.h"
 
 using namespace std;
 
@@ -14,6 +15,7 @@ int main()
     PlayPalData playpal = PlayPalData(&wad);
     ColorMapData colormap = ColorMapData(&wad);
     ResourcesData resources = ResourcesData(&wad, &playpal);
+    AudioData audio = AudioData(&wad);
 
     cout << "Path: \""<< wad.filePath << "\"" << endl;
     cout << endl << "HEADER:" << endl;
@@ -56,8 +58,8 @@ int main()
     //endoom.printInfo();
     //colormap.printInfo();
     //playpal.printInfo();
-
     //level.printLevelInfo();
+    audio.printInfo();
 
 
 

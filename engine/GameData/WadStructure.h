@@ -82,7 +82,7 @@ class WADStructure {
             }
         }
 
-        cout << "COLORMAP not found in WAD file!" << endl;
+        cout << lumpName << " not found in WAD file!" << endl;
         exit(0);
     }
 
