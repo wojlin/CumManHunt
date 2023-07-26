@@ -1,3 +1,9 @@
+#include <iostream>
+#include <vector>
+#include <sstream>
+#include <string>
+
+
 struct voiceData_t
 {
     uint8_t modulatorMulti;
@@ -27,6 +33,15 @@ struct midiData_t
 };
 
 
+struct DMXData_t
+{
+    uint16_t patch;
+    uint8_t column256K;
+    uint8_t column512K;
+    uint8_t column768K;
+    uint8_t column1024K;
+    string patchName;
+};
 
 class AudioData
 {
@@ -36,7 +51,6 @@ class AudioData
             filePath = wad->filePath;
             GENMIDILump = wad->findLump("GENMIDI");
             DMXGUSLump = wad->findLump("DMXGUSC");
-            cout << GENMIDILump.size << endl;
             readGENMIDIData();
             readDMXGUSData();
         }
@@ -44,14 +58,26 @@ class AudioData
         void printInfo()
         {
             cout << endl << "|GENMIDI|" << endl;
-            //for(int i = 0; i < midiData.size(); i++)
+            for(int i = 0; i < midiData.size(); i++)
+            {
+                cout << i << ":  flags:" << midiData[i].flags << ",   tuning:" << unsigned(midiData[i].tuning) << ",   note:" << unsigned(midiData[i].note) << endl;
+            }
+
+            cout << endl << "|GENMIDI NAMES|" << endl;
+            //for(int i = 0; i < instrumentsData.size(); i++)
             //{
-            //    cout << i << ":  flags:" << midiData[i].flags << ",   tuning:" << unsigned(midiData[i].tuning) << ",   note:" << unsigned(midiData[i].note) << endl;
+            //    cout << i << ": '" << instrumentsData[i] << "'" << endl;
             //}
 
-            for(int i = 0; i < instrumentsData.size(); i++)
+            cout << endl << "|DMXGUSC|" << endl;
+            for (const auto &data : dmxData)
             {
-                cout << i << ": '" << instrumentsData[i] << "'" << endl;
+                std::cout << "" << data.patch
+                        << ", " << static_cast<int>(data.column256K)
+                        << ", " << static_cast<int>(data.column512K)
+                        << ", " << static_cast<int>(data.column768K)
+                        << ", " << static_cast<int>(data.column1024K)
+                        << ", " << data.patchName << std::endl;
             }
         }
 
@@ -63,6 +89,11 @@ class AudioData
         midiData_t getMIDIDataByIndex(int index)
         {
             return midiData[index];
+        }
+
+        vector<DMXData_t> getDMXData()
+        {
+            return dmxData;
         }
 
     private:
@@ -77,6 +108,8 @@ class AudioData
         vector<char*> instrumentsData;
 
 
+        vector<DMXData_t> dmxData;
+
         void readGENMIDIData()
         {
             std::ifstream file(filePath, std::ios::binary);
@@ -84,8 +117,6 @@ class AudioData
             char header[8];
 
             file.read(reinterpret_cast<char*>(&header), sizeof(header));  
-
-            cout << header << endl;
 
             for(int i =0; i < INSTRUMENTS_AMOUNT; i++)
             {
@@ -104,12 +135,89 @@ class AudioData
                 instrumentsData.push_back(name);
             }
 
+            file.close();
 
+        }
 
+        int safe_stoi(const std::string& str)
+        {
+            try {
+                return std::stoi(str);
+            } catch (const std::invalid_argument&) {
+                // Return 0 for empty strings, you can choose another default value if needed
+                return 0;
+            }
+        }
+
+        void trim(std::string& str)
+        {
+            const std::string whitespace = " \t";
+            const auto start = str.find_first_not_of(whitespace);
+            if (start != std::string::npos)
+            {
+                const auto end = str.find_last_not_of(whitespace);
+                str = str.substr(start, end - start + 1);
+            }
+            else
+            {
+                str.clear();
+            }
         }
 
         void readDMXGUSData()
         {
+            int size = DMXGUSLump.size;
+            char data[DMXGUSLump.size];
 
+            std::ifstream file(filePath, std::ios::binary);
+            file.seekg(DMXGUSLump.filepos);
+            file.read(reinterpret_cast<char*>(&data), sizeof(data));
+            data[size] = '\0';
+            file.close();
+
+            std::istringstream iss(data);
+            std::string line;
+
+            // Skip the comment line
+            std::getline(iss, line);
+
+            // Skip the header line and extract column names
+            std::getline(iss, line);
+            std::istringstream iss_header(line);
+            std::string columnHeader;
+            for (int i = 0; i < 5; ++i) {
+                std::getline(iss_header, columnHeader, ' ');
+            }
+
+            while (std::getline(iss, line))
+            {
+                if (line.empty() || line[0] == '#')
+                {
+                    continue; // Skip comment lines
+                }
+
+                std::istringstream iss_line(line);
+                DMXData_t data;
+
+                std::string patch, column256K, column512K, column768K, column1024K, patchName;
+                std::getline(iss_line, patch, ',');
+                std::getline(iss_line, column256K, ',');
+                std::getline(iss_line, column512K, ',');
+                std::getline(iss_line, column768K, ',');
+                std::getline(iss_line, column1024K, ',');
+                std::getline(iss_line, patchName);
+
+                trim(patchName);
+
+                data.patch = safe_stoi(patch);
+                data.column256K = safe_stoi(column256K);
+                data.column512K = safe_stoi(column512K);
+                data.column768K = safe_stoi(column768K);
+                data.column1024K = safe_stoi(column1024K);
+                data.patchName = patchName;
+                
+
+                dmxData.push_back(data);
+            } 
         }
 };
