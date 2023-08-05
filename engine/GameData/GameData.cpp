@@ -5,6 +5,7 @@
 #include "ResourcesData.h"
 #include "EndoomData.h"
 #include "AudioData.h"
+#include "SoundData.h"
 
 using namespace std;
 
@@ -16,6 +17,7 @@ int main()
     ColorMapData colormap = ColorMapData(&wad);
     ResourcesData resources = ResourcesData(&wad, &playpal);
     AudioData audio = AudioData(&wad);
+    SoundData sound = SoundData(&wad);
 
     cout << "Path: \""<< wad.filePath << "\"" << endl;
     cout << endl << "HEADER:" << endl;
@@ -32,24 +34,33 @@ int main()
     cout << "pnames amount: " << resources.getPNamesAmount() << endl;
     cout << endl;
     LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
+
+    //DOOM FORMAT TEST
+    //Sound sound1 = sound.readSound("DSPISTOL");
+    //sound1.printInfo();
+
+    //PC SPEAKER TEST
+    Sound sound2 = sound.readSound("DPPESIT");
+    sound2.printInfo(); 
+    sound2.play();
    
     
     //SPRITE TEST
-    string name1 = "CHGGA0";
-    Image image1 = resources.readSprite(name1);
+    //string name1 = "CHGGA0";
+    //Image image1 = resources.readSprite(name1);
     //image1.printInfo();
     //image1.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name1 + ".bmp");
 
 
     //PATCH TEST
-    string name2 = "DOOR9_1";
-    Image image2 = resources.readPatch(name2);
+    //string name2 = "DOOR9_1";
+    //Image image2 = resources.readPatch(name2);
     //image2.printInfo();
     //image2.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name2 + ".bmp");
 
     //FLAT TEST
-    string name3 = "CONS1_5";
-    Image image3 = resources.readFlat(name3);
+    //string name3 = "CONS1_5";
+    //Image image3 = resources.readFlat(name3);
     //image3.printInfo();
     //image3.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name3 + ".bmp");
 
@@ -59,7 +70,7 @@ int main()
     //colormap.printInfo();
     //playpal.printInfo();
     //level.printLevelInfo();
-    audio.printInfo();
+    //audio.printInfo();
 
 
 

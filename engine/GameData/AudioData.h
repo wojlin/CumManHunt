@@ -63,7 +63,7 @@ class AudioData
                 cout << i << ":  flags:" << midiData[i].flags << ",   tuning:" << unsigned(midiData[i].tuning) << ",   note:" << unsigned(midiData[i].note) << endl;
             }
 
-            cout << endl << "|GENMIDI NAMES|" << endl;
+            //cout << endl << "|GENMIDI NAMES|" << endl;
             //for(int i = 0; i < instrumentsData.size(); i++)
             //{
             //    cout << i << ": '" << instrumentsData[i] << "'" << endl;
