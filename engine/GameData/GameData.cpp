@@ -35,14 +35,21 @@ int main()
     cout << endl;
     LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
 
-    //DOOM FORMAT TEST
-    //Sound sound1 = sound.readSound("DSPISTOL");
+
+    //MUS FORMAT TEST
+    Sound sound1 = sound.readSound("D_OPENIN");
     //sound1.printInfo();
+    //sound1.play();
+
+    //DOOM FORMAT TEST
+    //Sound sound2 = sound.readSound("DSSGTDTH");
+    //sound2.printInfo();
+    //sound2.play();
 
     //PC SPEAKER TEST
-    Sound sound2 = sound.readSound("DPPESIT");
-    sound2.printInfo(); 
-    sound2.play();
+    //Sound sound3 = sound.readSound("DPPESIT");
+    //sound3.printInfo(); 
+    //sound3.play();
    
     
     //SPRITE TEST
