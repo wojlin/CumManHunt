@@ -6,6 +6,7 @@
 #include <fstream>
 #include <cstring>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -82,8 +83,52 @@ class WADStructure {
             }
         }
 
-        cout << "COLORMAP not found in WAD file!" << endl;
+        cout << lumpName << " not found in WAD file!" << endl;
         exit(0);
+    }
+
+
+    bool isSubset(const std::string& str, const char* charArray) {
+    for (char c : str) {
+        if (find(charArray, charArray + strlen(charArray), c) == charArray + strlen(charArray)) {
+            return false; // Character not found in charArray
+        }
+    }
+    return true; // All characters in the string are found in charArray
+}
+
+    vector<lumpInfo_t> findLumps(string lumpName)
+    {
+        vector<lumpInfo_t> lumps;
+        for(int i = 0; i < directoryCount;i++)
+        {
+            if(isSubset(lumpName, directory[i].name))
+            {
+                lumps.push_back(directory[i]);
+            }
+        }
+
+        if(lumps.size() > 0)
+        {
+            return lumps;
+        }
+
+        cout << lumpName << " not found in WAD file!" << endl;
+        exit(0);
+    }
+
+    void printInfo()
+    {
+        cout << endl << "ENTRIES:" << endl;
+        cout << setw(5) << "[ENTRY]" << setw(10) << "[NAME]" << setw(10) << "[SIZE]" << setw(10) << "[FILEPOS]" << endl;
+        for (int i = 0; i < header.numlumps; ++i) 
+        {
+            cout << setw(5) << i + 1;
+            cout << setw(10) << directory[i].name;
+            cout << setw(10) << directory[i].size;
+            cout << setw(10) << directory[i].filepos;
+            cout << endl;
+        }
     }
 
     private:
