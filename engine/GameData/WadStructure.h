@@ -6,6 +6,7 @@
 #include <fstream>
 #include <cstring>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -80,6 +81,36 @@ class WADStructure {
                 markerFound = true;
                 return directory[i];
             }
+        }
+
+        cout << lumpName << " not found in WAD file!" << endl;
+        exit(0);
+    }
+
+
+    bool isSubset(const std::string& str, const char* charArray) {
+    for (char c : str) {
+        if (find(charArray, charArray + strlen(charArray), c) == charArray + strlen(charArray)) {
+            return false; // Character not found in charArray
+        }
+    }
+    return true; // All characters in the string are found in charArray
+}
+
+    vector<lumpInfo_t> findLumps(string lumpName)
+    {
+        vector<lumpInfo_t> lumps;
+        for(int i = 0; i < directoryCount;i++)
+        {
+            if(isSubset(lumpName, directory[i].name))
+            {
+                lumps.push_back(directory[i]);
+            }
+        }
+
+        if(lumps.size() > 0)
+        {
+            return lumps;
         }
 
         cout << lumpName << " not found in WAD file!" << endl;

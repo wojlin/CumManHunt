@@ -10,6 +10,35 @@ struct imageColumn_t
 };
 
 
+
+struct mappatch_t 
+{
+    short originX;
+    short originY;
+    short patch;
+    short stepDir;
+    short colorMap;
+};
+
+struct maptexture_t  
+{
+    string name; 
+    bool masked;
+    short width;
+    short height;
+    uint32_t columnDirectory;
+    uint16_t patchCount;
+    vector<mappatch_t> mapPatches;
+};
+
+struct textureX_t
+{
+    uint32_t numTextures;
+    vector<maptexture_t> mapTextures;
+};
+
+
+
 class Image
 {
     public:
@@ -103,6 +132,15 @@ class ResourcesData
             readFlats(wad);
             readPatches(wad);
             readPNames(wad);
+
+            vector<WADStructure::lumpInfo_t> lumps = wad->findLumps("TEXTURE");
+
+            for(int i = 0; i < lumps.size(); i++)
+            {
+                cout << "reading \"" << lumps[i].name << "\" lump..." << endl;
+                readTextureX(lumps[i]);
+            }
+            
 
             file.close();
         }
@@ -364,6 +402,44 @@ class ResourcesData
             return numMapPatches;
         }
 
+        vector<textureX_t> getTextureX()
+        {
+            return textureX;
+        }
+
+        void printInfo()
+        {
+            for(int a =0; a < textureX.size(); a++)
+            {
+                cout << "|TEXTURE" << a << "|" << endl;
+                cout << "numTextures: " << textureX[a].numTextures << endl;
+
+                for(int b =0; b < textureX[a].numTextures; b++)
+                {
+                    cout << b << ": " << endl;
+                    cout << "   name: " << textureX[a].mapTextures[b].name << endl;
+                    cout << "   masked: " << textureX[a].mapTextures[b].masked << endl; 
+                    cout << "   width: " << textureX[a].mapTextures[b].width << endl;
+                    cout << "   height: " << textureX[a].mapTextures[b].height << endl;
+                    cout << "   columnDirectory: " << textureX[a].mapTextures[b].columnDirectory << endl;
+                    cout << "   patchCount: " << textureX[a].mapTextures[b].patchCount << endl;
+                    cout << endl;
+
+                    for(int c = 0; c < textureX[a].mapTextures[b].mapPatches.size(); c++)
+                    {   
+                        cout << "       |PATCH" << c << "|" << endl;
+                        cout << "       originX: " << textureX[a].mapTextures[b].mapPatches[c].originX << endl;
+                        cout << "       originY: " << textureX[a].mapTextures[b].mapPatches[c].originY << endl; 
+                        cout << "       patch: " << textureX[a].mapTextures[b].mapPatches[c].patch << endl;
+                        cout << "       stepDir: " << textureX[a].mapTextures[b].mapPatches[c].stepDir << endl;
+                        cout << "       colorMap: " << textureX[a].mapTextures[b].mapPatches[c].colorMap << endl;
+                        cout << endl;
+                    }
+                }
+            }
+            
+        }
+
         
 
     private:
@@ -375,6 +451,8 @@ class ResourcesData
         map<std::string, WADStructure::lumpInfo_t*> patchesMap;
 
         vector<char*> pnames;
+        vector<textureX_t> textureX;
+
         int32_t numMapPatches;
 
         int spritesAmount = 0;
@@ -383,6 +461,82 @@ class ResourcesData
 
 
         PlayPalData* playpal;
+
+
+        void readTextureX(WADStructure::lumpInfo_t lump)
+        {
+
+            textureX_t texture;
+
+            std::ifstream file(filePath, std::ios::binary);
+            file.seekg(lump.filepos);
+
+            uint32_t numTextures;
+            vector<uint32_t> offset;
+
+            file.read(reinterpret_cast<char*>(&numTextures), sizeof(numTextures)); 
+
+            texture.numTextures = numTextures;
+
+            uint32_t value;
+            for(int i = 0; i < numTextures; i++)
+            {
+                file.read(reinterpret_cast<char*>(&value), sizeof(value)); 
+                offset.push_back(value);
+            }
+
+            for(int i = 0; i <  offset.size(); i++)
+            {
+
+                file.seekg(lump.filepos + offset[i]);
+
+                char name[8]; 
+                bool maskedBool;
+                uint32_t masked;
+                short width;
+                short height;
+                uint32_t columnDirectory;
+                uint16_t patchCount;
+                vector<mappatch_t> mapPatches;
+
+                file.read(reinterpret_cast<char*>(&name), sizeof(name));
+                file.read(reinterpret_cast<char*>(&masked), sizeof(masked));
+                file.read(reinterpret_cast<char*>(&width), sizeof(width));
+                file.read(reinterpret_cast<char*>(&height), sizeof(height));
+                file.read(reinterpret_cast<char*>(&columnDirectory), sizeof(columnDirectory));
+                file.read(reinterpret_cast<char*>(&patchCount), sizeof(patchCount));
+
+                if(masked == 1)
+                {
+                    maskedBool = true;
+                }else
+                {
+                    maskedBool = false;
+                }
+
+                mappatch_t mapPatch;
+                for(int x = 0; x <  patchCount; x++)
+                {
+                    file.read(reinterpret_cast<char*>(&mapPatch), sizeof(mapPatch));
+                    mapPatches.push_back(mapPatch);
+                }
+
+                maptexture_t mapTexture;
+
+                mapTexture.name = string(name);
+                mapTexture.masked = maskedBool;
+                mapTexture.width = width;
+                mapTexture.height = height;
+                mapTexture.columnDirectory = columnDirectory;
+                mapTexture.patchCount = patchCount;
+                mapTexture.mapPatches = mapPatches;
+
+                texture.mapTextures.push_back(mapTexture);
+            }
+
+            textureX.push_back(texture);
+            file.close();
+        }
 
         
         void readPNames(WADStructure *wad)

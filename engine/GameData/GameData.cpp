@@ -37,7 +37,7 @@ int main()
 
 
     //MUS FORMAT TEST
-    Sound sound1 = sound.readSound("D_OPENIN");
+    //Sound sound1 = sound.readSound("D_OPENIN");
     //sound1.printInfo();
     //sound1.play();
 
@@ -78,6 +78,7 @@ int main()
     //playpal.printInfo();
     //level.printLevelInfo();
     //audio.printInfo();
+    //resources.printInfo();
 
 
 
