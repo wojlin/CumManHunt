@@ -88,21 +88,12 @@ class WADStructure {
     }
 
 
-    bool isSubset(const std::string& str, const char* charArray) {
-    for (char c : str) {
-        if (find(charArray, charArray + strlen(charArray), c) == charArray + strlen(charArray)) {
-            return false; // Character not found in charArray
-        }
-    }
-    return true; // All characters in the string are found in charArray
-}
-
     vector<lumpInfo_t> findLumps(string lumpName)
     {
         vector<lumpInfo_t> lumps;
         for(int i = 0; i < directoryCount;i++)
         {
-            if(isSubset(lumpName, directory[i].name))
+            if(string(directory[i].name).find(lumpName) != std::string::npos)
             {
                 lumps.push_back(directory[i]);
             }

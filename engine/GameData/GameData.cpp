@@ -1,4 +1,3 @@
-
 #include "LevelData.h"
 #include "ColorMapData.h"
 #include "PlayPalData.h"
@@ -6,6 +5,7 @@
 #include "EndoomData.h"
 #include "AudioData.h"
 #include "SoundData.h"
+#include "DemoData.h"
 
 using namespace std;
 
@@ -18,6 +18,7 @@ int main()
     ResourcesData resources = ResourcesData(&wad, &playpal);
     AudioData audio = AudioData(&wad);
     SoundData sound = SoundData(&wad);
+    DemoData demo = DemoData(&wad);
 
     cout << "Path: \""<< wad.filePath << "\"" << endl;
     cout << endl << "HEADER:" << endl;
@@ -79,6 +80,7 @@ int main()
     //level.printLevelInfo();
     //audio.printInfo();
     //resources.printInfo();
+    demo.printInfo();
 
 
 
