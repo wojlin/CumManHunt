@@ -21,8 +21,7 @@ class LevelData {
             filePath = path;
             std::ifstream file(filePath, std::ios::binary);
 
-            strcpy(levelName, levelData->name);
-
+            levelName = levelData->name;
             
             loadThings(&file, levelData->THINGS);
             loadLinedefs(&file, levelData->LINEDEFS);
@@ -39,7 +38,7 @@ class LevelData {
             file.close();
     }
 
-    const char* getLevelName()
+    string getLevelName()
     {
         return levelName;
     }
@@ -190,7 +189,7 @@ class LevelData {
     }
 
     private:
-        char levelName[9];
+        string levelName;
         string filePath = "";
         
         struct Thing
