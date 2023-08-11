@@ -81,7 +81,10 @@ class WADStructure {
             return;
         }
 
-
+        // !!!
+        // TODO: this code will fail at replacing levels lumps because the internal lumps of each map is called the same
+        // !!!
+        
         for(int x = 0; x < pwads.size(); x++)
         {   
             for(int y = 0; y < pwads[x].directory.size(); y++)
