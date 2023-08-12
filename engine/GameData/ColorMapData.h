@@ -1,9 +1,18 @@
 #include <math.h>
 
+#ifndef ENDOOMDATA_H
+#define ENDOOMDATA_H
+#include "Interfaces.h"
+#endif
 
-class ColorMapData
+class ColorMapData: public baseResourceWAD
 {
     public:
+
+        ColorMapData()
+        {
+        }
+
         ColorMapData(WADStructure *wad)
         {
             filePath = wad->filePath;

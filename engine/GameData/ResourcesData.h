@@ -1,6 +1,11 @@
 #include <map>
 #include "../Utils/BMPImage.h"
 
+#ifndef ENDOOMDATA_H
+#define ENDOOMDATA_H
+#include "Interfaces.h"
+#endif
+
 struct imageColumn_t
 {
     int column;
@@ -119,10 +124,14 @@ class Image
 
 
 
-class ResourcesData
+class ResourcesData: public baseResourceWAD
 {
     public:
         
+        ResourcesData()
+        {
+
+        }
 
         ResourcesData(WADStructure *wad, PlayPalData*  playpalPointer): filePath(wad->filePath), playpal(playpalPointer)
         {

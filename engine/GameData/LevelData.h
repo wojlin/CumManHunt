@@ -9,12 +9,20 @@
 
 #include "WadStructure.h"
 
+#ifndef ENDOOMDATA_H
+#define ENDOOMDATA_H
+#include "Interfaces.h"
+#endif
+
 using namespace std;
 
 
-class LevelData {      
+class LevelData: public baseResourceWAD {      
   public: 
     
+
+    LevelData(){}
+
 
     LevelData(string path, WADStructure::levelInfo_t *levelData)
         {

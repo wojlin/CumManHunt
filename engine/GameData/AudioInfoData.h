@@ -3,6 +3,10 @@
 #include <sstream>
 #include <string>
 
+#ifndef ENDOOMDATA_H
+#define ENDOOMDATA_H
+#include "Interfaces.h"
+#endif
 
 struct voiceData_t
 {
@@ -43,10 +47,15 @@ struct DMXData_t
     string patchName;
 };
 
-class AudioData
+class AudioInfoData: public baseResourceWAD
 {
     public:
-        AudioData(WADStructure *wad)
+
+        AudioInfoData()
+        {
+        }
+
+        AudioInfoData(WADStructure *wad)
         {
             filePath = wad->filePath;
             GENMIDILump = wad->findLump("GENMIDI");

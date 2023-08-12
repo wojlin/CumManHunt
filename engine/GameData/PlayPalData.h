@@ -1,6 +1,11 @@
 #include <map>
 #include <math.h>
 
+#ifndef ENDOOMDATA_H
+#define ENDOOMDATA_H
+#include "Interfaces.h"
+#endif
+
 struct color_t
 {
     uint8_t red;
@@ -9,9 +14,14 @@ struct color_t
 };
 
 
-class PlayPalData
+class PlayPalData: public baseResourceWAD
 {
     public:
+
+        PlayPalData()
+        {
+        }
+
         PlayPalData(WADStructure *wad)
         {
             filePath = wad->filePath;

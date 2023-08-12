@@ -61,6 +61,9 @@ class WADStructure {
     bool iWadFound = false;
     bool compiled = false;
 
+    WADStructure() {
+    }
+
     WADStructure(string path){
         readFile(path);
     }

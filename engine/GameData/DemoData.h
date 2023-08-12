@@ -2,6 +2,10 @@
 #include <math.h>
 #include <string>
 
+#ifndef ENDOOMDATA_H
+#define ENDOOMDATA_H
+#include "Interfaces.h"
+#endif
 
 struct demoHeader_t
 {
@@ -42,9 +46,14 @@ struct demo_t
     vector<tick_t> ticks;
 };
 
-class DemoData
+class DemoData: public baseResourceWAD
 {
     public:
+
+        DemoData()
+        {
+        }
+
         DemoData(WADStructure *wad)
         {
             filePath = wad->filePath;

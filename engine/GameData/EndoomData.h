@@ -1,5 +1,9 @@
 #include <iostream>
 
+#ifndef ENDOOMDATA_H
+#define ENDOOMDATA_H
+#include "Interfaces.h"
+#endif
 
 struct charData_t
 {
@@ -9,9 +13,12 @@ struct charData_t
     bool blinking;
 };
 
-class EndoomData
+class EndoomData: public baseResourceWAD
 {
     public:
+
+        EndoomData(){}
+
         EndoomData(WADStructure *wad)
         {
             filePath = wad->filePath;

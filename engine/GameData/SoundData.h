@@ -2,10 +2,15 @@
 #include <string>
 #include "../Utils/playSound.h"
 
+#ifndef ENDOOMDATA_H
+#define ENDOOMDATA_H
+#include "Interfaces.h"
+#endif
 
 class Sound
 {
     public:
+    
         Sound(string formatValue, string nameString, int sampleRateValue, int numberOfSamplesValue, vector<uint8_t> samplesVector)
         {
             format = formatValue;
@@ -73,9 +78,14 @@ class Sound
 
 
 
-class SoundData
+class SoundData: public baseResourceWAD
 {
     public:
+
+        SoundData()
+        {
+        }
+
         SoundData(WADStructure *wad)
         {
             filePath = wad->filePath;
