@@ -562,13 +562,13 @@ class ResourcesData
         void readSprites(WADStructure *wad)
         {
             bool markerFound = false;
-            for(int i = 0; i < wad->directoryCount;i++)
+            for(int i = 0; i < wad->getDirectoryCount();i++)
             {
-                if(strcmp("S_START", wad->directory[i].name) == 0)
+                if(wad->directory[i].name == "S_START")
                 {
                     markerFound = true;
                 }
-                else if(strcmp("S_END", wad->directory[i].name) == 0)
+                else if(wad->directory[i].name == "S_END")
                 {
                     markerFound = false;
                 }
@@ -584,13 +584,13 @@ class ResourcesData
         void readFlats(WADStructure *wad)
         {
             bool markerFound = false;
-            for(int i = 0; i < wad->directoryCount;i++)
+            for(int i = 0; i < wad->getDirectoryCount();i++)
             {
-                if(strcmp("F_START", wad->directory[i].name) == 0)
+                if(wad->directory[i].name == "F_START")
                 {
                     markerFound = true;
                 }
-                else if(strcmp("F_END", wad->directory[i].name) == 0)
+                else if(wad->directory[i].name == "F_END")
                 {
                     markerFound = false;
                 }
@@ -606,13 +606,13 @@ class ResourcesData
         void readPatches(WADStructure *wad)
         {
             bool markerFound = false;
-            for(int i = 0; i < wad->directoryCount;i++)
+            for(int i = 0; i < wad->getDirectoryCount();i++)
             {
-                if(strcmp("P_START", wad->directory[i].name) == 0)
+                if(wad->directory[i].name == "P_START")
                 {
                     markerFound = true;
                 }
-                else if(strcmp("P_END", wad->directory[i].name) == 0)
+                else if(wad->directory[i].name == "P_END")
                 {
                     markerFound = false;
                 }

@@ -11,7 +11,16 @@ using namespace std;
 
 int main()
 {
-    WADStructure wad = WADStructure("../../tests/DOOM2.WAD");
+    WADStructure wad = WADStructure("../../tests/iwad_doom2.WAD");
+    wad.loadPWAD("../../tests/pwad_append.WAD");
+    wad.loadPWAD("../../tests/pwad_replace.WAD");
+    wad.loadPWAD("../../tests/pwad_replace_map.WAD");
+    wad.loadPWAD("../../tests/pwad_append_map.WAD");
+    //wad.loadPWAD("../../tests/not_wad.WAD");
+
+    wad.compile();
+
+
     EndoomData endoom = EndoomData(&wad);
     PlayPalData playpal = PlayPalData(&wad);
     ColorMapData colormap = ColorMapData(&wad);
@@ -20,13 +29,15 @@ int main()
     SoundData sound = SoundData(&wad);
     DemoData demo = DemoData(&wad);
 
+
+
     cout << "Path: \""<< wad.filePath << "\"" << endl;
     cout << endl << "HEADER:" << endl;
-    cout << "Identification: " << wad.header.identification << endl;
-    cout << "Numlumps: " << wad.header.numlumps << endl;
-    cout << "Infotableofs: " << wad.header.infotableofs << endl;
+    cout << "Identification: " << wad.getHeader().identification << endl;
+    cout << "Numlumps: " << wad.getHeader().numlumps << endl;
+    cout << "Infotableofs: " << wad.getHeader().infotableofs << endl;
     cout << endl << "INFO:" << endl;
-    cout << "levels amount: " << wad.levelsAmount << endl;
+    cout << "levels amount: " << wad.getlevelsAmount() << endl;
     cout << "sprites amount: " << resources.getSpritesAmount() << endl;
     cout << "flats amount: " << resources.getFlatsAmount() << endl;
     cout << "patches amount: " << resources.getPatchesAmount() << endl;
@@ -80,7 +91,7 @@ int main()
     //level.printLevelInfo();
     //audio.printInfo();
     //resources.printInfo();
-    demo.printInfo();
+    //demo.printInfo();
 
 
 
