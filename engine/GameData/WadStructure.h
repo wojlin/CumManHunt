@@ -56,11 +56,10 @@ class WADStructure {
     vector<lumpInfo_t> directory;
     vector<levelInfo_t> levelsList; 
 
-
     vector<pwad_t> pwads;
     
     bool iWadFound = false;
-
+    bool compiled = false;
 
     WADStructure(string path){
         readFile(path);
@@ -84,21 +83,46 @@ class WADStructure {
         // !!!
         // TODO: this code will fail at replacing levels lumps because the internal lumps of each map is called the same
         // !!!
+
+        vector<string> blockedLumps = {"THINGS", "LINEDEFS", "SIDEDEFS", "VERTEXES", "SEGS", "SSECTORS", "NODES", "SECTORS", "REJECT", "BLOCKMAP"};
         
         for(int x = 0; x < pwads.size(); x++)
         {   
             for(int y = 0; y < pwads[x].directory.size(); y++)
             {
+
+                bool foundBlocked = false; 
+                for(int a = 0; a < blockedLumps.size(); a++)
+                {         
+                    if(pwads[x].directory[y].name == blockedLumps[a])
+                    {
+                        foundBlocked = true;
+                    }
+                }
+                if(foundBlocked == true)
+                {
+                    continue;
+                }
+
+                if(pwads[x].directory[y].size == 0)
+                {
+                    continue;
+                }
+
                 bool foundReplacement = false;
                 for(int z = 0; z < directory.size(); z++)
                 {
 
-                    if(pwads[x].directory[y].name == directory[z].name)
+                    if(pwads[x].directory[y].name != directory[z].name)
                     {
-                        cout << "replacing \"" << pwads[x].directory[y].name << "\" lump..." << endl;
-                        directory[z] = pwads[x].directory[y];
-                        foundReplacement = true;
-                    }
+                        continue;
+                    }   
+
+                    cout << "replacing \"" << pwads[x].directory[y].name << "\" lump..." << endl;
+                    directory[z] = pwads[x].directory[y];
+                    foundReplacement = true;
+                            
+                    
                 }
                 if(foundReplacement == false)
                 {
@@ -108,8 +132,32 @@ class WADStructure {
             }
         }
 
+        for(int x = 0; x < pwads.size(); x++)
+        {
+            for(int y = 0; y < pwads[x].levelsList.size(); y++)
+            {
+                bool foundReplacement = false;
+
+                for(int z = 0; z < levelsList.size(); z++)
+                {
+                    if(pwads[x].levelsList[y].name == levelsList[z].name)
+                    {
+                        cout << "replacing \"" << pwads[x].levelsList[y].name << "\" map..." << endl;
+                        foundReplacement = true;
+                        levelsList[z] = pwads[x].levelsList[y];
+                    }
+                }
+
+                if(foundReplacement == false)
+                {
+                    cout << "adding \"" << pwads[x].levelsList[y].name << "\" map..." << endl;
+                    levelsList.push_back(pwads[x].levelsList[y]);
+                }
+            } 
+        }
+
         cout << "wad compilation successful!" << endl << endl;
-        
+        compiled = true;
     }
 
     int getlevelsAmount()
@@ -310,68 +358,100 @@ class WADStructure {
             vector<levelInfo_t> lLevels;
             for (int i = 0; i < lHeader.numlumps; i++) 
             {   
+
                 if(lDirectory[i].size == 0)
                 {
-                        
+
+                    if(i >= lDirectory.size() - 1)
+                    {
+                        return lLevels;
+                    }
+
+                    int lumpsToScan = lDirectory.size() - i - 1;
+                    if(lumpsToScan > 10)
+                    {
+                        lumpsToScan = 10;
+                    }
+
                     levelInfo_t level;
+                    bool isMap = false;
+                    int lumpsAmount = 0;
 
                     level.name = lDirectory[i].name;
 
-                    for (int y = 1; y <= 10; y++) 
+                    for (int y = 1; y <= lumpsToScan; y++) 
                     {   
 
                         if(lDirectory[i+y].name == "THINGS")
                         {
                             level.THINGS = lDirectory[i+y];
+                            isMap = true;
+                            lumpsAmount += 1;
                         }
                         else if(lDirectory[i+y].name == "LINEDEFS")
                         {
                             level.LINEDEFS = lDirectory[i+y];
+                            isMap = true;
+                            lumpsAmount += 1;
                         }
                         else if(lDirectory[i+y].name == "SIDEDEFS")
                         {
                             level.SIDEDEFS = lDirectory[i+y];
+                            isMap = true;
+                            lumpsAmount += 1;
                         }
                         else if(lDirectory[i+y].name == "VERTEXES")
                         {   
                             level.VERTEXES = lDirectory[i+y];
+                            isMap = true;
+                            lumpsAmount += 1;
                         }
                         else if(lDirectory[i+y].name == "SEGS")
                         {
                             level.SEGS = lDirectory[i+y];
+                            isMap = true;
+                            lumpsAmount += 1;
                         }
                         else if(lDirectory[i+y].name == "SSECTORS")
                         {
                             level.SSECTORS = lDirectory[i+y];
+                            isMap = true;
+                            lumpsAmount += 1;
                         }
                         else if(lDirectory[i+y].name == "NODES")
                         {
                             level.NODES = lDirectory[i+y];
+                            isMap = true;
+                            lumpsAmount += 1;
                         }
                         else if(lDirectory[i+y].name == "SECTORS")
                         {
                             level.SECTORS = lDirectory[i+y];
+                            isMap = true;
+                            lumpsAmount += 1;
                         }
                         else if(lDirectory[i+y].name == "REJECT")
                         {
                             level.REJECT = lDirectory[i+y];
+                            isMap = true;
+                            lumpsAmount += 1;
                         }
                         else if(lDirectory[i+y].name == "BLOCKMAP")
                         {
                             level.BLOCKMAP = lDirectory[i+y];
+                            isMap = true;
+                            lumpsAmount += 1;
                         }else
                         {
                             continue;
                         }
                     }
 
-                    lLevels.push_back(level);
-                    i += 10;
-
-                    if(lDirectory[i+1].size != 0)
+                    if(isMap == true)
                     {
-                        return lLevels;
-                    }               
+                        lLevels.push_back(level);
+                        i += lumpsAmount;
+                    }             
                 }
             }
 

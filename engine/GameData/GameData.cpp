@@ -11,8 +11,11 @@ using namespace std;
 
 int main()
 {
-    WADStructure wad = WADStructure("../../tests/DOOM2.WAD");
-    wad.loadPWAD("../../tests/pwad_test.WAD");
+    WADStructure wad = WADStructure("../../tests/iwad_doom2.WAD");
+    wad.loadPWAD("../../tests/pwad_append.WAD");
+    wad.loadPWAD("../../tests/pwad_replace.WAD");
+    wad.loadPWAD("../../tests/pwad_replace_map.WAD");
+    wad.loadPWAD("../../tests/pwad_append_map.WAD");
     //wad.loadPWAD("../../tests/not_wad.WAD");
 
     wad.compile();
