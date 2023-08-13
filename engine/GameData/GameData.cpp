@@ -23,17 +23,20 @@ class GameData
 
         ~GameData()
         {
-
+            for (const auto& entry : classInstances) 
+            {
+                delete entry.second;
+            }
         }
 
         void printInfo()
         {
             if(compiled)
             {
-                WADStructure* wad = dynamic_cast<WADStructure*>(getResourceFromWAD<WADStructure>());
-                ResourcesData* resources = dynamic_cast<ResourcesData*>(getResourceFromWAD<ResourcesData>());
-                PlayPalData* playpal = dynamic_cast<PlayPalData*>(getResourceFromWAD<PlayPalData>());
-                ColorMapData* colormap = dynamic_cast<ColorMapData*>(getResourceFromWAD<ColorMapData>());
+                WADStructure* wad = getResourceFromWAD<WADStructure>();
+                ResourcesData* resources = getResourceFromWAD<ResourcesData>();
+                PlayPalData* playpal = getResourceFromWAD<PlayPalData>();
+                ColorMapData* colormap = getResourceFromWAD<ColorMapData>();
 
                 cout << endl;
                 cout << "Path: \""<< wad->filePath << "\"" << endl;
@@ -75,18 +78,18 @@ class GameData
          */
         void loadPWAD(string path)
         {
-            WADStructure* wad = dynamic_cast<WADStructure*>(getResourceFromWAD<WADStructure>());
+            WADStructure* wad = getResourceFromWAD<WADStructure>();
             wad->loadPWAD(path);
         }
 
         void compile()
         {
-            WADStructure* wad = dynamic_cast<WADStructure*>(getResourceFromWAD<WADStructure>());
+            WADStructure* wad = getResourceFromWAD<WADStructure>();
             wad->compile();
             classInstances[&typeid(EndoomData)] = new EndoomData(wad);
             classInstances[&typeid(PlayPalData)] = new PlayPalData(wad);
             classInstances[&typeid(ColorMapData)] = new ColorMapData(wad);
-            PlayPalData* playpal = dynamic_cast<PlayPalData*>(getResourceFromWAD<PlayPalData>());
+            PlayPalData* playpal = getResourceFromWAD<PlayPalData>();
             classInstances[&typeid(ResourcesData)] = new ResourcesData(wad, playpal);
             classInstances[&typeid(AudioInfoData)] = new AudioInfoData(wad);
             classInstances[&typeid(SoundData)] = new SoundData(wad);
@@ -94,13 +97,36 @@ class GameData
             compiled = true;
         }
 
+        unique_ptr<LevelData> getLevelData(string name)
+        {
+            WADStructure* wad = getResourceFromWAD<WADStructure>();
+            for(int x =0; x<wad->levelsList.size(); x++)
+            {
+                if(wad->levelsList[x].name == name)
+                {
+                    return make_unique<LevelData>(wad->filePath, &wad->levelsList[0]);
+                }
+            }
+            return nullptr;
+        }
+
+        unique_ptr<LevelData> getLevelData(int number)
+        {
+            WADStructure* wad = getResourceFromWAD<WADStructure>();
+            if(number >= wad->levelsList.size())
+            {
+                return nullptr;
+            }
+            return make_unique<LevelData>(wad->filePath, &wad->levelsList[number]);
+        }
+
         template <typename T>
-        baseResourceWAD* getResourceFromWAD() 
+        T* getResourceFromWAD() 
         {
             const std::type_info* typeInfo = &typeid(T);
             auto it = classInstances.find(typeInfo);
             if (it != classInstances.end()) {
-                return it->second;
+                return dynamic_cast<T*>(it->second);
             }
             return nullptr;
         }
@@ -139,18 +165,19 @@ int main()
     //gameData.loadPWAD("../../tests/not_wad.WAD");
     gameData.compile();
 
-    EndoomData* endoom = dynamic_cast<EndoomData*>(gameData.getResourceFromWAD<EndoomData>());
-    PlayPalData* playpal = dynamic_cast<PlayPalData*>(gameData.getResourceFromWAD<PlayPalData>());
-    ColorMapData* colormap = dynamic_cast<ColorMapData*>(gameData.getResourceFromWAD<ColorMapData>());
-    ResourcesData* resources = dynamic_cast<ResourcesData*>(gameData.getResourceFromWAD<ResourcesData>());
-    AudioInfoData* audio = dynamic_cast<AudioInfoData*>(gameData.getResourceFromWAD<AudioInfoData>());
-    SoundData* sound = dynamic_cast<SoundData*>(gameData.getResourceFromWAD<SoundData>());
-    DemoData* demo = dynamic_cast<DemoData*>(gameData.getResourceFromWAD<DemoData>());
+    WADStructure* wad = gameData.getResourceFromWAD<WADStructure>();
+    EndoomData* endoom = gameData.getResourceFromWAD<EndoomData>();
+    PlayPalData* playpal = gameData.getResourceFromWAD<PlayPalData>();
+    ColorMapData* colormap = gameData.getResourceFromWAD<ColorMapData>();
+    ResourcesData* resources = gameData.getResourceFromWAD<ResourcesData>();
+    AudioInfoData* audio = gameData.getResourceFromWAD<AudioInfoData>();
+    SoundData* sound = gameData.getResourceFromWAD<SoundData>();
+    DemoData* demo = gameData.getResourceFromWAD<DemoData>();
 
     gameData.printInfo();
 
-    //LevelData* level = dynamic_cast<LevelData*>(gameData.getResourceFromWAD<LevelData>());
-    //LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
+    unique_ptr<LevelData> level = gameData.getLevelData(0);
+    //level->printLevelInfo();
 
 
     //MUS FORMAT TEST
@@ -164,7 +191,7 @@ int main()
     //sound2.play();
 
     //PC SPEAKER TEST
-    //Sound sound3 = sound.readSound("DPPESIT");
+    //Sound sound3 = sound->readSound("DPPESIT");
     //sound3.printInfo(); 
     //sound3.play();
    
@@ -197,26 +224,5 @@ int main()
     //audio.printInfo();
     //resources.printInfo();
     //demo.printInfo();
-
-
-
-    /*
-    for (size_t i = 0; i < wad.levelsAmount; ++i) {
-        cout << wad.levelsList[i].name << endl;
-    }
-    */
-   
-    /*
-    int num = wad.directory.filepos;
-
-    unsigned char* bytePtr = reinterpret_cast<unsigned char*>(&num);
-
-    // Output each byte in hexadecimal format
-    for (int i = 0; i < sizeof(num); ++i) {
-        std::cout << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(bytePtr[i]) << " ";
-    }
-
-    std::cout << std::endl;
-    */
 
 }
