@@ -8,10 +8,16 @@
 #include <vector>
 #include <algorithm>
 
+
+#ifndef ENDOOMDATA_H
+#define ENDOOMDATA_H
+#include "Interfaces.h"
+#endif
+
 using namespace std;
 
 
-class WADStructure {      
+class WADStructure: public baseResourceWAD {      
   public: 
     
     struct header_t

@@ -26,6 +26,34 @@ class GameData
 
         }
 
+        void printInfo()
+        {
+            if(compiled)
+            {
+                WADStructure* wad = dynamic_cast<WADStructure*>(getResourceFromWAD<WADStructure>());
+                ResourcesData* resources = dynamic_cast<ResourcesData*>(getResourceFromWAD<ResourcesData>());
+                PlayPalData* playpal = dynamic_cast<PlayPalData*>(getResourceFromWAD<PlayPalData>());
+                ColorMapData* colormap = dynamic_cast<ColorMapData*>(getResourceFromWAD<ColorMapData>());
+
+                cout << endl;
+                cout << "Path: \""<< wad->filePath << "\"" << endl;
+
+                cout << endl << "GAME DATA INFO:" << endl;
+                cout << "levels amount: " << wad->getlevelsAmount() << endl;
+                cout << "sprites amount: " << resources->getSpritesAmount() << endl;
+                cout << "flats amount: " << resources->getFlatsAmount() << endl;
+                cout << "patches amount: " << resources->getPatchesAmount() << endl;
+                cout << "pallets amount: " << playpal->getPalletesAmount() << endl;
+                cout << "colormaps amount: " << colormap->getColorMapsAmount() << endl;
+                cout << "pnames amount: " << resources->getPNamesAmount() << endl;
+                cout << endl;
+            }
+            else
+            {
+                cout << "game data is not compiled yet!" << endl;
+            }
+        }
+
         /**
          * @brief use this method to load .WAD file of "iwad" type \n 
          * 
@@ -35,7 +63,7 @@ class GameData
          */
         void loadIWAD(string path)
         {
-            wad = WADStructure(path);
+            classInstances[&typeid(WADStructure)] = new WADStructure(path);
         }
 
         /**
@@ -47,19 +75,23 @@ class GameData
          */
         void loadPWAD(string path)
         {
-            wad.loadPWAD(path);
+            WADStructure* wad = dynamic_cast<WADStructure*>(getResourceFromWAD<WADStructure>());
+            wad->loadPWAD(path);
         }
 
         void compile()
         {
-            wad.compile();
-            classInstances[&typeid(EndoomData)] = new EndoomData(&wad);
-            classInstances[&typeid(PlayPalData)] = new PlayPalData(&wad);
-            classInstances[&typeid(ColorMapData)] = new ColorMapData(&wad);
-            classInstances[&typeid(ResourcesData)] = new ResourcesData(&wad, &playpal);
-            classInstances[&typeid(AudioInfoData)] = new AudioInfoData(&wad);
-            classInstances[&typeid(SoundData)] = new SoundData(&wad);
-            classInstances[&typeid(DemoData)] = new DemoData(&wad);
+            WADStructure* wad = dynamic_cast<WADStructure*>(getResourceFromWAD<WADStructure>());
+            wad->compile();
+            classInstances[&typeid(EndoomData)] = new EndoomData(wad);
+            classInstances[&typeid(PlayPalData)] = new PlayPalData(wad);
+            classInstances[&typeid(ColorMapData)] = new ColorMapData(wad);
+            PlayPalData* playpal = dynamic_cast<PlayPalData*>(getResourceFromWAD<PlayPalData>());
+            classInstances[&typeid(ResourcesData)] = new ResourcesData(wad, playpal);
+            classInstances[&typeid(AudioInfoData)] = new AudioInfoData(wad);
+            classInstances[&typeid(SoundData)] = new SoundData(wad);
+            classInstances[&typeid(DemoData)] = new DemoData(wad);
+            compiled = true;
         }
 
         template <typename T>
@@ -76,17 +108,7 @@ class GameData
 
     private:
         bool compiled = false;
-
         map<const type_info*, baseResourceWAD*> classInstances;
-
-        WADStructure wad;
-        EndoomData endoom;
-        PlayPalData playpal;
-        ColorMapData colormap;
-        ResourcesData resources;
-        AudioInfoData audio;
-        SoundData sound;
-        DemoData demo;
 
         void errorExit(int status, string reason)
         {   
@@ -117,49 +139,19 @@ int main()
     //gameData.loadPWAD("../../tests/not_wad.WAD");
     gameData.compile();
 
+    EndoomData* endoom = dynamic_cast<EndoomData*>(gameData.getResourceFromWAD<EndoomData>());
     PlayPalData* playpal = dynamic_cast<PlayPalData*>(gameData.getResourceFromWAD<PlayPalData>());
-    //playpal->printInfo();
-    //playpal->getPalletesAmount();
+    ColorMapData* colormap = dynamic_cast<ColorMapData*>(gameData.getResourceFromWAD<ColorMapData>());
+    ResourcesData* resources = dynamic_cast<ResourcesData*>(gameData.getResourceFromWAD<ResourcesData>());
+    AudioInfoData* audio = dynamic_cast<AudioInfoData*>(gameData.getResourceFromWAD<AudioInfoData>());
+    SoundData* sound = dynamic_cast<SoundData*>(gameData.getResourceFromWAD<SoundData>());
+    DemoData* demo = dynamic_cast<DemoData*>(gameData.getResourceFromWAD<DemoData>());
 
-    /*
+    gameData.printInfo();
 
-    WADStructure wad = WADStructure("../../tests/iwad_doom2.WAD");
-    wad.loadPWAD("../../tests/pwad_append.WAD");
-    wad.loadPWAD("../../tests/pwad_replace.WAD");
-    wad.loadPWAD("../../tests/pwad_replace_map.WAD");
-    wad.loadPWAD("../../tests/pwad_append_map.WAD");
-    //wad.loadPWAD("../../tests/not_wad.WAD");
+    //LevelData* level = dynamic_cast<LevelData*>(gameData.getResourceFromWAD<LevelData>());
+    //LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
 
-    wad.compile();
-
-
-    EndoomData endoom = EndoomData(&wad);
-    PlayPalData playpal = PlayPalData(&wad);
-    ColorMapData colormap = ColorMapData(&wad);
-    ResourcesData resources = ResourcesData(&wad, &playpal);
-    AudioInfoData audio = AudioInfoData(&wad);
-    SoundData sound = SoundData(&wad);
-    DemoData demo = DemoData(&wad);
-
-
-
-    cout << "Path: \""<< wad.filePath << "\"" << endl;
-    cout << endl << "HEADER:" << endl;
-    cout << "Identification: " << wad.getHeader().identification << endl;
-    cout << "Numlumps: " << wad.getHeader().numlumps << endl;
-    cout << "Infotableofs: " << wad.getHeader().infotableofs << endl;
-    cout << endl << "INFO:" << endl;
-    cout << "levels amount: " << wad.getlevelsAmount() << endl;
-    cout << "sprites amount: " << resources.getSpritesAmount() << endl;
-    cout << "flats amount: " << resources.getFlatsAmount() << endl;
-    cout << "patches amount: " << resources.getPatchesAmount() << endl;
-    cout << "pallets amount: " << playpal.getPalletesAmount() << endl;
-    cout << "colormaps amount: " << colormap.getColorMapsAmount() << endl;
-    cout << "pnames amount: " << resources.getPNamesAmount() << endl;
-    cout << endl;
-    LevelData level = LevelData(wad.filePath, &wad.levelsList[0]);
-
-    */
 
     //MUS FORMAT TEST
     //Sound sound1 = sound.readSound("D_OPENIN");
