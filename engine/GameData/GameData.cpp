@@ -9,6 +9,8 @@
 
 #include "Interfaces.h"
 
+#include "../Utils/info.h"
+
 using namespace std;
 
 
@@ -16,11 +18,19 @@ class GameData
 {
     public:
 
+        /**
+         * @brief Construct a new Game Data object. 
+         * @note this objects stores all information about game resources
+         */
         GameData()
         {
 
         }
 
+        /**
+         * @brief Destroy the Game Data object
+         * 
+         */
         ~GameData()
         {
             for (const auto& entry : classInstances) 
@@ -29,8 +39,14 @@ class GameData
             }
         }
 
+        /**
+         * @brief this function prints info about this class
+         * 
+         */
         void printInfo()
         {
+            printInfoHeader("H2", "GAME DATA INFO");
+
             if(compiled)
             {
                 WADStructure* wad = getResourceFromWAD<WADStructure>();
@@ -38,10 +54,22 @@ class GameData
                 PlayPalData* playpal = getResourceFromWAD<PlayPalData>();
                 ColorMapData* colormap = getResourceFromWAD<ColorMapData>();
 
-                cout << endl;
-                cout << "Path: \""<< wad->filePath << "\"" << endl;
+                cout << "IWAD Path: \""<< wad->filePath << "\"" << endl;
+                cout << "PWAD's amount: " << wad->getPwadsAmount() << endl;
 
-                cout << endl << "GAME DATA INFO:" << endl;
+                if(wad->getPwadsAmount() > 0)
+                {
+                    cout << "PWAD Paths: " << endl;
+                    int count = 1;
+                    for (string name: wad->getPwadsPaths()) 
+                    {
+                        cout <<  count << ".    " << name << endl;
+                        count++;
+                    }
+                }
+                
+
+                cout << endl;
                 cout << "levels amount: " << wad->getlevelsAmount() << endl;
                 cout << "sprites amount: " << resources->getSpritesAmount() << endl;
                 cout << "flats amount: " << resources->getFlatsAmount() << endl;
@@ -49,12 +77,13 @@ class GameData
                 cout << "pallets amount: " << playpal->getPalletesAmount() << endl;
                 cout << "colormaps amount: " << colormap->getColorMapsAmount() << endl;
                 cout << "pnames amount: " << resources->getPNamesAmount() << endl;
-                cout << endl;
             }
             else
             {
                 cout << "game data is not compiled yet!" << endl;
             }
+
+            printInfoHeader("H2");
         }
 
         /**
@@ -82,6 +111,11 @@ class GameData
             wad->loadPWAD(path);
         }
 
+        /**
+         * @brief This method compiles loaded iwad and optional pwads into one archive. 
+         * @brief It needs to be called after loading iwad and optional pwads!
+         * @brief It needs to be called before retreiving any resource or level!
+         */
         void compile()
         {
             WADStructure* wad = getResourceFromWAD<WADStructure>();
@@ -97,6 +131,12 @@ class GameData
             compiled = true;
         }
 
+        /**
+         * @brief this functions returns class that contains info about level based on that level name
+         * 
+         * @param number 
+         * @return unique_ptr<LevelData> 
+         */
         unique_ptr<LevelData> getLevelData(string name)
         {
             WADStructure* wad = getResourceFromWAD<WADStructure>();
@@ -110,6 +150,12 @@ class GameData
             return nullptr;
         }
 
+        /**
+         * @brief this functions returns class that contains info about level based on that level number in vector
+         * 
+         * @param number 
+         * @return unique_ptr<LevelData> 
+         */
         unique_ptr<LevelData> getLevelData(int number)
         {
             WADStructure* wad = getResourceFromWAD<WADStructure>();
@@ -120,13 +166,19 @@ class GameData
             return make_unique<LevelData>(wad->filePath, &wad->levelsList[number]);
         }
 
-        template <typename T>
-        T* getResourceFromWAD() 
+        /**
+         * @brief Get the Resource From WAD object
+         * 
+         * @tparam BaseResorceTypeWAD wanted resource class
+         * @return pointer to returned resource class that is derrived from BaseResorceTypeWAD class
+         */
+        template <typename BaseResorceTypeWAD>
+        BaseResorceTypeWAD* getResourceFromWAD() 
         {
-            const std::type_info* typeInfo = &typeid(T);
+            const std::type_info* typeInfo = &typeid(BaseResorceTypeWAD);
             auto it = classInstances.find(typeInfo);
             if (it != classInstances.end()) {
-                return dynamic_cast<T*>(it->second);
+                return dynamic_cast<BaseResorceTypeWAD*>(it->second);
             }
             return nullptr;
         }

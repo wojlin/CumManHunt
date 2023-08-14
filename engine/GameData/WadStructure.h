@@ -62,7 +62,7 @@ class WADStructure: public baseResourceWAD {
     vector<lumpInfo_t> directory;
     vector<levelInfo_t> levelsList; 
 
-    vector<pwad_t> pwads;
+    
     
     bool iWadFound = false;
     bool compiled = false;
@@ -241,9 +241,29 @@ class WADStructure: public baseResourceWAD {
         return header;
     }
 
+    vector<pwad_t> getPwads()
+    {
+        return pwads;
+    }
+
+    vector<string> getPwadsPaths()
+    {
+        vector<string> paths;
+        for (int i = 0; i < pwads.size(); ++i) 
+        {
+            paths.push_back(pwads[i].path);
+        }
+        return paths;
+    }
+
+    int getPwadsAmount()
+    {
+        return pwads.size();
+    }
+    
     private:
 
-        
+        vector<pwad_t> pwads;
 
 
         string charsToString(char* chars, int size)
