@@ -50,9 +50,9 @@ struct Sidedef
 {
     int16_t xOffset;
     int16_t yOffset;
-    char upperTextureName[8];
-    char lowerTextureName[8];
-    char middleTextureName[8];
+    string upperTextureName;
+    string lowerTextureName;
+    string middleTextureName;
     int16_t sectorNumber;
 };
 
@@ -100,8 +100,8 @@ struct Sector
 {
     int16_t floorHeight;
     int16_t ceilingHeight;
-    char floorTextureName[8];
-    char ceilingTextureName[8];
+    string floorTextureName;
+    string ceilingTextureName;
     int16_t lightLevel;
     int16_t specialType;
     int16_t tagNumber;
@@ -487,6 +487,12 @@ class LevelData: public baseResourceWAD {
             }
         }
 
+        string charsToString(char* chars, int size)
+        {   
+            string str(chars, size);
+            return str.c_str();
+        }
+
         vector<Thing> loadThings(WADStructure::lumpInfo_t& lump)
         {
             vector<Thing> lThings;
@@ -548,6 +554,16 @@ class LevelData: public baseResourceWAD {
         {
             vector<Sidedef> lSidedefs;
 
+            struct Sidedef_raw_t
+            {
+                int16_t xOffset;
+                int16_t yOffset;
+                char upperTextureName[8];
+                char lowerTextureName[8];
+                char middleTextureName[8];
+                int16_t sectorNumber;
+            };
+
             try
             {
                 std::ifstream file(lump.path, std::ios::binary);
@@ -556,12 +572,17 @@ class LevelData: public baseResourceWAD {
                 
                 for (std::size_t i = 0; i < num; ++i)
                 {
-                    Sidedef sidedef;
+                    Sidedef_raw_t rawSidedef;
                     
-                    file.read(reinterpret_cast<char*>(&sidedef), sizeof(Sidedef));
-                    nullTerminate(sidedef.middleTextureName, 8);
-                    nullTerminate(sidedef.upperTextureName, 8);
-                    nullTerminate(sidedef.lowerTextureName, 8);
+                    file.read(reinterpret_cast<char*>(&rawSidedef), sizeof(Sidedef_raw_t));
+                    
+                    Sidedef sidedef;
+                    sidedef.xOffset = rawSidedef.xOffset;
+                    sidedef.yOffset = rawSidedef.yOffset;
+                    sidedef.sectorNumber = rawSidedef.sectorNumber;
+                    sidedef.lowerTextureName = charsToString(rawSidedef.lowerTextureName, 8);
+                    sidedef.middleTextureName = charsToString(rawSidedef.middleTextureName, 8);
+                    sidedef.upperTextureName = charsToString(rawSidedef.upperTextureName, 8);
                     lSidedefs.push_back(sidedef);
                 }
                 file.close();
@@ -688,6 +709,17 @@ class LevelData: public baseResourceWAD {
         {
             vector<Sector> lSectors;
 
+            struct rawSector
+            {
+                int16_t floorHeight;
+                int16_t ceilingHeight;
+                char floorTextureName[8];
+                char ceilingTextureName[8];
+                int16_t lightLevel;
+                int16_t specialType;
+                int16_t tagNumber;
+            };
+
             try
             {
                 std::ifstream file(lump.path, std::ios::binary);
@@ -696,9 +728,18 @@ class LevelData: public baseResourceWAD {
                 
                 for (std::size_t i = 0; i < num; ++i)
                 {
-                    Sector sector;
+                    rawSector rawSector;
                     
-                    file.read(reinterpret_cast<char*>(&sector), sizeof(Sector));
+                    file.read(reinterpret_cast<char*>(&rawSector), sizeof(rawSector));
+
+                    Sector sector;
+                    sector.ceilingHeight = rawSector.ceilingHeight;
+                    sector.floorHeight = rawSector.floorHeight;
+                    sector.lightLevel = rawSector.lightLevel;
+                    sector.tagNumber = rawSector.tagNumber;
+                    sector.specialType = rawSector.specialType;
+                    sector.ceilingTextureName = charsToString(rawSector.ceilingTextureName, 8);
+                    sector.floorTextureName= charsToString(rawSector.floorTextureName, 8);
                     
                     lSectors.push_back(sector);
                 }
