@@ -143,8 +143,6 @@ class LevelData: public baseResourceWAD {
             filePath = wad->filePath;
             levelName = level->name;
             
-            
-            std::ifstream file(filePath, std::ios::binary);
 
             things = loadThings(levelData->THINGS);
             linedefs = loadLinedefs(levelData->LINEDEFS);
@@ -157,8 +155,6 @@ class LevelData: public baseResourceWAD {
             rejectTable = loadReject(levelData->REJECT);
             blockmap = loadBlockmap(levelData->BLOCKMAP);
             
-
-            file.close();
     }
 
     /**
@@ -171,6 +167,10 @@ class LevelData: public baseResourceWAD {
         return levelName;
     }
 
+    /**
+     * @brief prints info about level
+     * 
+     */
     void printInfo()
     {
         printInfoHeader("H1", "LEVEL");
@@ -186,6 +186,10 @@ class LevelData: public baseResourceWAD {
         printInfoHeader("H1");
     }
 
+    /**
+     * @brief prints detailed info about level
+     * 
+     */
     void printDetailedInfo()
     {
         printInfoHeader("H1", "LEVEL");

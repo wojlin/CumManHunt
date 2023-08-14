@@ -1,4 +1,16 @@
+#include "LevelData.h"
+#include "ColorMapData.h"
+#include "PlayPalData.h"
+#include "ResourcesData.h"
+#include "EndoomData.h"
+#include "AudioInfoData.h"
+#include "SoundData.h"
+#include "DemoData.h"
 
+#include "Interfaces.h"
+
+
+using namespace std;
 
 
 class GameData
@@ -191,3 +203,4 @@ class GameData
 
 
 };
+
