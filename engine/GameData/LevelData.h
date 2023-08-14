@@ -6,6 +6,8 @@
 #include <fstream>
 #include <cstring>
 #include <vector>
+#include <functional>
+#include <variant>
 
 #include "WadStructure.h"
 
@@ -133,23 +135,27 @@ class LevelData: public baseResourceWAD {
      * @param path 
      * @param levelData 
      */
-    LevelData(WADStructure* wad, WADStructure::levelInfo_t *levelData)
+    LevelData(WADStructure *wadObj, WADStructure::levelInfo_t *levelData)
         {
+            wad = wadObj;
+            level = levelData;
+
             filePath = wad->filePath;
+            levelName = level->name;
+            
+            
             std::ifstream file(filePath, std::ios::binary);
 
-            levelName = levelData->name;
-            
-            loadThings(&file, levelData->THINGS);
-            loadLinedefs(&file, levelData->LINEDEFS);
-            loadSidedefs(&file, levelData->SIDEDEFS);
-            loadVertexes(&file, levelData->VERTEXES);
-            loadSegs(&file, levelData->SEGS);
-            loadSSectors(&file, levelData->SSECTORS);
-            loadNodes(&file, levelData->NODES);
-            loadSectors(&file, levelData->SECTORS);
-            loadReject(&file, levelData->REJECT);
-            loadBlockmap(&file, levelData->BLOCKMAP);
+            things = loadThings(levelData->THINGS);
+            linedefs = loadLinedefs(levelData->LINEDEFS);
+            sidedefs = loadSidedefs(levelData->SIDEDEFS);
+            vertexs = loadVertexes(levelData->VERTEXES);
+            segs =  loadSegs(levelData->SEGS);
+            subSectors = loadSSectors(levelData->SSECTORS);
+            nodes = loadNodes(levelData->NODES);
+            sectors = loadSectors(levelData->SECTORS);
+            rejectTable = loadReject(levelData->REJECT);
+            blockmap = loadBlockmap(levelData->BLOCKMAP);
             
 
             file.close();
@@ -449,6 +455,9 @@ class LevelData: public baseResourceWAD {
     }
 
     private:
+        WADStructure* wad;
+        WADStructure::levelInfo_t* level;
+
         string levelName;
         string filePath = "";
 
@@ -467,6 +476,8 @@ class LevelData: public baseResourceWAD {
         vector<int16_t> blockmapOffsets;
         vector<vector<uint16_t>> blockmapBlockLists;
 
+        string loadError = "ERROR: failed to load resource: ";
+
         void nullTerminate(char* array, size_t maxSize) 
         {
             size_t length = std::strlen(array);
@@ -476,217 +487,346 @@ class LevelData: public baseResourceWAD {
             }
         }
 
-        void loadThings(ifstream *file, WADStructure::lumpInfo_t lump)
+        vector<Thing> loadThings(WADStructure::lumpInfo_t& lump)
         {
-            file->seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Thing);
-            
-            for (std::size_t i = 0; i < num; ++i)
-            {
-                Thing thing;
-                
-                file->read(reinterpret_cast<char*>(&thing), sizeof(Thing));
-                
-                things.push_back(thing);
-            }
-        }
+            vector<Thing> lThings;
 
-        void loadLinedefs(ifstream *file, WADStructure::lumpInfo_t lump)
-        {
-            file->seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Linedef);
-            
-            for (std::size_t i = 0; i < num; ++i)
+            try
             {
-                Linedef linedef;
-                
-                file->read(reinterpret_cast<char*>(&linedef), sizeof(Linedef));
-                
-                linedefs.push_back(linedef);
-            }
-        }
+                std::ifstream file(lump.path, std::ios::binary);
+                file.seekg(lump.filepos);
 
-        void loadSidedefs(ifstream *file, WADStructure::lumpInfo_t lump)
-        {
-            file->seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Sidedef);
-            
-            for (std::size_t i = 0; i < num; ++i)
-            {
-                Sidedef sidedef;
+                std::size_t num = lump.size / sizeof(Thing);
                 
-                file->read(reinterpret_cast<char*>(&sidedef), sizeof(Sidedef));
-                nullTerminate(sidedef.middleTextureName, 8);
-                nullTerminate(sidedef.upperTextureName, 8);
-                nullTerminate(sidedef.lowerTextureName, 8);
-                sidedefs.push_back(sidedef);
-            }
-        }
-
-        void loadVertexes(ifstream *file, WADStructure::lumpInfo_t lump)
-        {
-            file->seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Vertex);
-            
-            for (std::size_t i = 0; i < num; ++i)
-            {
-                Vertex vertex;
-                
-                file->read(reinterpret_cast<char*>(&vertex), sizeof(Vertex));
-                
-                vertexs.push_back(vertex);
-            }
-        }
-
-        void loadSegs(ifstream *file, WADStructure::lumpInfo_t lump)
-        {
-            file->seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Seg);
-            
-            for (std::size_t i = 0; i < num; ++i)
-            {
-                Seg seg;
-                
-                file->read(reinterpret_cast<char*>(&seg), sizeof(Seg));
-                
-                segs.push_back(seg);
-            }
-        }
-
-        void loadSSectors(ifstream *file, WADStructure::lumpInfo_t lump)
-        {
-            file->seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(SSector);
-            
-            for (std::size_t i = 0; i < num; ++i)
-            {
-                SSector ssector;
-                
-                file->read(reinterpret_cast<char*>(&ssector), sizeof(SSector));
-                
-                subSectors.push_back(ssector);
-            }
-        }
-
-        void loadNodes(ifstream *file, WADStructure::lumpInfo_t lump)
-        {
-            file->seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Node);
-            
-            for (std::size_t i = 0; i < num; ++i)
-            {
-                Node node;
-                
-                file->read(reinterpret_cast<char*>(&node), sizeof(Node));
-                
-                nodes.push_back(node);
-            }
-        }
-
-        void loadSectors(ifstream *file, WADStructure::lumpInfo_t lump)
-        {
-            file->seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Sector);
-            
-            for (std::size_t i = 0; i < num; ++i)
-            {
-                Sector sector;
-                
-                file->read(reinterpret_cast<char*>(&sector), sizeof(Sector));
-                
-                sectors.push_back(sector);
-            }
-        }
-
-        void loadReject(ifstream *file, WADStructure::lumpInfo_t lump)
-        {
-            int num = lump.size;
-            char buffer[num];
-            char bits_array[num*8];
-
-            file->seekg(lump.filepos);
-            file->read(buffer, num);     
-            
-            for(int i =0; i<num;i++)
-            {
-                unsigned int hexValue = static_cast<unsigned char>(buffer[i]);
-                bitset<8> bits(hexValue);
-                for (size_t i = 0; i < bits.size() / 2; ++i) {
-                    bool temp = bits[i];
-                    bits[i] = bits[bits.size() - i - 1];
-                    bits[bits.size() - i - 1] = temp;
+                for (std::size_t i = 0; i < num; ++i)
+                {
+                    Thing thing;
+                    
+                    file.read(reinterpret_cast<char*>(&thing), sizeof(Thing));
+                    
+                    lThings.push_back(thing);
                 }
-
-                std::string binaryString = bits.to_string();
-                const char* binaryCharArray = binaryString.c_str();
-
-                for(int x = 0; x <8; x++)
-                {
-                    bits_array[(i*8)+x] = binaryCharArray[x];
-                }           
+                file.close();
             }
-
-            int sectors_amount = sectors.size();
-            rejectTable.resize(sectors_amount, std::vector<bool>(sectors_amount, false));
-
-            for(int y = 0; y<sectors_amount; y++)
+            catch (const std::exception& e) 
             {
-                for(int x = 0; x<sectors_amount; x++)
+                std::cerr << loadError << "THINGS" << endl << "reason: " << e.what() << endl;
+                return vector<Thing>();
+            }
+            return lThings;
+        }
+
+        vector<Linedef> loadLinedefs(WADStructure::lumpInfo_t lump)
+        {
+
+            vector<Linedef> lLinedefs;
+               
+            try
+            {
+                std::ifstream file(lump.path, std::ios::binary);
+                file.seekg(lump.filepos);
+                std::size_t num = lump.size / sizeof(Linedef);
+                for (std::size_t i = 0; i < num; ++i)
                 {
-                    int index = (y*sectors_amount)+x;
-                    bool state = false;
-                    if(bits_array[index] == '1')
-                    {
-                        state = true;
+                    Linedef linedef;
+                    
+                    file.read(reinterpret_cast<char*>(&linedef), sizeof(Linedef));
+                    
+                    lLinedefs.push_back(linedef);
+                }
+                file.close();
+            }
+            catch (const std::exception& e) 
+            {
+                std::cerr << loadError << "LINEDEFS" << endl << "reason: " << e.what() << endl;
+                return vector<Linedef>();
+            }
+            return lLinedefs;
+        }
+
+        vector<Sidedef> loadSidedefs(WADStructure::lumpInfo_t lump)
+        {
+            vector<Sidedef> lSidedefs;
+
+            try
+            {
+                std::ifstream file(lump.path, std::ios::binary);
+                file.seekg(lump.filepos);
+                std::size_t num = lump.size / sizeof(Sidedef);
+                
+                for (std::size_t i = 0; i < num; ++i)
+                {
+                    Sidedef sidedef;
+                    
+                    file.read(reinterpret_cast<char*>(&sidedef), sizeof(Sidedef));
+                    nullTerminate(sidedef.middleTextureName, 8);
+                    nullTerminate(sidedef.upperTextureName, 8);
+                    nullTerminate(sidedef.lowerTextureName, 8);
+                    lSidedefs.push_back(sidedef);
+                }
+                file.close();
+            }
+            catch (const std::exception& e) 
+            {
+                std::cerr << loadError << "SIDEDEFS" << endl << "reason: " << e.what() << endl;
+                return vector<Sidedef>();
+            }
+            return lSidedefs;
+        }
+
+        vector<Vertex> loadVertexes(WADStructure::lumpInfo_t lump)
+        {
+            vector<Vertex> lVertexs;
+
+            try
+            {
+                std::ifstream file(lump.path, std::ios::binary);
+                file.seekg(lump.filepos);
+                std::size_t num = lump.size / sizeof(Vertex);
+                
+                for (std::size_t i = 0; i < num; ++i)
+                {
+                    Vertex vertex;
+                    
+                    file.read(reinterpret_cast<char*>(&vertex), sizeof(Vertex));
+                    
+                    lVertexs.push_back(vertex);
+                }
+                file.close();
+            }
+            catch (const std::exception& e) 
+            {
+                std::cerr << loadError << "VERTEXS" << endl << "reason: " << e.what() << endl;
+                return vector<Vertex>();
+            }
+            return lVertexs;
+        }
+
+        vector<Seg> loadSegs(WADStructure::lumpInfo_t lump)
+        {
+            vector<Seg> lSegs;
+
+            try
+            {
+                std::ifstream file(lump.path, std::ios::binary);
+                file.seekg(lump.filepos);
+                std::size_t num = lump.size / sizeof(Seg);
+                
+                for (std::size_t i = 0; i < num; ++i)
+                {
+                    Seg seg;       
+                    file.read(reinterpret_cast<char*>(&seg), sizeof(Seg));
+                    lSegs.push_back(seg);
+                }
+                file.close();
+            }
+            catch (const std::exception& e) 
+            {
+                std::cerr << loadError << "SEGS" << endl << "reason: " << e.what() << endl;
+                return vector<Seg>();
+            }
+            return lSegs;
+        }
+
+        vector<SSector> loadSSectors(WADStructure::lumpInfo_t lump)
+        {
+            vector<SSector> lSubSectors;
+
+            try
+            {
+                std::ifstream file(lump.path, std::ios::binary);
+                file.seekg(lump.filepos);
+                std::size_t num = lump.size / sizeof(SSector);
+                
+                for (std::size_t i = 0; i < num; ++i)
+                {
+                    SSector ssector;
+                    
+                    file.read(reinterpret_cast<char*>(&ssector), sizeof(SSector));
+                    
+                    lSubSectors.push_back(ssector);
+                }
+                file.close();
+            }
+            catch (const std::exception& e) 
+            {
+                std::cerr << loadError << "SSECTORS" << endl << "reason: " << e.what() << endl;
+                return vector<SSector>();
+            }
+            return lSubSectors;
+        }
+
+        vector<Node> loadNodes(WADStructure::lumpInfo_t lump)
+        {
+            vector<Node> lNodes;
+
+            try
+            {
+                std::ifstream file(lump.path, std::ios::binary);
+                file.seekg(lump.filepos);
+                std::size_t num = lump.size / sizeof(Node);
+                
+                for (std::size_t i = 0; i < num; ++i)
+                {
+                    Node node;
+                    
+                    file.read(reinterpret_cast<char*>(&node), sizeof(Node));
+                    
+                    lNodes.push_back(node);
+                }
+                file.close();
+            }
+            catch (const std::exception& e) 
+            {
+                std::cerr << loadError << "NODES" << endl << "reason: " << e.what() << endl;
+                return vector<Node>();
+            }
+            return lNodes;
+        }
+
+        vector<Sector> loadSectors(WADStructure::lumpInfo_t lump)
+        {
+            vector<Sector> lSectors;
+
+            try
+            {
+                std::ifstream file(lump.path, std::ios::binary);
+                file.seekg(lump.filepos);
+                std::size_t num = lump.size / sizeof(Sector);
+                
+                for (std::size_t i = 0; i < num; ++i)
+                {
+                    Sector sector;
+                    
+                    file.read(reinterpret_cast<char*>(&sector), sizeof(Sector));
+                    
+                    lSectors.push_back(sector);
+                }
+                file.close();
+            }
+            catch (const std::exception& e) 
+            {
+                std::cerr << loadError << "SECTORS" << endl << "reason: " << e.what() << endl;
+                return vector<Sector>();
+            }
+            return lSectors;
+        }
+
+        vector<vector<bool>> loadReject(WADStructure::lumpInfo_t lump)
+        {
+            vector<vector<bool>> lReject;
+
+            try
+            {
+                std::ifstream file(lump.path, std::ios::binary);
+                file.seekg(lump.filepos);
+                int num = lump.size;
+                char buffer[num];
+                char bits_array[num*8];
+
+                file.read(buffer, num);     
+                
+                for(int i =0; i<num;i++)
+                {
+                    unsigned int hexValue = static_cast<unsigned char>(buffer[i]);
+                    bitset<8> bits(hexValue);
+                    for (size_t i = 0; i < bits.size() / 2; ++i) {
+                        bool temp = bits[i];
+                        bits[i] = bits[bits.size() - i - 1];
+                        bits[bits.size() - i - 1] = temp;
                     }
-                    rejectTable[y][x] = state;
+
+                    std::string binaryString = bits.to_string();
+                    const char* binaryCharArray = binaryString.c_str();
+
+                    for(int x = 0; x <8; x++)
+                    {
+                        bits_array[(i*8)+x] = binaryCharArray[x];
+                    }           
                 }
-            }   
+
+                int sectors_amount = sectors.size();
+                rejectTable.resize(sectors_amount, std::vector<bool>(sectors_amount, false));
+
+                for(int y = 0; y<sectors_amount; y++)
+                {
+                    for(int x = 0; x<sectors_amount; x++)
+                    {
+                        int index = (y*sectors_amount)+x;
+                        bool state = false;
+                        if(bits_array[index] == '1')
+                        {
+                            state = true;
+                        }
+                        rejectTable[y][x] = state;
+                    }
+                } 
+                file.close();
+            }
+            catch (const std::exception& e) 
+            {
+                std::cerr << loadError << "REJECT" << endl << "reason: " << e.what() << endl;
+                return vector<vector<bool>>();
+            }
+            return lReject;  
         }
 
-        void loadBlockmap(ifstream *file, WADStructure::lumpInfo_t lump)
+        Blockmap loadBlockmap(WADStructure::lumpInfo_t lump)
         {
-            file->seekg(lump.filepos);     
-            file->read(reinterpret_cast<char*>(&blockmapHeader), sizeof(BLOCKMAPHeader));
-            int N = blockmapHeader.numColumns * blockmapHeader.numRows;
-            int start_offset = lump.filepos + 8;
-            int end_offset = start_offset + 2 * (N - 1) + 2;
-            int readAmount = end_offset - start_offset;
-            file->seekg(start_offset, std::ios::beg);
-            for(int i = 0; i < readAmount / 2; i ++)
+            Blockmap lBlockmap;
+
+            try
             {
-                int16_t value;
-                file->read(reinterpret_cast<char*>(&value), 2);
-                blockmapOffsets.push_back(value);
-            }
-
-            file->seekg(end_offset, std::ios::beg);
-
-            vector<uint16_t> list;
-
-            int header_and_offests_size = 8 + readAmount;
-            int blocklist_size = lump.size - header_and_offests_size;
-            for(int i = 0; i < blocklist_size / 2; i ++)
-            {
-                uint16_t value;
-                file->read(reinterpret_cast<char*>(&value), 2);
-                //cout << value << endl;
-                if(value == 0)
+                std::ifstream file(lump.path, std::ios::binary);
+                file.seekg(lump.filepos);
+                file.read(reinterpret_cast<char*>(&blockmapHeader), sizeof(BLOCKMAPHeader));
+                int N = blockmapHeader.numColumns * blockmapHeader.numRows;
+                int start_offset = lump.filepos + 8;
+                int end_offset = start_offset + 2 * (N - 1) + 2;
+                int readAmount = end_offset - start_offset;
+                file.seekg(start_offset, std::ios::beg);
+                for(int i = 0; i < readAmount / 2; i ++)
                 {
-
-                }else if(value == 65535)
-                {
-                    blockmapBlockLists.push_back(list);
-                    list.clear();
-                }else
-                {
-                    list.push_back(value);
+                    int16_t value;
+                    file.read(reinterpret_cast<char*>(&value), 2);
+                    blockmapOffsets.push_back(value);
                 }
-            }
 
-            blockmap.blockmapHeader = blockmapHeader;
-            blockmap.blockmapBlockLists = blockmapBlockLists;
-            blockmap.blockmapOffsets = blockmapOffsets;
+                file.seekg(end_offset, std::ios::beg);
+
+                vector<uint16_t> list;
+
+                int header_and_offests_size = 8 + readAmount;
+                int blocklist_size = lump.size - header_and_offests_size;
+                for(int i = 0; i < blocklist_size / 2; i ++)
+                {
+                    uint16_t value;
+                    file.read(reinterpret_cast<char*>(&value), 2);
+                    //cout << value << endl;
+                    if(value == 0)
+                    {
+
+                    }else if(value == 65535)
+                    {
+                        blockmapBlockLists.push_back(list);
+                        list.clear();
+                    }else
+                    {
+                        list.push_back(value);
+                    }
+                }
+
+                lBlockmap.blockmapHeader = blockmapHeader;
+                lBlockmap.blockmapBlockLists = blockmapBlockLists;
+                lBlockmap.blockmapOffsets = blockmapOffsets;
+                file.close();
+            }
+            catch (const std::exception& e) 
+            {
+                std::cerr << loadError << "BLOCKMAP" << endl << "reason: " << e.what() << endl;
+                return Blockmap();
+            }
+            return lBlockmap;
         }
 
 };

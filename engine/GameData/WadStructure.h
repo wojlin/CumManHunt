@@ -29,6 +29,7 @@ class WADStructure: public baseResourceWAD {
 
     struct lumpInfo_t 
     {
+        string path;
         string name;
         int filepos;
         int size; 
@@ -309,7 +310,7 @@ class WADStructure: public baseResourceWAD {
                 return;
             }
 
-            vector<lumpInfo_t> lDirectory = readDirectory(&file, lHeader);
+            vector<lumpInfo_t> lDirectory = readDirectory(&file, lHeader, path);
             vector<levelInfo_t> lLevels = readLevelsList(lHeader, lDirectory);
 
             if(lHeader.identification == "IWAD")
@@ -356,7 +357,7 @@ class WADStructure: public baseResourceWAD {
             return lHeader;
         }      
 
-        vector<lumpInfo_t> readDirectory(ifstream *file, header_t lHeader) 
+        vector<lumpInfo_t> readDirectory(ifstream *file, header_t lHeader, string path) 
         {  
             vector<lumpInfo_t> lDirectory;
             file->seekg(lHeader.infotableofs);
@@ -377,6 +378,7 @@ class WADStructure: public baseResourceWAD {
                 lump.name =  charsToString(raw_lump.name, 8);
                 lump.filepos = raw_lump.filepos;
                 lump.size = raw_lump.size;
+                lump.path = path;
                 lDirectory.push_back(lump);           
             }
             return lDirectory;
