@@ -14,7 +14,111 @@
 #include "Interfaces.h"
 #endif
 
+
+#ifndef LEVELDATA_H
+#define LEVELDATA_H
+#include "../Utils/Info.h"
+#endif
+
+
 using namespace std;
+
+
+struct Thing
+{
+    int16_t x;
+    int16_t y;
+    int16_t angle;
+    int16_t type;
+    int16_t flags;
+};
+
+struct Linedef
+{
+    int16_t startVertex;
+    int16_t endVertex;
+    int16_t flags;
+    int16_t specialType;
+    int16_t sectorTag;
+    int16_t frontSidedef;
+    int16_t backSidedef;
+};
+
+struct Sidedef
+{
+    int16_t xOffset;
+    int16_t yOffset;
+    char upperTextureName[8];
+    char lowerTextureName[8];
+    char middleTextureName[8];
+    int16_t sectorNumber;
+};
+
+struct Vertex
+{
+    int16_t x;
+    int16_t y;
+};
+
+struct Seg
+{
+    int16_t startVertex;
+    int16_t endVertex;
+    int16_t angle;
+    int16_t lindefNumber;
+    int16_t direction;
+    int16_t offset;
+};
+
+struct SSector
+{
+    int16_t segCount;
+    int16_t firistSegNumber;
+};
+
+struct Node
+{
+    int16_t xPartition;
+    int16_t yPartition;
+    int16_t xPartitionDiff;
+    int16_t yPartitionDiff;
+    int16_t rightBoxTop;
+    int16_t rightBoxBottom;
+    int16_t rightBoxLeft;
+    int16_t rightBoxRight;
+    int16_t leftBoxTop;
+    int16_t leftBoxBottom;
+    int16_t leftBoxLeft;
+    int16_t leftBoxRight;
+    int16_t rightChild;
+    int16_t leftChild;
+};
+
+struct Sector
+{
+    int16_t floorHeight;
+    int16_t ceilingHeight;
+    char floorTextureName[8];
+    char ceilingTextureName[8];
+    int16_t lightLevel;
+    int16_t specialType;
+    int16_t tagNumber;
+};
+
+struct BLOCKMAPHeader 
+{
+    int16_t originX;
+    int16_t originY;
+    int16_t numColumns;
+    int16_t numRows;
+};
+
+struct Blockmap
+{
+    BLOCKMAPHeader blockmapHeader;
+    vector<int16_t> blockmapOffsets;
+    vector<vector<uint16_t>> blockmapBlockLists;
+};
 
 
 class LevelData: public baseResourceWAD {      
@@ -23,10 +127,15 @@ class LevelData: public baseResourceWAD {
 
     LevelData(){}
 
-
-    LevelData(string path, WADStructure::levelInfo_t *levelData)
+    /**
+     * @brief Construct a new Level Data object
+     * 
+     * @param path 
+     * @param levelData 
+     */
+    LevelData(WADStructure* wad, WADStructure::levelInfo_t *levelData)
         {
-            filePath = path;
+            filePath = wad->filePath;
             std::ifstream file(filePath, std::ios::binary);
 
             levelName = levelData->name;
@@ -46,23 +155,44 @@ class LevelData: public baseResourceWAD {
             file.close();
     }
 
+    /**
+     * @brief Get the Level Name in string format
+     * 
+     * @return string 
+     */
     string getLevelName()
     {
         return levelName;
     }
 
-    void printLevelInfo()
+    void printInfo()
     {
-        cout << endl << "LEVEL:" << endl;
-        cout << "name: " << levelName << endl;
-        cout << "things amount: " << things.size() << endl; 
-        cout << "linedefs amount: " << linedefs.size() << endl; 
-        cout << "sidedefs amount: " << sidedefs.size() << endl;
-        cout << "vertex amount: " << vertexs.size() << endl; 
-        cout << "segs amount: " << segs.size() << endl; 
-        cout << "subsectors amount: " << subSectors.size() << endl;
-        cout << "nodes amount: " << nodes.size() << endl;
-        cout << "sectors amount: " << sectors.size() << endl;
+        printInfoHeader("H1", "LEVEL");
+        cout << printInfoTab("H1") << "name: " << levelName << endl;
+        cout << printInfoTab("H1") << "things amount: " << things.size() << endl; 
+        cout << printInfoTab("H1") << "linedefs amount: " << linedefs.size() << endl; 
+        cout << printInfoTab("H1") << "sidedefs amount: " << sidedefs.size() << endl;
+        cout << printInfoTab("H1") << "vertex amount: " << vertexs.size() << endl; 
+        cout << printInfoTab("H1") << "segs amount: " << segs.size() << endl; 
+        cout << printInfoTab("H1") << "subsectors amount: " << subSectors.size() << endl;
+        cout << printInfoTab("H1") << "nodes amount: " << nodes.size() << endl;
+        cout << printInfoTab("H1") << "sectors amount: " << sectors.size() << endl;
+        printInfoHeader("H1");
+    }
+
+    void printDetailedInfo()
+    {
+        printInfoHeader("H1", "LEVEL");
+
+        cout << printInfoTab("H1") << "name: " << levelName << endl;
+        cout << printInfoTab("H1") << "things amount: " << things.size() << endl; 
+        cout << printInfoTab("H1") << "linedefs amount: " << linedefs.size() << endl; 
+        cout << printInfoTab("H1") << "sidedefs amount: " << sidedefs.size() << endl;
+        cout << printInfoTab("H1") << "vertex amount: " << vertexs.size() << endl; 
+        cout << printInfoTab("H1") << "segs amount: " << segs.size() << endl; 
+        cout << printInfoTab("H1") << "subsectors amount: " << subSectors.size() << endl;
+        cout << printInfoTab("H1") << "nodes amount: " << nodes.size() << endl;
+        cout << printInfoTab("H1") << "sectors amount: " << sectors.size() << endl;
 
         cout << endl << "|THINGS|" << endl;
         cout << setw(10) << "x" << setw(10) << "y" << setw(10) << "angle" << setw(10) << "type" << setw(10) << "flags" << endl;
@@ -194,100 +324,133 @@ class LevelData: public baseResourceWAD {
                 cout << "   " << blockmapBlockLists[y][x] << endl;
             }
         }
+
+        printInfoHeader("H1");
+    }
+
+    /**
+     * @brief Get the Things object
+     * 
+     * @note you can read more about Things here: https://doomwiki.org/wiki/Thing
+     * 
+     * @return vector<Thing> 
+     */
+    vector<Thing> getThings()
+    {
+        return things;
+    }
+
+    /**
+     * @brief Get the Linedefs object
+     * 
+     * @note you can read more about Linedefs here: https://doomwiki.org/wiki/Linedef
+     * 
+     * @return vector<Linedef>  
+     */
+    vector<Linedef> getLinedefs()
+    {
+        return linedefs;
+    }
+
+    /**
+     * @brief Get the Sidedefs object
+     * 
+     * @note you can read more about Sidedefs here: https://doomwiki.org/wiki/Sidedef
+     * 
+     * @return vector<Sidedef>  
+     */
+    vector<Sidedef> getSidedefs()
+    {
+        return sidedefs;
+    }
+
+    /**
+     * @brief Get the Vertexs object
+     * 
+     * @note you can read more about Vertexs here: https://doomwiki.org/wiki/Vertex
+     * 
+     * @return vector<Vertex>  
+     */
+    vector<Vertex> getVertexs()
+    {
+        return vertexs;
+    }
+
+    /**
+     * @brief Get the Segs object
+     * 
+     * @note you can read more about Segs here: https://doomwiki.org/wiki/Seg
+     * 
+     * @return vector<Seg>  
+     */
+    vector<Seg> getSegs()
+    {
+        return segs;
+    }
+
+    /**
+     * @brief Get the SubSectors object
+     * 
+     * @note you can read more about SubSectors here: https://doomwiki.org/wiki/Subsector
+     * 
+     * @return vector<SSector>  
+     */
+    vector<SSector> getSubSectors()
+    {
+        return subSectors;
+    }
+
+    /**
+     * @brief Get the Nodes object
+     * 
+     * @note you can read more about Nodes here: https://doomwiki.org/wiki/Node
+     * 
+     * @return vector<Node>  
+     */
+    vector<Node> getNodes()
+    {
+        return nodes;
+    }
+
+    /**
+     * @brief Get the Sectors object
+     * 
+     * @note you can read more about Sectors here: https://doomwiki.org/wiki/Sector
+     * 
+     * @return vector<Sector>  
+     */
+    vector<Sector> getSectors()
+    {
+        return sectors;
+    }
+
+    /**
+     * @brief Get the Reject Table object
+     * 
+     * @note you can read more about Reject Table here: https://doomwiki.org/wiki/Reject
+     * 
+     * @return vector<vector<bool>> 
+     */
+    vector<vector<bool>> getRejectTable()
+    {
+        return rejectTable;
+    }
+
+    /**
+     * @brief Get the Blockmap object
+     * 
+     * @note you can read more about Blockmap here: https://doomwiki.org/wiki/Blockmap
+     * 
+     * @return Blockmap
+     */
+    Blockmap getBlockmap()
+    {
+        return blockmap;
     }
 
     private:
         string levelName;
         string filePath = "";
-        
-        struct Thing
-        {
-            int16_t x;
-            int16_t y;
-            int16_t angle;
-            int16_t type;
-            int16_t flags;
-        };
-
-        struct Linedef
-        {
-            int16_t startVertex;
-            int16_t endVertex;
-            int16_t flags;
-            int16_t specialType;
-            int16_t sectorTag;
-            int16_t frontSidedef;
-            int16_t backSidedef;
-        };
-
-        struct Sidedef
-        {
-            int16_t xOffset;
-            int16_t yOffset;
-            char upperTextureName[8];
-            char lowerTextureName[8];
-            char middleTextureName[8];
-            int16_t sectorNumber;
-        };
-
-        struct Vertex
-        {
-            int16_t x;
-            int16_t y;
-        };
-
-        struct Seg
-        {
-            int16_t startVertex;
-            int16_t endVertex;
-            int16_t angle;
-            int16_t lindefNumber;
-            int16_t direction;
-            int16_t offset;
-        };
-
-        struct SSector
-        {
-            int16_t segCount;
-            int16_t firistSegNumber;
-        };
-
-        struct Node
-        {
-            int16_t xPartition;
-            int16_t yPartition;
-            int16_t xPartitionDiff;
-            int16_t yPartitionDiff;
-            int16_t rightBoxTop;
-            int16_t rightBoxBottom;
-            int16_t rightBoxLeft;
-            int16_t rightBoxRight;
-            int16_t leftBoxTop;
-            int16_t leftBoxBottom;
-            int16_t leftBoxLeft;
-            int16_t leftBoxRight;
-            int16_t rightChild;
-            int16_t leftChild;
-        };
-
-        struct Sector
-        {
-            int16_t floorHeight;
-            int16_t ceilingHeight;
-            char floorTextureName[8];
-            char ceilingTextureName[8];
-            int16_t lightLevel;
-            int16_t specialType;
-            int16_t tagNumber;
-        };
-
-        struct BLOCKMAPHeader 
-        {
-            int16_t originX;
-            int16_t originY;
-            int16_t numColumns;
-            int16_t numRows;
-        };
 
         vector<Thing> things;
         vector<Linedef> linedefs;
@@ -298,6 +461,7 @@ class LevelData: public baseResourceWAD {
         vector<Node> nodes;
         vector<Sector> sectors;
         vector<vector<bool>> rejectTable;
+        Blockmap blockmap;
 
         BLOCKMAPHeader blockmapHeader;
         vector<int16_t> blockmapOffsets;
@@ -519,6 +683,10 @@ class LevelData: public baseResourceWAD {
                     list.push_back(value);
                 }
             }
+
+            blockmap.blockmapHeader = blockmapHeader;
+            blockmap.blockmapBlockLists = blockmapBlockLists;
+            blockmap.blockmapOffsets = blockmapOffsets;
         }
 
 };

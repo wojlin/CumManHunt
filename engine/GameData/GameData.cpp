@@ -9,7 +9,7 @@
 
 #include "Interfaces.h"
 
-#include "../Utils/info.h"
+#include "../Utils/Info.h"
 
 using namespace std;
 
@@ -45,7 +45,7 @@ class GameData
          */
         void printInfo()
         {
-            printInfoHeader("H2", "GAME DATA INFO");
+            printInfoHeader("H1", "GAME DATA INFO");
 
             if(compiled)
             {
@@ -83,7 +83,7 @@ class GameData
                 cout << "game data is not compiled yet!" << endl;
             }
 
-            printInfoHeader("H2");
+            printInfoHeader("H1");
         }
 
         /**
@@ -144,7 +144,7 @@ class GameData
             {
                 if(wad->levelsList[x].name == name)
                 {
-                    return make_unique<LevelData>(wad->filePath, &wad->levelsList[0]);
+                    return make_unique<LevelData>(wad, &wad->levelsList[0]);
                 }
             }
             return nullptr;
@@ -163,7 +163,7 @@ class GameData
             {
                 return nullptr;
             }
-            return make_unique<LevelData>(wad->filePath, &wad->levelsList[number]);
+            return make_unique<LevelData>(wad, &wad->levelsList[number]);
         }
 
         /**
@@ -229,7 +229,8 @@ int main()
     gameData.printInfo();
 
     unique_ptr<LevelData> level = gameData.getLevelData(0);
-    //level->printLevelInfo();
+    level->printInfo();
+    level->printDetailedInfo();
 
 
     //MUS FORMAT TEST
