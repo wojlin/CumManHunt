@@ -37,7 +37,7 @@ void GameData::printInfo()
     {
         WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
         ResourcesData* resources = getResourceFromWAD<ResourcesData>();
-        PlayPalData* playpal = getResourceFromWAD<PlayPalData>();
+        PlayPalData::PlayPalData* playpal = getResourceFromWAD<PlayPalData::PlayPalData>();
         ColorMapData* colormap = getResourceFromWAD<ColorMapData>();
 
         cout << "IWAD Path: \""<< wad->filePath << "\"" << endl;
@@ -107,9 +107,9 @@ void GameData::compile()
     WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
     wad->compile();
     classInstances[&typeid(EndoomData::EndoomData)] = new EndoomData::EndoomData(wad);
-    classInstances[&typeid(PlayPalData)] = new PlayPalData(wad);
+    classInstances[&typeid(PlayPalData::PlayPalData)] = new PlayPalData::PlayPalData(wad);
     classInstances[&typeid(ColorMapData)] = new ColorMapData(wad);
-    PlayPalData* playpal = getResourceFromWAD<PlayPalData>();
+    PlayPalData::PlayPalData* playpal = getResourceFromWAD<PlayPalData::PlayPalData>();
     classInstances[&typeid(ResourcesData)] = new ResourcesData(wad, playpal);
     classInstances[&typeid(AudioInfoData)] = new AudioInfoData(wad);
     classInstances[&typeid(SoundData)] = new SoundData(wad);

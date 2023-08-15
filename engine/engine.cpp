@@ -26,7 +26,7 @@ int main()
 
     WADStructure::WADStructure* wad = gameData.getResourceFromWAD<WADStructure::WADStructure>();
     EndoomData::EndoomData* endoom = gameData.getResourceFromWAD<EndoomData::EndoomData>();
-    PlayPalData* playpal = gameData.getResourceFromWAD<PlayPalData>();
+    PlayPalData::PlayPalData* playpal = gameData.getResourceFromWAD<PlayPalData::PlayPalData>();
     ColorMapData* colormap = gameData.getResourceFromWAD<ColorMapData>();
     ResourcesData* resources = gameData.getResourceFromWAD<ResourcesData>();
     AudioInfoData* audio = gameData.getResourceFromWAD<AudioInfoData>();

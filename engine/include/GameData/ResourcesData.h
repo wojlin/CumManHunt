@@ -20,7 +20,7 @@ struct imageColumn_t
     int column;
     int rowStart;
     int pixelCount;
-    vector<color_t> pixels;
+    vector<PlayPalData::color_t> pixels;
 };
 
 
@@ -92,7 +92,7 @@ class ResourcesData: public baseResourceWAD
         
         ResourcesData();
 
-        ResourcesData(WADStructure::WADStructure *wad, PlayPalData*  playpalPointer);
+        ResourcesData(WADStructure::WADStructure *wad, PlayPalData::PlayPalData*  playpalPointer);
 
         Image readFlat(string name);
 
@@ -134,7 +134,7 @@ class ResourcesData: public baseResourceWAD
         int flatsAmount = 0;
         int patchesAmount = 0;
 
-        PlayPalData* playpal;
+        PlayPalData::PlayPalData* playpal;
 
 
         void readTextureX(WADStructure::lumpInfo_t lump);

@@ -56,7 +56,7 @@ void Image::saveAsFile(string filePath)
     {   
         for(int b = 0; b < columns[x].pixelCount; b++)
         {
-            color_t pixel = columns[x].pixels[b];
+            PlayPalData::color_t pixel = columns[x].pixels[b];
             image.setPixel(columns[x].column, columns[x].rowStart + b, pixel.red, pixel.green, pixel.blue, 255);
         }
 
@@ -72,7 +72,7 @@ ResourcesData::ResourcesData()
 
 }
 
-ResourcesData::ResourcesData(WADStructure::WADStructure *wad, PlayPalData*  playpalPointer): filePath(wad->filePath), playpal(playpalPointer)
+ResourcesData::ResourcesData(WADStructure::WADStructure *wad, PlayPalData::PlayPalData*  playpalPointer): filePath(wad->filePath), playpal(playpalPointer)
 {
     filePath = wad->filePath;
     std::ifstream file(filePath, std::ios::binary);
@@ -208,7 +208,7 @@ Image ResourcesData::readPatch(string name)
             {
                 uint8_t value = 0;
                 file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
-                color_t color = playpal->getColor(0, value);
+                PlayPalData::color_t color = playpal->getColor(0, value);
                 column.pixels.push_back(color);
             }
             columns.push_back(column);
@@ -292,7 +292,7 @@ Image ResourcesData::readSprite(string name)
             {
                 uint8_t value = 0;
                 file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
-                color_t color = playpal->getColor(0, value);
+                PlayPalData::color_t color = playpal->getColor(0, value);
                 column.pixels.push_back(color);
             }
             columns.push_back(column);
