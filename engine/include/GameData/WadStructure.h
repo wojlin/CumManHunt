@@ -16,7 +16,8 @@
 
 using namespace std;
 
-
+#ifndef WADSTRUCTURE_H
+#define WADSTRUCTURE_H
 class WADStructure: public baseResourceWAD {      
   public: 
     
@@ -493,3 +494,5 @@ class WADStructure: public baseResourceWAD {
 
 
 };
+
+#endif
