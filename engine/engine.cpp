@@ -52,7 +52,7 @@ int main()
     
     //SPRITE TEST
     //string name1 = "CHGGA0";
-    //Image image1 = resources.readSprite(name1);
+    //Image image1 = resources->readSprite(name1);
     //image1.printInfo();
     //image1.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name1 + ".bmp");
 
