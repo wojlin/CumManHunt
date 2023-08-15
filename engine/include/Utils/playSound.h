@@ -1,3 +1,6 @@
+#ifndef PLAYSOUND_H
+#define PLAYSOUND_H
+
 #include <iostream>
 #include <cmath>
 #include <string>
@@ -57,6 +60,7 @@ void playSfx(vector<uint8_t> samples, uint16_t sampleRate)
     SDL_Quit();
     
 }
+
 
 void playBuzzer(vector<uint8_t> samples, uint16_t sampleRate) 
 {
@@ -189,3 +193,5 @@ void playBuzzer(vector<uint8_t> samples, uint16_t sampleRate)
 
 #endif
 }
+
+#endif
