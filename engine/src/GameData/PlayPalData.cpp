@@ -4,7 +4,7 @@ PlayPalData::PlayPalData()
 {
 }
 
-PlayPalData::PlayPalData(WADStructure *wad)
+PlayPalData::PlayPalData(WADStructure::WADStructure *wad)
 {
     filePath = wad->filePath;
     playPalLump = wad->findLump("PLAYPAL");

@@ -5,7 +5,7 @@ ColorMapData::ColorMapData()
 {
 }
 
-ColorMapData::ColorMapData(WADStructure *wad)
+ColorMapData::ColorMapData(WADStructure::WADStructure *wad)
 {
     filePath = wad->filePath;
     colormapLump = wad->findLump("COLORMAP");

@@ -67,7 +67,7 @@ SoundData::SoundData()
 {
 }
 
-SoundData::SoundData(WADStructure *wad)
+SoundData::SoundData(WADStructure::WADStructure *wad)
 {
     filePath = wad->filePath;
     wadStructure = wad;

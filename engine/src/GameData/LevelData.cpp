@@ -11,7 +11,7 @@ LevelData::LevelData(){}
  * @param path 
  * @param levelData 
  */
-LevelData::LevelData(WADStructure *wadObj, WADStructure::levelInfo_t *levelData)
+LevelData::LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData)
 {
     wad = wadObj;
     level = levelData;

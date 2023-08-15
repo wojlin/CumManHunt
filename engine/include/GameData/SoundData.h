@@ -46,13 +46,13 @@ class SoundData: public baseResourceWAD
 
         SoundData();
 
-        SoundData(WADStructure *wad);
+        SoundData(WADStructure::WADStructure *wad);
 
         Sound readSound(string name);
 
     private:
         string filePath;
-        WADStructure *wadStructure;
+        WADStructure::WADStructure *wadStructure;
 };
 
 #endif

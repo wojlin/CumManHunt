@@ -25,7 +25,7 @@ class PlayPalData: public baseResourceWAD
 
         PlayPalData();
 
-        PlayPalData(WADStructure *wad);
+        PlayPalData(WADStructure::WADStructure *wad);
 
         color_t getColor(int, uint8_t);
 

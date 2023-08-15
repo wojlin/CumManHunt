@@ -3,7 +3,7 @@
 
 EndoomData::EndoomData(){}
 
-EndoomData::EndoomData(WADStructure *wad)
+EndoomData::EndoomData(WADStructure::WADStructure *wad)
 {
     filePath = wad->filePath;
     endoomLump = wad->findLump("ENDOOM");

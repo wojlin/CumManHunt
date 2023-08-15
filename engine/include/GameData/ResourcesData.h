@@ -92,7 +92,7 @@ class ResourcesData: public baseResourceWAD
         
         ResourcesData();
 
-        ResourcesData(WADStructure *wad, PlayPalData*  playpalPointer);
+        ResourcesData(WADStructure::WADStructure *wad, PlayPalData*  playpalPointer);
 
         Image readFlat(string name);
 
@@ -139,13 +139,13 @@ class ResourcesData: public baseResourceWAD
 
         void readTextureX(WADStructure::lumpInfo_t lump);
         
-        void readPNames(WADStructure *wad);
+        void readPNames(WADStructure::WADStructure *wad);
 
-        void readSprites(WADStructure *wad);
+        void readSprites(WADStructure::WADStructure *wad);
 
-        void readFlats(WADStructure *wad);
+        void readFlats(WADStructure::WADStructure *wad);
 
-        void readPatches(WADStructure *wad);
+        void readPatches(WADStructure::WADStructure *wad);
 
 };
 

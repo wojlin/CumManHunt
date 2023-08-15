@@ -57,7 +57,7 @@ class DemoData: public baseResourceWAD
 
         DemoData();
 
-        DemoData(WADStructure *wad);
+        DemoData(WADStructure::WADStructure *wad);
 
         vector<demo_t> getDemos();
 

@@ -125,7 +125,7 @@ class LevelData: public baseResourceWAD {
      * @param path 
      * @param levelData 
      */
-    LevelData(WADStructure *wadObj, WADStructure::levelInfo_t *levelData);
+    LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData);
 
     /**
      * @brief Get the Level Name in string format
@@ -237,7 +237,7 @@ class LevelData: public baseResourceWAD {
     Blockmap getBlockmap();
 
     private:
-        WADStructure* wad;
+        WADStructure::WADStructure* wad;
         WADStructure::levelInfo_t* level;
 
         string levelName;

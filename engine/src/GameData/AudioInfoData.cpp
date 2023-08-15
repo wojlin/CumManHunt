@@ -5,7 +5,7 @@ AudioInfoData::AudioInfoData()
 {
 }
 
-AudioInfoData::AudioInfoData(WADStructure *wad)
+AudioInfoData::AudioInfoData(WADStructure::WADStructure *wad)
 {
     filePath = wad->filePath;
     GENMIDILump = wad->findLump("GENMIDI");

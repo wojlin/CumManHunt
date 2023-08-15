@@ -17,7 +17,7 @@ class ColorMapData: public baseResourceWAD
 
         ColorMapData();
 
-        ColorMapData(WADStructure *wad);
+        ColorMapData(WADStructure::WADStructure *wad);
 
         uint8_t getColor(int, uint8_t);
 

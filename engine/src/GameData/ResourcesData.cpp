@@ -72,7 +72,7 @@ ResourcesData::ResourcesData()
 
 }
 
-ResourcesData::ResourcesData(WADStructure *wad, PlayPalData*  playpalPointer): filePath(wad->filePath), playpal(playpalPointer)
+ResourcesData::ResourcesData(WADStructure::WADStructure *wad, PlayPalData*  playpalPointer): filePath(wad->filePath), playpal(playpalPointer)
 {
     filePath = wad->filePath;
     std::ifstream file(filePath, std::ios::binary);
@@ -465,7 +465,7 @@ void ResourcesData::readTextureX(WADStructure::lumpInfo_t lump)
 }
 
         
-void ResourcesData::readPNames(WADStructure *wad)
+void ResourcesData::readPNames(WADStructure::WADStructure *wad)
 {
     WADStructure::lumpInfo_t colormapLump = wad->findLump("PNAMES");
 
@@ -485,7 +485,7 @@ void ResourcesData::readPNames(WADStructure *wad)
 
 }
 
-void ResourcesData::readSprites(WADStructure *wad)
+void ResourcesData::readSprites(WADStructure::WADStructure *wad)
 {
     bool markerFound = false;
     for(int i = 0; i < wad->getDirectoryCount();i++)
@@ -507,7 +507,7 @@ void ResourcesData::readSprites(WADStructure *wad)
     cout << "reading sprites..." << endl;
 }
 
-void ResourcesData::readFlats(WADStructure *wad)
+void ResourcesData::readFlats(WADStructure::WADStructure *wad)
 {
     bool markerFound = false;
     for(int i = 0; i < wad->getDirectoryCount();i++)
@@ -529,7 +529,7 @@ void ResourcesData::readFlats(WADStructure *wad)
     cout << "reading flats..." << endl;
 }
 
-void ResourcesData::readPatches(WADStructure *wad)
+void ResourcesData::readPatches(WADStructure::WADStructure *wad)
 {
     bool markerFound = false;
     for(int i = 0; i < wad->getDirectoryCount();i++)

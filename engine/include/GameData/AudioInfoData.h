@@ -57,7 +57,7 @@ class AudioInfoData: public baseResourceWAD
 
         AudioInfoData();
 
-        AudioInfoData(WADStructure *wad);
+        AudioInfoData(WADStructure::WADStructure *wad);
 
         void printInfo();
 

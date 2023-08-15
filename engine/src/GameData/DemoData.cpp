@@ -4,7 +4,7 @@ DemoData::DemoData()
 {
 }
 
-DemoData::DemoData(WADStructure *wad)
+DemoData::DemoData(WADStructure::WADStructure *wad)
 {
     filePath = wad->filePath;
     vector<WADStructure::lumpInfo_t> demoLumps = wad->findLumps("DEMO");

@@ -15,7 +15,7 @@ int main()
     //gameData.loadPWAD("../tests/not_wad.WAD");
     gameData.compile();
 
-    WADStructure* wad = gameData.getResourceFromWAD<WADStructure>();
+    WADStructure::WADStructure* wad = gameData.getResourceFromWAD<WADStructure::WADStructure>();
     EndoomData* endoom = gameData.getResourceFromWAD<EndoomData>();
     PlayPalData* playpal = gameData.getResourceFromWAD<PlayPalData>();
     ColorMapData* colormap = gameData.getResourceFromWAD<ColorMapData>();

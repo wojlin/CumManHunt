@@ -25,7 +25,7 @@ class EndoomData: public baseResourceWAD
 
         EndoomData();
 
-        EndoomData(WADStructure *wad);
+        EndoomData(WADStructure::WADStructure *wad);
 
         void printInfo();
 

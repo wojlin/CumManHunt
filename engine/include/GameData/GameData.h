@@ -49,7 +49,7 @@ class GameData
 
             if(compiled)
             {
-                WADStructure* wad = getResourceFromWAD<WADStructure>();
+                WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
                 ResourcesData* resources = getResourceFromWAD<ResourcesData>();
                 PlayPalData* playpal = getResourceFromWAD<PlayPalData>();
                 ColorMapData* colormap = getResourceFromWAD<ColorMapData>();
@@ -95,7 +95,7 @@ class GameData
          */
         void loadIWAD(string path)
         {
-            classInstances[&typeid(WADStructure)] = new WADStructure(path);
+            classInstances[&typeid(WADStructure::WADStructure)] = new WADStructure::WADStructure(path);
         }
 
         /**
@@ -107,7 +107,7 @@ class GameData
          */
         void loadPWAD(string path)
         {
-            WADStructure* wad = getResourceFromWAD<WADStructure>();
+            WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
             wad->loadPWAD(path);
         }
 
@@ -118,7 +118,7 @@ class GameData
          */
         void compile()
         {
-            WADStructure* wad = getResourceFromWAD<WADStructure>();
+            WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
             wad->compile();
             classInstances[&typeid(EndoomData)] = new EndoomData(wad);
             classInstances[&typeid(PlayPalData)] = new PlayPalData(wad);
@@ -139,7 +139,7 @@ class GameData
          */
         unique_ptr<LevelData> getLevelData(string name)
         {
-            WADStructure* wad = getResourceFromWAD<WADStructure>();
+            WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
             for(int x =0; x<wad->levelsList.size(); x++)
             {
                 if(wad->levelsList[x].name == name)
@@ -158,7 +158,7 @@ class GameData
          */
         unique_ptr<LevelData> getLevelData(int number)
         {
-            WADStructure* wad = getResourceFromWAD<WADStructure>();
+            WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
             if(number >= wad->levelsList.size())
             {
                 return nullptr;
