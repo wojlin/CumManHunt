@@ -11,7 +11,7 @@ constexpr int H2_LEN = 60;
 constexpr char H3_CHAR = '.';
 constexpr int H3_LEN = 60;
 
-string printInfoTab(string size)
+inline string printInfoTab(string size)
 {
     int offset = 0;
     string tab = "";
@@ -42,7 +42,7 @@ string printInfoTab(string size)
     return tab;
 }
 
-void printInfoHeader(string size, string name = "")
+inline void printInfoHeader(string size, string name = "")
 {
     char usedChar;
     int usedSize;
