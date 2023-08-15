@@ -25,7 +25,7 @@ int main()
     gameData.compile();
 
     WADStructure::WADStructure* wad = gameData.getResourceFromWAD<WADStructure::WADStructure>();
-    EndoomData* endoom = gameData.getResourceFromWAD<EndoomData>();
+    EndoomData::EndoomData* endoom = gameData.getResourceFromWAD<EndoomData::EndoomData>();
     PlayPalData* playpal = gameData.getResourceFromWAD<PlayPalData>();
     ColorMapData* colormap = gameData.getResourceFromWAD<ColorMapData>();
     ResourcesData* resources = gameData.getResourceFromWAD<ResourcesData>();
@@ -40,7 +40,7 @@ int main()
     //level->printDetailedInfo();
 
 
-    
+    //endoom->printEndoom();
 
 
     //MUS FORMAT TEST

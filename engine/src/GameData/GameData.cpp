@@ -106,7 +106,7 @@ void GameData::compile()
 {
     WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
     wad->compile();
-    classInstances[&typeid(EndoomData)] = new EndoomData(wad);
+    classInstances[&typeid(EndoomData::EndoomData)] = new EndoomData::EndoomData(wad);
     classInstances[&typeid(PlayPalData)] = new PlayPalData(wad);
     classInstances[&typeid(ColorMapData)] = new ColorMapData(wad);
     PlayPalData* playpal = getResourceFromWAD<PlayPalData>();
