@@ -3,8 +3,8 @@
 #include <sstream>
 #include <string>
 
-#ifndef ENDOOMDATA_H
-#define ENDOOMDATA_H
+#ifndef AUDIODATA_H
+#define AUDIODATA_H
 #include "Interfaces.h"
 #endif
 

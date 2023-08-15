@@ -9,10 +9,7 @@
 #include <algorithm>
 
 
-#ifndef ENDOOMDATA_H
-#define ENDOOMDATA_H
 #include "Interfaces.h"
-#endif
 
 using namespace std;
 

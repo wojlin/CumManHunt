@@ -1,8 +1,8 @@
 #include <map>
 #include "../Utils/BMPImage.h"
 
-#ifndef ENDOOMDATA_H
-#define ENDOOMDATA_H
+#ifndef INTERFACES_H
+#define INTERFACES_H
 #include "Interfaces.h"
 #endif
 

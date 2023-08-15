@@ -1,6 +1,3 @@
-#include <map>
-#include <math.h>
-
 #include "../../include/GameData/PlayPalData.h"
 
 PlayPalData::PlayPalData()
