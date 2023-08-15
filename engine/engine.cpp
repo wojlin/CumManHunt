@@ -1,5 +1,14 @@
 #include "include/GameData/GameData.h"
 
+#include "include/GameData/LevelData.h"
+#include "include/GameData/ColorMapData.h"
+#include "include/GameData/PlayPalData.h"
+#include "include/GameData/ResourcesData.h"
+#include "include/GameData/EndoomData.h"
+#include "include/GameData/AudioInfoData.h"
+#include "include/GameData/SoundData.h"
+#include "include/GameData/DemoData.h"
+
 using namespace std;
 
 
