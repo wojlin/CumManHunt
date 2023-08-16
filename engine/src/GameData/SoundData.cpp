@@ -1,10 +1,26 @@
 #include "../../include/GameData/SoundData.h"
 #include "../../include/Utils/playSound.h"
 
-namespace Sound
+namespace SoundData
 {
 
-    Sound::Sound(string formatValue, string nameString, int sampleRateValue, int numberOfSamplesValue, vector<uint8_t> samplesVector)
+    Soundtrack::Soundtrack()
+    {
+
+    }
+
+    void Soundtrack::play()
+    {
+
+    }
+
+    void Soundtrack::printInfo()
+    {
+
+    }
+
+
+    SoundEffect::SoundEffect(string formatValue, string nameString, int sampleRateValue, int numberOfSamplesValue, vector<uint8_t> samplesVector)
     {
         format = formatValue;
         name = nameString;
@@ -13,22 +29,22 @@ namespace Sound
         samples = samplesVector;
     }
 
-    int  Sound::getSampleRate()
+    int  SoundEffect::getSampleRate()
     {
         return sampleRate;
     }
 
-    int  Sound::getNumberOfSamples()
+    int  SoundEffect::getNumberOfSamples()
     {
         return numberOfSamples;
     }
 
-    vector<uint8_t>  Sound::getSamples()
+    vector<uint8_t>  SoundEffect::getSamples()
     {
         return samples;
     }
 
-    void  Sound::printInfo()
+    void  SoundEffect::printInfo()
     {
         cout << "|SOUND|" << endl;
         cout << "format: " << format << endl;
@@ -44,7 +60,7 @@ namespace Sound
 
     }
 
-    void  Sound::play()
+    void  SoundEffect::play()
     {
         if(format == "pc_speaker")
         {
@@ -76,7 +92,7 @@ namespace Sound
         wadStructure = wad;
     }
 
-    Sound SoundData::readSound(string name)
+    baseSound* SoundData::readSound(string name)
     {
         
         WADStructure::lumpInfo_t lump =  wadStructure->findLump(name);
@@ -103,7 +119,7 @@ namespace Sound
                 file.read(reinterpret_cast<char*>(&value), sizeof(value));
                 samples.push_back(value);
             }
-            return Sound("doom_format", name, static_cast<int>(sampleRate), static_cast<int>(numberOfSamples), samples);            
+            return new SoundEffect("doom_format", name, static_cast<int>(sampleRate), static_cast<int>(numberOfSamples), samples);            
         }
         else if(unsigned(format) == 0) // pc speaker
         {
@@ -118,7 +134,7 @@ namespace Sound
                 file.read(reinterpret_cast<char*>(&value), sizeof(value));
                 samples.push_back(value);
             }
-            return Sound("pc_speaker", name, static_cast<int>(sampleRate), static_cast<int>(numberOfSamples), samples);  
+            return new SoundEffect("pc_speaker", name, static_cast<int>(sampleRate), static_cast<int>(numberOfSamples), samples);  
         }
         else
         {
@@ -173,6 +189,8 @@ namespace Sound
                 
 
                 cout << "reading MIDI" << endl;
+
+                return new Soundtrack();
             }
 
             cout << "Error reading sound data" << endl;

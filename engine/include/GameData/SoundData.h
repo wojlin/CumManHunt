@@ -11,14 +11,29 @@
 #include "Interfaces.h"
 #include "WadStructure.h"
 
-namespace Sound
+namespace SoundData
 {
 
-    class Sound
+    class Soundtrack: public baseSound
     {
         public:
         
-            Sound(string formatValue, string nameString, int sampleRateValue, int numberOfSamplesValue, vector<uint8_t> samplesVector);
+            Soundtrack();
+
+            void printInfo();
+
+            void play();
+
+        private:
+
+    };
+
+
+    class SoundEffect: public baseSound
+    {
+        public:
+        
+            SoundEffect(string formatValue, string nameString, int sampleRateValue, int numberOfSamplesValue, vector<uint8_t> samplesVector);
 
             int getSampleRate();
 
@@ -49,7 +64,7 @@ namespace Sound
 
             SoundData(WADStructure::WADStructure *wad);
 
-            Sound readSound(string name);
+            baseSound* readSound(string name);
 
         private:
             string filePath;

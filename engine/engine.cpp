@@ -30,7 +30,7 @@ int main()
     ColorMapData::ColorMapData* colormap = gameData.getResourceFromWAD<ColorMapData::ColorMapData>();
     ResourcesData::ResourcesData* resources = gameData.getResourceFromWAD<ResourcesData::ResourcesData>();
     AudioInfoData::AudioInfoData* audio = gameData.getResourceFromWAD<AudioInfoData::AudioInfoData>();
-    Sound::SoundData* sound = gameData.getResourceFromWAD<Sound::SoundData>();
+    SoundData::SoundData* sound = gameData.getResourceFromWAD<SoundData::SoundData>();
     DemoData::DemoData* demo = gameData.getResourceFromWAD<DemoData::DemoData>();
 
     gameData.printInfo();
@@ -44,19 +44,19 @@ int main()
 
 
     //MUS FORMAT TEST
-    //Sound sound1 = sound.readSound("D_OPENIN");
+    //baseSound* sound1 = sound->readSound("D_OPENIN");
     //sound1.printInfo();
     //sound1.play();
 
     //DOOM FORMAT TEST
-    //Sound sound2 = sound.readSound("DSSGTDTH");
-    //sound2.printInfo();
-    //sound2.play();
+    //baseSound* sound2 = sound->readSound("DSSGTDTH");
+    //sound2->printInfo();
+    //sound2->play();
 
     //PC SPEAKER TEST
-    //Sound sound3 = sound->readSound("DPPESIT");
-    //sound3.printInfo(); 
-    //sound3.play();
+    //baseSound* sound3 = sound->readSound("DPPESIT");
+    //sound3->printInfo(); 
+    //sound3->play();
    
     
     //SPRITE TEST

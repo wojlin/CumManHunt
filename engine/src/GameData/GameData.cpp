@@ -112,7 +112,7 @@ void GameData::compile()
     PlayPalData::PlayPalData* playpal = getResourceFromWAD<PlayPalData::PlayPalData>();
     classInstances[&typeid(ResourcesData::ResourcesData)] = new ResourcesData::ResourcesData(wad, playpal);
     classInstances[&typeid(AudioInfoData::AudioInfoData)] = new AudioInfoData::AudioInfoData(wad);
-    classInstances[&typeid(Sound::SoundData)] = new Sound::SoundData(wad);
+    classInstances[&typeid(SoundData::SoundData)] = new SoundData::SoundData(wad);
     classInstances[&typeid(DemoData::DemoData)] = new DemoData::DemoData(wad);
     compiled = true;
 }
