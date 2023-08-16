@@ -4,15 +4,15 @@
 
 ```tree
 
-Engine
+engine
 │
-├── Include
+├── include
 │   ├── Utils
 │   ├── GameData
 │   ├── Renderer
 │   └── Controller
 │
-├── Source
+├── src
 │   ├── Utils
 │   ├── GameData
 │   ├── Renderer

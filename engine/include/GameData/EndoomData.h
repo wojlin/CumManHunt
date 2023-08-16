@@ -39,7 +39,7 @@ namespace EndoomData
             vector<charData_t> getChars();
 
             void printEndoom();
-
+            
 
         private:
             string filePath;
