@@ -11,48 +11,50 @@
 #include "Interfaces.h"
 #include "WadStructure.h"
 
-
-
-class Sound
+namespace Sound
 {
-    public:
-    
-        Sound(string formatValue, string nameString, int sampleRateValue, int numberOfSamplesValue, vector<uint8_t> samplesVector);
 
-        int getSampleRate();
+    class Sound
+    {
+        public:
+        
+            Sound(string formatValue, string nameString, int sampleRateValue, int numberOfSamplesValue, vector<uint8_t> samplesVector);
 
-        int getNumberOfSamples();
+            int getSampleRate();
 
-        vector<uint8_t> getSamples();
+            int getNumberOfSamples();
 
-        void printInfo();
+            vector<uint8_t> getSamples();
 
-        void play();
+            void printInfo();
 
-    private:
-        string format;
-        string name;
-        vector<uint8_t> samples;
-        uint16_t sampleRate;
-        uint32_t numberOfSamples;
+            void play();
 
-};
+        private:
+            string format;
+            string name;
+            vector<uint8_t> samples;
+            uint16_t sampleRate;
+            uint32_t numberOfSamples;
+
+    };
 
 
 
-class SoundData: public baseResourceWAD
-{
-    public:
+    class SoundData: public baseResourceWAD
+    {
+        public:
 
-        SoundData();
+            SoundData();
 
-        SoundData(WADStructure::WADStructure *wad);
+            SoundData(WADStructure::WADStructure *wad);
 
-        Sound readSound(string name);
+            Sound readSound(string name);
 
-    private:
-        string filePath;
-        WADStructure::WADStructure *wadStructure;
-};
+        private:
+            string filePath;
+            WADStructure::WADStructure *wadStructure;
+    };
+}
 
 #endif

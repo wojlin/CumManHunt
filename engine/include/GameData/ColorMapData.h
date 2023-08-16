@@ -11,30 +11,33 @@
 #include "Interfaces.h"
 #include "WadStructure.h"
 
-class ColorMapData: public baseResourceWAD
+namespace ColorMapData
 {
-    public:
 
-        ColorMapData();
+    class ColorMapData: public baseResourceWAD
+    {
+        public:
 
-        ColorMapData(WADStructure::WADStructure *wad);
+            ColorMapData();
 
-        uint8_t getColor(int, uint8_t);
+            ColorMapData(WADStructure::WADStructure *wad);
 
-        int getColorMapsAmount();
+            uint8_t getColor(int, uint8_t);
 
-        void printInfo();
+            int getColorMapsAmount();
+
+            void printInfo();
 
 
-    private:
-        string filePath;
-        WADStructure::lumpInfo_t colormapLump;
-        vector<vector<uint8_t>> colormap;
+        private:
+            string filePath;
+            WADStructure::lumpInfo_t colormapLump;
+            vector<vector<uint8_t>> colormap;
 
-        int COLORMAPS_AMOUNT;
-        int COLORMAP_SIZE = 256;
+            int COLORMAPS_AMOUNT;
+            int COLORMAP_SIZE = 256;
 
-        void readColormap();
-};
-
+            void readColormap();
+    };
+}
 #endif

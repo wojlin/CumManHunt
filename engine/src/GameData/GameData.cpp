@@ -36,9 +36,9 @@ void GameData::printInfo()
     if(compiled)
     {
         WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
-        ResourcesData* resources = getResourceFromWAD<ResourcesData>();
+        ResourcesData::ResourcesData* resources = getResourceFromWAD<ResourcesData::ResourcesData>();
         PlayPalData::PlayPalData* playpal = getResourceFromWAD<PlayPalData::PlayPalData>();
-        ColorMapData* colormap = getResourceFromWAD<ColorMapData>();
+        ColorMapData::ColorMapData* colormap = getResourceFromWAD<ColorMapData::ColorMapData>();
 
         cout << "IWAD Path: \""<< wad->filePath << "\"" << endl;
         cout << "PWAD's amount: " << wad->getPwadsAmount() << endl;
@@ -108,12 +108,12 @@ void GameData::compile()
     wad->compile();
     classInstances[&typeid(EndoomData::EndoomData)] = new EndoomData::EndoomData(wad);
     classInstances[&typeid(PlayPalData::PlayPalData)] = new PlayPalData::PlayPalData(wad);
-    classInstances[&typeid(ColorMapData)] = new ColorMapData(wad);
+    classInstances[&typeid(ColorMapData::ColorMapData)] = new ColorMapData::ColorMapData(wad);
     PlayPalData::PlayPalData* playpal = getResourceFromWAD<PlayPalData::PlayPalData>();
-    classInstances[&typeid(ResourcesData)] = new ResourcesData(wad, playpal);
-    classInstances[&typeid(AudioInfoData)] = new AudioInfoData(wad);
-    classInstances[&typeid(SoundData)] = new SoundData(wad);
-    classInstances[&typeid(DemoData)] = new DemoData(wad);
+    classInstances[&typeid(ResourcesData::ResourcesData)] = new ResourcesData::ResourcesData(wad, playpal);
+    classInstances[&typeid(AudioInfoData::AudioInfoData)] = new AudioInfoData::AudioInfoData(wad);
+    classInstances[&typeid(Sound::SoundData)] = new Sound::SoundData(wad);
+    classInstances[&typeid(DemoData::DemoData)] = new DemoData::DemoData(wad);
     compiled = true;
 }
 
