@@ -6,3 +6,6 @@
 .vscode
 engine/level
 engine/wad
+.VSCodeCounter/*
+.VSCodeCounter/
+.VSCodeCounter
