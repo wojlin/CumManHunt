@@ -19,6 +19,18 @@ private:
 };
 
 
+class WADCompilationException : public std::exception {
+public:
+    WADCompilationException(const std::string& message) : errorMessage(message) {}
+
+    const char* what() const noexcept override {
+        return errorMessage.c_str(); // Use the correct member variable name here
+    }
+
+private:
+    std::string errorMessage;
+};
+
 
 class WADReadoutException : public std::exception {
 public:

@@ -24,8 +24,7 @@ namespace WADStructure
         if(iWadFound == false)
         {
             cout << "IWAD file is not loaded!" << std::endl;
-            exit(0);
-            return;
+            throw WADCompilationException("iwad not loaded!");
         }
 
         vector<string> blockedLumps = {"THINGS", "LINEDEFS", "SIDEDEFS", "VERTEXES", "SEGS", "SSECTORS", "NODES", "SECTORS", "REJECT", "BLOCKMAP"};
