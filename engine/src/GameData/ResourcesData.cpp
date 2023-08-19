@@ -2,18 +2,24 @@
 namespace ResourcesData
 {
 
-    Image::Image(uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c)
+    Image::Image(uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize)
     {
         width = w;
         height = h;
         leftOffset = l;
         topOffset = t;
         columns = c;
+        size = lSize;
     }
 
     uint16_t Image::getWidth()
     {
         return width;
+    }
+
+    int Image::getSize()
+    {
+        return size;
     }
 
     uint16_t Image::getHeight()
@@ -43,10 +49,13 @@ namespace ResourcesData
 
     void Image::printInfo()
     {
+        printInfoHeader("H1", "IMAGE");
         cout << "width: " << width << endl;
         cout << "height: " << height << endl;
         cout << "left offset: " << leftOffset << endl;
         cout << "top offset: " << topOffset << endl;
+        cout << "size: " << size << " bytes" << endl;
+        printInfoHeader("H1");
     }
 
     void Image::saveAsFile(string filePath)
@@ -76,6 +85,7 @@ namespace ResourcesData
 
     ResourcesData::ResourcesData(WADStructure::WADStructure *wad, PlayPalData::PlayPalData*  playpalPointer): filePath(wad->filePath), playpal(playpalPointer)
     {
+        wadStructure = wad;
         filePath = wad->filePath;
         std::ifstream file(filePath, std::ios::binary);
         readSprites(wad);
@@ -95,9 +105,10 @@ namespace ResourcesData
         file.close();
     }
 
+
     Image ResourcesData::readFlat(string name)
     {
-        ifstream file(filePath, std::ios::binary);
+        
         int width = 64;
         int height = 64;
 
@@ -111,7 +122,7 @@ namespace ResourcesData
             exit(0);
         }
 
-        
+        ifstream file(spriteInfo->path, std::ios::binary);
 
 
         vector<imageColumn_t> columns;
@@ -134,91 +145,7 @@ namespace ResourcesData
 
         file.close();
 
-        return Image(width, height, 0, 0, columns);
-
-    }
-
-    Image ResourcesData::readPatch(string name)
-    {
-        struct spriteData_t
-        {
-            uint16_t width;  // Width of graphic 
-            uint16_t height;  // Height of graphic 
-            int16_t leftOffset;  // Offset in pixels to the left of the origin 
-            int16_t topOffset;  // Offset in pixels below the origin 
-        };
-
-        struct postData_t
-        {
-            uint8_t topDelta; // Starting offset of the span (Y position) 
-            uint8_t length; // Number of pixels in this span 
-        };
-
-        vector<uint32_t> spriteDataColumnsPos; //Array of column offsets relative to the beginning of the patch header
-        spriteData_t spriteData;
-
-        ifstream file(filePath, std::ios::binary);
-
-        
-
-        WADStructure::lumpInfo_t* spriteInfo;
-
-        spriteInfo = patchesMap[name];
-
-        if(spriteInfo == 0)
-        {
-            std::cout << "The '" << name << "' is not in the game resources." << std::endl;
-            exit(0);
-        }
-
-        file.seekg(spriteInfo->filepos);
-        file.read(reinterpret_cast<char*>(&spriteData), sizeof(spriteData));
-        for(int i = 0; i < spriteData.width; i++)
-        {
-            uint32_t value;
-            file.read(reinterpret_cast<char*>(&value), sizeof(value));
-            spriteDataColumnsPos.push_back(value);
-        }
-
-        vector<imageColumn_t> columns;
-
-        for(int i =0; i<spriteDataColumnsPos.size(); i++)
-        {   
-            postData_t postData;
-            int startingPos = spriteInfo->filepos + spriteDataColumnsPos[i];
-            file.seekg(startingPos, std::ios::beg);
-
-            uint8_t dummy = 0;
-            uint8_t rowstart = 0;
-            while(rowstart != 255)
-            {
-                file.read(reinterpret_cast<char*>(&rowstart), sizeof(rowstart));
-                if(rowstart == 255)
-                {
-                    break;
-                }
-                uint8_t pixelcount = 0;
-                file.read(reinterpret_cast<char*>(&pixelcount), sizeof(pixelcount));               
-                imageColumn_t column;
-                column.column = i;
-                column.rowStart = unsigned(rowstart);
-                column.pixelCount = unsigned(pixelcount);
-                
-                file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
-
-                for(int y = 0; y < pixelcount; y++)
-                {
-                    uint8_t value = 0;
-                    file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
-                    PlayPalData::color_t color = playpal->getColor(0, value);
-                    column.pixels.push_back(color);
-                }
-                columns.push_back(column);
-                file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
-            }
-        }
-        file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns);
+        return Image(width, height, 0, 0, columns, spriteInfo->size);
 
     }
 
@@ -302,9 +229,285 @@ namespace ResourcesData
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns);
+        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size);
 
     }
+
+    Image ResourcesData::readPatch(string name)
+    {
+        struct spriteData_t
+        {
+            uint16_t width;  // Width of graphic 
+            uint16_t height;  // Height of graphic 
+            int16_t leftOffset;  // Offset in pixels to the left of the origin 
+            int16_t topOffset;  // Offset in pixels below the origin 
+        };
+
+        struct postData_t
+        {
+            uint8_t topDelta; // Starting offset of the span (Y position) 
+            uint8_t length; // Number of pixels in this span 
+        };
+
+        vector<uint32_t> spriteDataColumnsPos; //Array of column offsets relative to the beginning of the patch header
+        spriteData_t spriteData;
+
+        ifstream file(filePath, std::ios::binary);
+
+        
+
+        WADStructure::lumpInfo_t* spriteInfo;
+
+        spriteInfo = patchesMap[name];
+
+        if(spriteInfo == 0)
+        {
+            std::cout << "The '" << name << "' is not in the game resources." << std::endl;
+            exit(0);
+        }
+
+        file.seekg(spriteInfo->filepos);
+        file.read(reinterpret_cast<char*>(&spriteData), sizeof(spriteData));
+        for(int i = 0; i < spriteData.width; i++)
+        {
+            uint32_t value;
+            file.read(reinterpret_cast<char*>(&value), sizeof(value));
+            spriteDataColumnsPos.push_back(value);
+        }
+
+        vector<imageColumn_t> columns;
+
+        for(int i =0; i<spriteDataColumnsPos.size(); i++)
+        {   
+            postData_t postData;
+            int startingPos = spriteInfo->filepos + spriteDataColumnsPos[i];
+            file.seekg(startingPos, std::ios::beg);
+
+            uint8_t dummy = 0;
+            uint8_t rowstart = 0;
+            while(rowstart != 255)
+            {
+                file.read(reinterpret_cast<char*>(&rowstart), sizeof(rowstart));
+                if(rowstart == 255)
+                {
+                    break;
+                }
+                uint8_t pixelcount = 0;
+                file.read(reinterpret_cast<char*>(&pixelcount), sizeof(pixelcount));               
+                imageColumn_t column;
+                column.column = i;
+                column.rowStart = unsigned(rowstart);
+                column.pixelCount = unsigned(pixelcount);
+                
+                file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
+
+                for(int y = 0; y < pixelcount; y++)
+                {
+                    uint8_t value = 0;
+                    file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
+                    PlayPalData::color_t color = playpal->getColor(0, value);
+                    column.pixels.push_back(color);
+                }
+                columns.push_back(column);
+                file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
+            }
+        }
+        file.close();
+        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size);
+
+    }
+
+    Image ResourcesData::readGameFlat(string name)
+    {
+        int width = 64;
+        int height = 64;
+
+        WADStructure::lumpInfo_t spriteInfo;
+
+        spriteInfo = wadStructure->findLump(name);
+
+        ifstream file(spriteInfo.path, std::ios::binary);
+
+        vector<imageColumn_t> columns;
+        file.seekg(spriteInfo.filepos);
+        for(int x =0; x<width; x++)
+        {
+            imageColumn_t column;
+            column.pixelCount = height;
+            column.rowStart = 0;
+            column.column = x;
+            for(int y =0; y<height; y++)
+            {
+                file.seekg(spriteInfo.filepos + (width * y) + x);
+                uint8_t value;
+                file.read(reinterpret_cast<char*>(&value), sizeof(value));
+                column.pixels.push_back(playpal->getColor(0, value));
+            }
+            columns.push_back(column);
+        }
+
+        file.close();
+
+        return Image(width, height, 0, 0, columns, spriteInfo.size);
+
+    }
+
+    Image ResourcesData::readGameSprite(string name)
+    {
+        struct spriteData_t
+        {
+            uint16_t width;  // Width of graphic 
+            uint16_t height;  // Height of graphic 
+            int16_t leftOffset;  // Offset in pixels to the left of the origin 
+            int16_t topOffset;  // Offset in pixels below the origin 
+        };
+
+        struct postData_t
+        {
+            uint8_t topDelta; // Starting offset of the span (Y position) 
+            uint8_t length; // Number of pixels in this span 
+        };
+
+        vector<uint32_t> spriteDataColumnsPos; //Array of column offsets relative to the beginning of the patch header
+        spriteData_t spriteData;
+
+        
+
+        WADStructure::lumpInfo_t spriteInfo;
+
+        spriteInfo = wadStructure->findLump(name);
+
+        ifstream file(spriteInfo.path, std::ios::binary);
+
+        file.seekg(spriteInfo.filepos);
+        file.read(reinterpret_cast<char*>(&spriteData), sizeof(spriteData));
+        for(int i = 0; i < spriteData.width; i++)
+        {
+            uint32_t value;
+            file.read(reinterpret_cast<char*>(&value), sizeof(value));
+            spriteDataColumnsPos.push_back(value);
+        }
+
+        vector<imageColumn_t> columns;
+
+        for(int i =0; i<spriteDataColumnsPos.size(); i++)
+        {   
+            postData_t postData;
+            int startingPos = spriteInfo.filepos + spriteDataColumnsPos[i];
+            file.seekg(startingPos, std::ios::beg);
+
+            uint8_t dummy = 0;
+            uint8_t rowstart = 0;
+            while(rowstart != 255)
+            {
+                file.read(reinterpret_cast<char*>(&rowstart), sizeof(rowstart));
+                if(rowstart == 255)
+                {
+                    break;
+                }
+                uint8_t pixelcount = 0;
+                file.read(reinterpret_cast<char*>(&pixelcount), sizeof(pixelcount));               
+                imageColumn_t column;
+                column.column = i;
+                column.rowStart = unsigned(rowstart);
+                column.pixelCount = unsigned(pixelcount);
+                
+                file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
+
+                for(int y = 0; y < pixelcount; y++)
+                {
+                    uint8_t value = 0;
+                    file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
+                    PlayPalData::color_t color = playpal->getColor(0, value);
+                    column.pixels.push_back(color);
+                }
+                columns.push_back(column);
+                file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
+            }
+        }
+        file.close();
+        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size);
+
+    }
+    
+    Image ResourcesData::readGamePatch(string name)
+    {
+        struct spriteData_t
+        {
+            uint16_t width;  // Width of graphic 
+            uint16_t height;  // Height of graphic 
+            int16_t leftOffset;  // Offset in pixels to the left of the origin 
+            int16_t topOffset;  // Offset in pixels below the origin 
+        };
+
+        struct postData_t
+        {
+            uint8_t topDelta; // Starting offset of the span (Y position) 
+            uint8_t length; // Number of pixels in this span 
+        };
+
+        vector<uint32_t> spriteDataColumnsPos; //Array of column offsets relative to the beginning of the patch header
+        spriteData_t spriteData;
+      
+
+        WADStructure::lumpInfo_t spriteInfo;
+
+        spriteInfo = wadStructure->findLump(name);
+
+        ifstream file(spriteInfo.path, std::ios::binary);
+
+        file.seekg(spriteInfo.filepos);
+        file.read(reinterpret_cast<char*>(&spriteData), sizeof(spriteData));
+        for(int i = 0; i < spriteData.width; i++)
+        {
+            uint32_t value;
+            file.read(reinterpret_cast<char*>(&value), sizeof(value));
+            spriteDataColumnsPos.push_back(value);
+        }
+
+        vector<imageColumn_t> columns;
+
+        for(int i =0; i<spriteDataColumnsPos.size(); i++)
+        {   
+            postData_t postData;
+            int startingPos = spriteInfo.filepos + spriteDataColumnsPos[i];
+            file.seekg(startingPos, std::ios::beg);
+
+            uint8_t dummy = 0;
+            uint8_t rowstart = 0;
+            while(rowstart != 255)
+            {
+                file.read(reinterpret_cast<char*>(&rowstart), sizeof(rowstart));
+                if(rowstart == 255)
+                {
+                    break;
+                }
+                uint8_t pixelcount = 0;
+                file.read(reinterpret_cast<char*>(&pixelcount), sizeof(pixelcount));               
+                imageColumn_t column;
+                column.column = i;
+                column.rowStart = unsigned(rowstart);
+                column.pixelCount = unsigned(pixelcount);
+                
+                file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
+
+                for(int y = 0; y < pixelcount; y++)
+                {
+                    uint8_t value = 0;
+                    file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
+                    PlayPalData::color_t color = playpal->getColor(0, value);
+                    column.pixels.push_back(color);
+                }
+                columns.push_back(column);
+                file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
+            }
+        }
+        file.close();
+        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size);
+
+    }
+    
+    
 
     int ResourcesData::getSpritesAmount()
     {
