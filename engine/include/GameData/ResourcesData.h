@@ -11,9 +11,11 @@
 #include "Interfaces.h"
 #include "WadStructure.h"
 #include "../Utils/BMPImage.h"
+#include "../Utils/Info.h"
 
 #include "../../include/GameData/ColorMapData.h"
 #include "../../include/GameData/PlayPalData.h"
+
 
 namespace ResourcesData
 {
@@ -60,9 +62,11 @@ namespace ResourcesData
     {
         public:
             
-            Image(uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c);
+            Image(uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize);
 
             uint16_t getWidth();
+
+            int getSize();
 
             uint16_t getHeight();
 
@@ -83,6 +87,7 @@ namespace ResourcesData
             uint16_t height;
             int16_t leftOffset;
             int16_t topOffset;
+            int size;
             vector<imageColumn_t> columns;
     };
 
@@ -103,6 +108,12 @@ namespace ResourcesData
 
             Image readSprite(string name);
 
+            Image readGameSprite(string name);
+
+            Image readGameFlat(string name);
+
+            Image readGamePatch(string name);
+
             int getSpritesAmount();
 
             int getFlatsAmount();
@@ -122,6 +133,7 @@ namespace ResourcesData
             
 
         private:
+            WADStructure::WADStructure *wadStructure;
             string filePath;
 
             map<std::string, WADStructure::lumpInfo_t*> spritesMap;

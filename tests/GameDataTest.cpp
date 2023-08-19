@@ -60,5 +60,29 @@ TEST(GameDataTest, PWadAppendReadoutTest)
     
     EXPECT_EQ(image.getHeight(), 500);
     EXPECT_EQ(image.getWidth(), 500);
+    EXPECT_EQ(image.getSize(), 121585);
+
+}
+
+
+TEST(GameDataTest, PWadReplaceReadoutTest)
+{
+
+    GameData gameData = GameData();
+    
+    gameData.loadIWAD("../tests/iwad_doom2.WAD");
+    gameData.loadPWAD("../tests/pwad_replace.WAD");
+    gameData.compile();
+
+    gameData.printInfo();
+
+    ResourcesData::ResourcesData* resources = gameData.getResourceFromWAD<ResourcesData::ResourcesData>();
+
+    string name = "HELP";
+    ResourcesData::Image image = resources->readGameSprite(name);
+    image.printInfo();
+    EXPECT_EQ(image.getHeight(), 500);
+    EXPECT_EQ(image.getWidth(), 500);
+    EXPECT_EQ(image.getSize(), 121585);
 
 }

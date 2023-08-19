@@ -79,6 +79,13 @@ int main()
     //image3.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name3 + ".bmp");
 
 
+    //Game SPRITE TEST
+    //string name4 = "HELP";
+    //ResourcesData::Image image4 = resources->readGameSprite(name4);
+    //image4.printInfo();
+    //image4.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name4 + ".bmp");
+
+
     //endoom.printEndoom();
     //endoom.printInfo();
     //colormap.printInfo();
@@ -87,6 +94,8 @@ int main()
     //audio.printInfo();
     //resources.printInfo();
     //demo.printInfo();
+
+    return 0;
 
 }
 
