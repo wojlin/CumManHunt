@@ -1,6 +1,6 @@
 #include "../../include/GameData/GameData.h"
 #include "../../include/Utils/Info.h"
-
+#include "../../include/Utils/Exceptions.h"
 
 
 
@@ -81,13 +81,19 @@ void GameData::printInfo()
  */
 void GameData::loadIWAD(string path)
 {
+    if(iWadLoaded == true)
+    {
+        throw WADReadoutException("iwad already loaded");
+    }
+
     classInstances[&typeid(WADStructure::WADStructure)] = new WADStructure::WADStructure(path);
+    iWadLoaded = true;
 }
 
 /**
  * @brief use this method to load .WAD file of "pwad" type \n 
  * 
- * @note read more about "iwad" here: https://doomwiki.org/wiki/PWAD
+ * @note read more about "pwad" here: https://doomwiki.org/wiki/PWAD
  * 
  * @param path path to WAD file in string format
  */

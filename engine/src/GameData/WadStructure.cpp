@@ -1,10 +1,12 @@
 #include "../../include/GameData/WadStructure.h"
+#include "../../include/Utils/Exceptions.h"
 
 namespace WADStructure
 {
 
 
     WADStructure::WADStructure() {
+        iWadFound = false;
     }
 
     WADStructure::WADStructure(string path){
@@ -130,8 +132,9 @@ namespace WADStructure
             }
         }
 
-        cout << lumpName << " not found in WAD file!" << endl;
-        exit(0);
+        string error = lumpName + " not found in WAD file!";
+        cout << error << endl;
+        throw LumpReadoutException(error);
     }
 
 
@@ -151,8 +154,9 @@ namespace WADStructure
             return lumps;
         }
 
-        cout << lumpName << " not found in WAD file!" << endl;
-        exit(0);
+        string error = lumpName + " not found in WAD file!";
+        cout << error << endl;
+        throw LumpReadoutException(error);
     }
 
     void WADStructure::printInfo()
@@ -194,8 +198,6 @@ namespace WADStructure
         return pwads.size();
     }
         
-
-
     string WADStructure::charsToString(char* chars, int size)
     {   
         string str(chars, size);
@@ -208,9 +210,9 @@ namespace WADStructure
         std::ifstream file(path, std::ios::binary);
 
         if (!file) {
-            cout << "Error opening file." << std::endl;
-            exit(0);
-            return;
+            string error = "error while trying to read the file!";
+            cout << error << std::endl;
+            throw FileReadoutException(error);
         }
 
         header_t lHeader = readHeader(&file);
@@ -227,16 +229,20 @@ namespace WADStructure
             cout << "Error while reading \"" << path << "\".";
             cout << " File header identification should be \"IWAD\" or \"PWAD\".";
             cout << " received: \"" << lHeader.identification << "\"" << std::endl;
-            exit(0);
-            return;
+
+            string error = "invalid WAD header";
+            cout << error << std::endl;
+            throw WADReadoutException(error);
         }
 
         if(lHeader.identification == "IWAD" && iWadFound == true)
         {
             cout << "Error while reading \"" << path << "\".";
             cout << " IWAD file is already loaded! ";
-            exit(0);
-            return;
+
+            string error = "iwad already loaded";
+            cout << error << std::endl;
+            throw WADReadoutException(error);
         }
 
         vector<lumpInfo_t> lDirectory = readDirectory(&file, lHeader, path);

@@ -105,6 +105,7 @@ class GameData
 
     private:
         bool compiled = false;
+        bool iWadLoaded = false;
         map<const type_info*, baseResourceWAD*> classInstances;
 
         void errorExit(int status, string reason);
