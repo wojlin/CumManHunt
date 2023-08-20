@@ -2,6 +2,7 @@
 #define MINIMAPRENDERER_H
 
 #include "../GameData/LevelData.h"
+#include "../Controller/Player.h"
 #include "LevelBuild.h"
 
 #include <SFML/Graphics.hpp>
@@ -13,7 +14,7 @@ namespace MinimapRenderer
     {
         public:
 
-            MinimapRenderer(int lWidth, int lHeight, int lSize, int lOffset, int lBorder, unique_ptr<LevelData::LevelData> *lLevel, LevelBuild::LevelBuild *lLevelBuild)
+            MinimapRenderer(int lWidth, int lHeight, int lSize, int lOffset, int lBorder, unique_ptr<LevelData::LevelData> *lLevel, LevelBuild::LevelBuild *lLevelBuild, vector<Player> *lPlayers)
             {
                 int shortestLine = lWidth;
                 if(lHeight < shortestLine)
@@ -27,6 +28,7 @@ namespace MinimapRenderer
                 minimapSize = size;
                 level = lLevel;
                 levelBuild = lLevelBuild;
+                players = lPlayers;
                 offset = static_cast<int>(((float) shortestLine * ( (float) lOffset / 100.0)));
                 border = static_cast<int>(((float) shortestLine * ( (float) lBorder / 100.0)));
 
@@ -38,6 +40,11 @@ namespace MinimapRenderer
                 drawVertexs();  
                 drawLines(); 
                 drawOuter();
+
+                drawPlayer(1);
+                drawPlayer(2);
+                drawPlayer(3);
+                drawPlayer(4);
 
                 texture.update(pixels);
                 sprite.setTexture(texture);
@@ -77,11 +84,13 @@ namespace MinimapRenderer
             LevelBuild::vertexs_bounds_t* vertexsBounds;
             vector<LevelData::Vertex> vertexs;
             vector<LevelData::Linedef> lines;
+            vector<Player>* players;
 
             sf::Color vertexColor = sf::Color::Red;
             sf::Color lineColor = sf::Color::Green;
             sf::Color borderColor = sf::Color::White;
             sf::Color backgroundColor = sf::Color::Black;
+            sf::Color playerColor = sf::Color::Magenta;
 
             uint8_t* pixels;
 
@@ -92,6 +101,29 @@ namespace MinimapRenderer
             int border;
             sf::Texture texture;
             sf::Sprite sprite;
+
+            void drawPlayer(int number)
+            {
+                for(int i = 0; i < players->size(); i++)
+                {
+                   if((*players)[i].getNumber() == number)
+                   {
+                        int x = remap((*players)[i].getPosX(), vertexsBounds->xPosMin, vertexsBounds->xPosMax, 0, width);
+                        int y = remap((*players)[i].getPosY(), vertexsBounds->yPosMin, vertexsBounds->yPosMax, 0, height);
+                        drawCircle(x, y, 3, playerColor);
+                   }
+                }
+            }
+
+            void drawCircle(int centerX, int centerY, int radius, sf::Color color) {
+                for (int y = -radius; y <= radius; y++) {
+                    for (int x = -radius; x <= radius; x++) {
+                        if (x * x + y * y <= radius * radius) {
+                            drawPixel(centerX + x, centerY + y, color);
+                        }
+                    }
+                }
+            }
 
             void drawOuter()
             {

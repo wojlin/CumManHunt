@@ -2,8 +2,8 @@
 #define LEVELBUILD_H
 
 #include "../GameData/LevelData.h"
-
-
+#include "../GameData/WadStructure.h"
+#include "../Utils/Exceptions.h"
 
 namespace LevelBuild
 {
@@ -35,9 +35,10 @@ namespace LevelBuild
     {
         public:
 
-            LevelBuild(unique_ptr<LevelData::LevelData> *lLevel)
+            LevelBuild(unique_ptr<LevelData::LevelData> *lLevel, WADStructure::WADStructure *lWad)
             {
                 level = lLevel;
+                wad = lWad;
                 levelBounds = calculateLevelBounds();
                 vertexsBounds = calculateVertexsBounds();
                 playersInfo = calculatePlayersInfo();
@@ -57,11 +58,25 @@ namespace LevelBuild
             {
                 return &(playersInfo);
             }
+            
+
+            player_info_t* getPlayerInfo(int number)
+            {
+                for(int i = 0; i < playersInfo.size(); i++)
+                {
+                    if(playersInfo[i].number == number)
+                    {
+                        return &(playersInfo[i]);
+                    }
+                }
+                throw WADReadoutException("player does not exist in THINGS lump!");
+            }
 
             
 
         private:
             unique_ptr<LevelData::LevelData>* level;
+            WADStructure::WADStructure* wad;
             level_bounds_t levelBounds;
             vertexs_bounds_t vertexsBounds;
             vector<player_info_t> playersInfo;
@@ -70,6 +85,20 @@ namespace LevelBuild
             {
                 vector<player_info_t> lPlayersInfo;
                 player_info_t player;
+                for(LevelData::Thing thing: level->get()->getThings())
+                {
+                    for(int x = 1; x< 5; x++)
+                    {
+                        if(thing.type == x)
+                        {
+                            player.number = x;
+                            player.angle = thing.angle;
+                            player.posX = thing.x;
+                            player.posY = thing.y;
+                            lPlayersInfo.push_back(player);
+                        }
+                    }      
+                }
                 
                 return lPlayersInfo;
             }

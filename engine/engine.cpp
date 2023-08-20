@@ -11,6 +11,7 @@
 
 #include "include/Renderer/LevelBuild.h"
 #include "include/Renderer/MinimapRenderer.h"
+#include "include/Controller/Player.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -20,55 +21,7 @@
 using namespace std;
 
 
-class Player
-{
-    public:
 
-        Player(int playerNumber, float playerPosX, float playerPosY, float playerAngle)
-        {
-            number = playerNumber;
-            posX = playerPosX;
-            posY = playerPosY;
-            angle = playerAngle;
-        }
-
-        float getPosY()
-        {
-            return posX;
-        }
-
-        float getPosY()
-        {
-            return posY;
-        }
-
-        float getAngle()
-        {
-            return angle;
-        }
-
-
-        void setPosX(float value)
-        {
-            posX = value;
-        }
-
-        void setPosY(float value)
-        {
-            posY = value;
-        }
-
-        void setAngle(float value)
-        {
-            angle = value;
-        }
-
-    private:
-        int number; 
-        float posX;
-        float posY;
-        float angle;
-};
 
 int main()
 {
@@ -105,9 +58,15 @@ int main()
     auto start = std::chrono::high_resolution_clock::now();
     
 
-    LevelBuild::LevelBuild levelBuild = LevelBuild::LevelBuild(&level);
-    Player player = Player();
-    MinimapRenderer::MinimapRenderer minimapRenderer = MinimapRenderer::MinimapRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, MINIMAP_SIZE, MINIMAP_CONTENT_PERCENTAGE_OFFSET, MINIMAP_BORFER_PERCENTAGE, &level, &levelBuild);
+    LevelBuild::LevelBuild levelBuild = LevelBuild::LevelBuild(&level, wad);
+
+    vector<Player> players;
+    for(int i = 1; i < 5; i++)
+    {
+        players.push_back(Player(levelBuild.getPlayerInfo(i)));
+    }
+    
+    MinimapRenderer::MinimapRenderer minimapRenderer = MinimapRenderer::MinimapRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, MINIMAP_SIZE, MINIMAP_CONTENT_PERCENTAGE_OFFSET, MINIMAP_BORFER_PERCENTAGE, &level, &levelBuild, &players);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
