@@ -23,6 +23,14 @@ namespace LevelBuild
         int yPosMax;
     };
 
+    struct player_info_t
+    {
+        float number;
+        float posX;
+        float posY;
+        float angle;
+    };
+
     class LevelBuild
     {
         public:
@@ -32,6 +40,7 @@ namespace LevelBuild
                 level = lLevel;
                 levelBounds = calculateLevelBounds();
                 vertexsBounds = calculateVertexsBounds();
+                playersInfo = calculatePlayersInfo();
             }
 
             level_bounds_t* getLevelBounds()
@@ -44,12 +53,26 @@ namespace LevelBuild
                 return &(vertexsBounds);
             }
 
+            vector<player_info_t>* getPlayersInfo()
+            {
+                return &(playersInfo);
+            }
+
             
 
         private:
             unique_ptr<LevelData::LevelData>* level;
             level_bounds_t levelBounds;
             vertexs_bounds_t vertexsBounds;
+            vector<player_info_t> playersInfo;
+
+            vector<player_info_t> calculatePlayersInfo()
+            {
+                vector<player_info_t> lPlayersInfo;
+                player_info_t player;
+                
+                return lPlayersInfo;
+            }
 
             level_bounds_t calculateLevelBounds()
             {

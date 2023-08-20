@@ -15,8 +15,60 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
+#include <chrono>
+
 using namespace std;
 
+
+class Player
+{
+    public:
+
+        Player(int playerNumber, float playerPosX, float playerPosY, float playerAngle)
+        {
+            number = playerNumber;
+            posX = playerPosX;
+            posY = playerPosY;
+            angle = playerAngle;
+        }
+
+        float getPosY()
+        {
+            return posX;
+        }
+
+        float getPosY()
+        {
+            return posY;
+        }
+
+        float getAngle()
+        {
+            return angle;
+        }
+
+
+        void setPosX(float value)
+        {
+            posX = value;
+        }
+
+        void setPosY(float value)
+        {
+            posY = value;
+        }
+
+        void setAngle(float value)
+        {
+            angle = value;
+        }
+
+    private:
+        int number; 
+        float posX;
+        float posY;
+        float angle;
+};
 
 int main()
 {
@@ -47,10 +99,20 @@ int main()
 
     int MINIMAP_SIZE = 100; // in percents
     int MINIMAP_CONTENT_PERCENTAGE_OFFSET = 5; // in percents
+    int MINIMAP_BORFER_PERCENTAGE = 1; // in percents
 
     
+    auto start = std::chrono::high_resolution_clock::now();
+    
+
     LevelBuild::LevelBuild levelBuild = LevelBuild::LevelBuild(&level);
-    MinimapRenderer::MinimapRenderer minimapRenderer = MinimapRenderer::MinimapRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, MINIMAP_SIZE, MINIMAP_CONTENT_PERCENTAGE_OFFSET, &level, &levelBuild);
+    Player player = Player();
+    MinimapRenderer::MinimapRenderer minimapRenderer = MinimapRenderer::MinimapRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, MINIMAP_SIZE, MINIMAP_CONTENT_PERCENTAGE_OFFSET, MINIMAP_BORFER_PERCENTAGE, &level, &levelBuild);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+    std::cout << "Time taken: " << duration.count() << " seconds" << std::endl;
+
 
     sf::RenderWindow window;
     sf::Event event;
