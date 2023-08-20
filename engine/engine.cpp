@@ -9,6 +9,12 @@
 #include "include/GameData/SoundData.h"
 #include "include/GameData/DemoData.h"
 
+#include "include/Renderer/LevelBuild.h"
+#include "include/Renderer/MinimapRenderer.h"
+
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+
 using namespace std;
 
 
@@ -17,11 +23,6 @@ int main()
     GameData gameData = GameData();
     
     gameData.loadIWAD("../tests/iwad_doom2.WAD");
-    gameData.loadPWAD("../tests/pwad_append.WAD");
-    gameData.loadPWAD("../tests/pwad_replace.WAD");
-    gameData.loadPWAD("../tests/pwad_replace_map.WAD");
-    gameData.loadPWAD("../tests/pwad_append_map.WAD");
-    //gameData.loadPWAD("../tests/not_wad.WAD");
     gameData.compile();
 
     WADStructure::WADStructure* wad = gameData.getResourceFromWAD<WADStructure::WADStructure>();
@@ -35,87 +36,31 @@ int main()
 
     gameData.printInfo();
 
-    unique_ptr<LevelData> level = gameData.getLevelData(0);
+    unique_ptr<LevelData::LevelData> level = gameData.getLevelData(0);
     level->printInfo();
-    //level->printDetailedInfo();
 
 
-    //endoom->printEndoom();
+    int WINDOW_WIDTH = 800; // in pixels
+    int WINDOW_HEIGHT = 600; // in pixels
+    int FRAMERATE_LIMIT = 60;  // frames per second
+    bool VSYNC = false;
 
+    int MINIMAP_SIZE = 100; // in percents
+    int MINIMAP_CONTENT_PERCENTAGE_OFFSET = 5; // in percents
 
-    //MUS FORMAT TEST
-    //baseSound* sound1 = sound->readSound("D_OPENIN");
-    //sound1.printInfo();
-    //sound1.play();
-
-    //DOOM FORMAT TEST
-    //baseSound* sound2 = sound->readSound("DSSGTDTH");
-    //sound2->printInfo();
-    //sound2->play();
-
-    //PC SPEAKER TEST
-    //baseSound* sound3 = sound->readSound("DPPESIT");
-    //sound3->printInfo(); 
-    //sound3->play();
-   
     
-    //SPRITE TEST
-    //string name1 = "CHGGA0";
-    //Image image1 = resources->readSprite(name1);
-    //image1.printInfo();
-    //image1.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name1 + ".bmp");
+    LevelBuild::LevelBuild levelBuild = LevelBuild::LevelBuild(&level);
+    MinimapRenderer::MinimapRenderer minimapRenderer = MinimapRenderer::MinimapRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, MINIMAP_SIZE, MINIMAP_CONTENT_PERCENTAGE_OFFSET, &level, &levelBuild);
 
-
-    //PATCH TEST
-    //string name2 = "DOOR9_1";
-    //Image image2 = resources.readPatch(name2);
-    //image2.printInfo();
-    //image2.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name2 + ".bmp");
-
-    //FLAT TEST
-    //string name3 = "CONS1_5";
-    //Image image3 = resources.readFlat(name3);
-    //image3.printInfo();
-    //image3.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name3 + ".bmp");
-
-
-    //Game SPRITE TEST
-    //string name4 = "HELP";
-    //ResourcesData::Image image4 = resources->readGameSprite(name4);
-    //image4.printInfo();
-    //image4.saveAsFile("/home/anon/PROJECTS/CumManHunt/" + name4 + ".bmp");
-
-
-    //endoom.printEndoom();
-    //endoom.printInfo();
-    //colormap.printInfo();
-    //playpal.printInfo();
-    //level.printLevelInfo();
-    //audio.printInfo();
-    //resources.printInfo();
-    //demo.printInfo();
-
-    return 0;
-
-}
-
-/*
-#include <math.h>
-#include <stdio.h>
-#include <iostream>
-
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-
-using namespace std;
-
-int main()
-{
-    sf::Window window;
+    sf::RenderWindow window;
     sf::Event event;
-    window.create(sf::VideoMode(800, 600), "My window");
-    //window.setVerticalSyncEnabled(true);
-    window.setFramerateLimit(60);
+  
+    
+
+    window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CumManHunt");
+    window.setSize(sf::Vector2u(WINDOW_WIDTH, WINDOW_HEIGHT));
+    window.setVerticalSyncEnabled(VSYNC);
+    window.setFramerateLimit(FRAMERATE_LIMIT);
 
     while (window.isOpen())
     {
@@ -149,10 +94,23 @@ int main()
         
             if (event.type == sf::Event::Closed)
                 window.close();
+
+
+            window.clear(sf::Color::Black);
+
+            LevelBuild::level_bounds_t* bounds = levelBuild.getLevelBounds();
+
+            
+
+            
+            window.draw(*minimapRenderer.getMinimap());
+
+            window.display();
         }
     }
 
-    cout << "xD";
     return 0;
+
 }
-*/
+
+

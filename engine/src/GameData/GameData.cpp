@@ -129,14 +129,14 @@ void GameData::compile()
  * @param number 
  * @return unique_ptr<LevelData> 
  */
-unique_ptr<LevelData> GameData::getLevelData(string name)
+unique_ptr<LevelData::LevelData> GameData::getLevelData(string name)
 {
     WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
     for(int x =0; x<wad->levelsList.size(); x++)
     {
         if(wad->levelsList[x].name == name)
         {
-            return make_unique<LevelData>(wad, &wad->levelsList[0]);
+            return make_unique<LevelData::LevelData>(wad, &wad->levelsList[0]);
         }
     }
     return nullptr;
@@ -148,14 +148,14 @@ unique_ptr<LevelData> GameData::getLevelData(string name)
  * @param number 
  * @return unique_ptr<LevelData> 
  */
-unique_ptr<LevelData> GameData::getLevelData(int number)
+unique_ptr<LevelData::LevelData> GameData::getLevelData(int number)
 {
     WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
     if(number >= wad->levelsList.size())
     {
         return nullptr;
     }
-    return make_unique<LevelData>(wad, &wad->levelsList[number]);
+    return make_unique<LevelData::LevelData>(wad, &wad->levelsList[number]);
 }
 
 
