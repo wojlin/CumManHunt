@@ -61,7 +61,7 @@ int main()
 
     int MINIMAP_FOV_DISTANCE_PERCENT = 50;
 
-    int PLAYER_SPEED = 100;
+    int PLAYER_SPEED = 300;
 
     float playerRotation = 0.0f;
      float rotationSpeed = 1.0f; // Adjust as needed
@@ -80,8 +80,11 @@ int main()
         players.push_back(Player(levelBuild.getPlayerInfo(i)));
     }
     
-    BSP bsp = BSP(&level, &players[0]);
-    //bsp.renderBsp();
+    BSP bsp = BSP(&level, &players[0], FOV);
+    bsp.renderBsp();
+
+    
+    
     //vector<LevelData::Seg> segArray = 
     //for(LevelData::Seg seg: segArray)
     //{
@@ -90,7 +93,8 @@ int main()
 
 
     MinimapRenderer::MinimapRenderer minimapRenderer = MinimapRenderer::MinimapRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, MINIMAP_SIZE, MINIMAP_CONTENT_PERCENTAGE_OFFSET, MINIMAP_BORFER_PERCENTAGE, FOV, MINIMAP_FOV_DISTANCE_PERCENT, &level, &levelBuild, &players);
-
+    minimapRenderer.drawMinimap();
+    
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
     std::cout << "Time taken: " << duration.count() << " seconds" << std::endl;
@@ -99,6 +103,7 @@ int main()
     sf::RenderWindow window;
     sf::Event event;
     sf::Clock clock;
+    sf::Clock clockTimer;
     sf::Time deltaTime;
     
     sf::Text fpsText;
@@ -125,6 +130,9 @@ int main()
     sf::Vector2i windowCenter(window.getSize().x / 2, window.getSize().y / 2);
 
     sf::Mouse::setPosition(windowCenter, window);
+
+    int currentNode = 0;
+    clockTimer.restart();
 
     while (window.isOpen())
     {
@@ -203,9 +211,38 @@ int main()
         window.clear(sf::Color::Black);
 
         LevelBuild::level_bounds_t* bounds = levelBuild.getLevelBounds();
-
+        bsp.renderBsp();
         minimapRenderer.drawMinimap();
+        vector<int> nodes = bsp.getNodesTree();
+        vector<int> segs = bsp.getSegsTree();
+        for(int i =0; i < segs.size(); i++)
+        {
+            minimapRenderer.drawSegById(segs[i]);
+        }
+        //for(int i =0; i < nodes.size(); i++)
+        //{
+        //    minimapRenderer.drawNodeById(nodes[i]);
+        //}
+        //minimapRenderer.drawNodeById(nodes[nodes.size() - 1]);
+
+        /*
+        minimapRenderer.drawNodeById(nodes[currentNode]);
         
+        
+        if(clockTimer.getElapsedTime().asSeconds() > 1)
+        {   
+        
+            currentNode++;
+            if(currentNode == nodes.size())
+            {
+                minimapRenderer.drawMinimap();
+                currentNode = 0;
+            }
+            cout << "draw next node" << endl; 
+            clockTimer.restart();
+        }
+        */
+        minimapRenderer.update();
         window.draw(*minimapRenderer.getMinimap());
 
         window.draw(fpsText);

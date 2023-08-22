@@ -40,6 +40,9 @@ namespace MinimapRenderer
                 vertexsBounds = levelBuild->getVertexsBounds();
                 vertexs = level->get()->getVertexs();
                 lines = level->get()->getLinedefs();
+                nodes = level->get()->getNodes();
+                segs = level->get()->getSegs();
+
 
                 setupDrawingBoard();  
                 
@@ -52,7 +55,6 @@ namespace MinimapRenderer
                 drawVertexs();  
                 drawLines(); 
                 drawOuter();
-                drawNodes();
 
                 drawPlayer(1);
                 drawPlayer(2);
@@ -63,6 +65,25 @@ namespace MinimapRenderer
 
                 texture.update(pixels);
                 sprite.setTexture(texture);
+            }
+
+            void update()
+            {
+                texture.update(pixels);
+                sprite.setTexture(texture);
+            }
+
+            void drawNodeById(int id)
+            {
+                drawNode(nodes[id]);
+
+            }
+
+            void drawSegById(int id)
+            {
+                //cout << id << endl;
+                //cout << segs[id].startVertex << " " << segs[id].endVertex << endl;
+                drawSeg(segs[id]);
             }
 
             
@@ -85,6 +106,8 @@ namespace MinimapRenderer
             LevelBuild::vertexs_bounds_t* vertexsBounds;
             vector<LevelData::Vertex> vertexs;
             vector<LevelData::Linedef> lines;
+            vector<LevelData::Node> nodes;
+            vector<LevelData::Seg> segs;
             vector<Player>* players;
 
             sf::Color vertexColor = sf::Color::Cyan;
@@ -106,6 +129,18 @@ namespace MinimapRenderer
             sf::Texture texture;
             sf::Sprite sprite;
 
+            void drawSeg(LevelData::Seg seg)
+            {   
+                int v1 = seg.startVertex;
+                int v2 = seg.endVertex;
+                LevelData::Vertex vertex1 = vertexs[v1];
+                LevelData::Vertex vertex2 = vertexs[v2];
+                int x0 = minimapRemap(vertex1.x, false);
+                int y0 = minimapRemap(vertex1.y, true);
+                int x1 = minimapRemap(vertex2.x, false);
+                int y1 = minimapRemap(vertex2.y, true);
+                drawSimpleLine(x0, y0, x1, y1, 2, sf::Color::Green);
+            }
 
             void clearDrawingBoard()
             {
@@ -133,20 +168,6 @@ namespace MinimapRenderer
                 sprite.setTexture(texture);
             }
 
-            void drawNodes()
-            {
-                vector<LevelData::Node> nodes = level->get()->getNodes();
-                drawNode(nodes[nodes.size() - 1]);
-                /*
-                for(int i = 0; i < nodes.size(); i++)
-                {
-
-                    drawNode(nodes[i]);
-                        
-                }
-                */
-            }
-
             void drawNode(LevelData::Node node)
             {
 
@@ -166,14 +187,14 @@ namespace MinimapRenderer
                 x1 = minimapRemap(node.leftBoxRight, false);
                 y1 = minimapRemap(node.leftBoxTop, true);         
 
-                drawSimpleSquare(x0, y0, x1, y1, thickness, frontColor);
+                drawSimpleSquare(x0, y0, x1, y1, thickness, backColor);
 
                 x0 = minimapRemap(node.rightBoxLeft, false);
                 y0 = minimapRemap(node.rightBoxBottom, true);
                 x1 = minimapRemap(node.rightBoxRight, false);
                 y1 = minimapRemap(node.rightBoxTop, true);
 
-                drawSimpleSquare(x0, y0, x1, y1, thickness, backColor);
+                drawSimpleSquare(x0, y0, x1, y1, thickness, frontColor);
 
 
                 x0 = minimapRemap(node.xPartition, false);
