@@ -3,8 +3,10 @@
 
 #include "../GameData/LevelData.h"
 #include "../Controller/Player.h"
+#include "../Utils/Math.h"
 #include "LevelBuild.h"
 
+#include <cmath>
 #include <SFML/Graphics.hpp>
 
 namespace MinimapRenderer
@@ -14,7 +16,7 @@ namespace MinimapRenderer
     {
         public:
 
-            MinimapRenderer(int lWidth, int lHeight, int lSize, int lOffset, int lBorder, unique_ptr<LevelData::LevelData> *lLevel, LevelBuild::LevelBuild *lLevelBuild, vector<Player> *lPlayers)
+            MinimapRenderer(int lWidth, int lHeight, int lSize, int lOffset, int lBorder, int lFov, int lFovDistance, unique_ptr<LevelData::LevelData> *lLevel, LevelBuild::LevelBuild *lLevelBuild, vector<Player> *lPlayers)
             {
                 int shortestLine = lWidth;
                 if(lHeight < shortestLine)
@@ -29,6 +31,9 @@ namespace MinimapRenderer
                 level = lLevel;
                 levelBuild = lLevelBuild;
                 players = lPlayers;
+                fov = lFov;
+                fovDistance = static_cast<int>(((float) shortestLine * ( (float) lFovDistance / 100.0))) * 2;
+                hFov = static_cast<int>((float) fov / 2.0);
                 offset = static_cast<int>(((float) shortestLine * ( (float) lOffset / 100.0)));
                 border = static_cast<int>(((float) shortestLine * ( (float) lBorder / 100.0)));
 
@@ -37,34 +42,30 @@ namespace MinimapRenderer
                 lines = level->get()->getLinedefs();
 
                 setupDrawingBoard();  
+                
+            }
+
+
+            void drawMinimap()
+            {
+                clearDrawingBoard();
                 drawVertexs();  
                 drawLines(); 
                 drawOuter();
+                drawNodes();
 
                 drawPlayer(1);
                 drawPlayer(2);
                 drawPlayer(3);
                 drawPlayer(4);
 
-                texture.update(pixels);
-                sprite.setTexture(texture);
-            }
-
-            void setupDrawingBoard()
-            {
-                pixels = new uint8_t[width*height*4];
-                texture.create(width, height); 
-
-                for(int i = 0; i < width*height*4; i += 4) {
-                    pixels[i] = backgroundColor.r;
-                    pixels[i+1] = backgroundColor.g;
-                    pixels[i+2] = backgroundColor.b;
-                    pixels[i+3] = backgroundColor.a;
-                }
+                drawPlayerFov(1);
 
                 texture.update(pixels);
                 sprite.setTexture(texture);
             }
+
+            
 
             sf::Sprite* getMinimap()
             {
@@ -86,8 +87,8 @@ namespace MinimapRenderer
             vector<LevelData::Linedef> lines;
             vector<Player>* players;
 
-            sf::Color vertexColor = sf::Color::Red;
-            sf::Color lineColor = sf::Color::Green;
+            sf::Color vertexColor = sf::Color::Cyan;
+            sf::Color lineColor = sf::Color::Yellow;
             sf::Color borderColor = sf::Color::White;
             sf::Color backgroundColor = sf::Color::Black;
             sf::Color playerColor = sf::Color::Magenta;
@@ -99,8 +100,90 @@ namespace MinimapRenderer
             int height;
             int offset;
             int border;
+            int fov;
+            int hFov;
+            int fovDistance;
             sf::Texture texture;
             sf::Sprite sprite;
+
+
+            void clearDrawingBoard()
+            {
+                for(int i = 0; i < width*height*4; i += 4) {
+                    pixels[i] = backgroundColor.r;
+                    pixels[i+1] = backgroundColor.g;
+                    pixels[i+2] = backgroundColor.b;
+                    pixels[i+3] = backgroundColor.a;
+                }
+            }
+
+            void setupDrawingBoard()
+            {
+                pixels = new uint8_t[width*height*4];
+                texture.create(width, height); 
+
+                for(int i = 0; i < width*height*4; i += 4) {
+                    pixels[i] = backgroundColor.r;
+                    pixels[i+1] = backgroundColor.g;
+                    pixels[i+2] = backgroundColor.b;
+                    pixels[i+3] = backgroundColor.a;
+                }
+
+                texture.update(pixels);
+                sprite.setTexture(texture);
+            }
+
+            void drawNodes()
+            {
+                vector<LevelData::Node> nodes = level->get()->getNodes();
+                drawNode(nodes[nodes.size() - 1]);
+                /*
+                for(int i = 0; i < nodes.size(); i++)
+                {
+
+                    drawNode(nodes[i]);
+                        
+                }
+                */
+            }
+
+            void drawNode(LevelData::Node node)
+            {
+
+                int x0;
+                int x1;
+                int y0;
+                int y1;
+
+                sf::Color frontColor = sf::Color::Green;
+                sf::Color backColor = sf::Color::Red;
+                sf::Color partitionColor = sf::Color::Blue;
+
+                int thickness = 3;
+
+                x0 = minimapRemap(node.leftBoxLeft, false);
+                y0 = minimapRemap(node.leftBoxBottom, true);
+                x1 = minimapRemap(node.leftBoxRight, false);
+                y1 = minimapRemap(node.leftBoxTop, true);         
+
+                drawSimpleSquare(x0, y0, x1, y1, thickness, frontColor);
+
+                x0 = minimapRemap(node.rightBoxLeft, false);
+                y0 = minimapRemap(node.rightBoxBottom, true);
+                x1 = minimapRemap(node.rightBoxRight, false);
+                y1 = minimapRemap(node.rightBoxTop, true);
+
+                drawSimpleSquare(x0, y0, x1, y1, thickness, backColor);
+
+
+                x0 = minimapRemap(node.xPartition, false);
+                y0 = minimapRemap(node.yPartition, true);
+                x1 = minimapRemap(node.xPartition + node.xPartitionDiff, false);
+                y1 = minimapRemap(node.yPartition + node.yPartitionDiff, true);
+
+                drawSimpleLine(x0, y0, x1, y1, thickness, partitionColor);
+
+            }
 
             void drawPlayer(int number)
             {
@@ -110,12 +193,88 @@ namespace MinimapRenderer
                    {
                         int x = remap((*players)[i].getPosX(), vertexsBounds->xPosMin, vertexsBounds->xPosMax, 0, width);
                         int y = remap((*players)[i].getPosY(), vertexsBounds->yPosMin, vertexsBounds->yPosMax, 0, height);
-                        drawCircle(x, y, 3, playerColor);
+                        drawSimpleCircle(x, y, 3, playerColor);
                    }
                 }
             }
 
-            void drawCircle(int centerX, int centerY, int radius, sf::Color color) {
+            void drawPlayerFov(int number)
+            {
+                int thickness = 2;
+                sf::Color color = sf::Color::White;
+
+                for(int i = 0; i < players->size(); i++)
+                {
+                   if((*players)[i].getNumber() == number)
+                   {
+                        int x = remap((*players)[i].getPosX(), vertexsBounds->xPosMin, vertexsBounds->xPosMax, 0, width);
+                        int y = remap((*players)[i].getPosY(), vertexsBounds->yPosMin, vertexsBounds->yPosMax, 0, height);
+                        int angle = -(*players)[i].getAngle() + 90;
+
+                        int plusAngle = (float) angle + (float) hFov;
+                        int minusAngle = (float) angle - (float) hFov;
+                        
+                        float minusRads = radians(minusAngle);
+                        float plusRads = radians(plusAngle);
+
+                        float sin_a1 = std::sin(minusRads);
+                        float cos_a1 = std::cos(minusRads);
+                        float sin_a2 = std::sin(plusRads);
+                        float cos_a2 = std::cos(plusRads);
+
+                        int x1 = minimapRemap(static_cast<int>((float) (*players)[i].getPosX() + (float) fovDistance * (float) sin_a1), false);
+                        int y1 = minimapRemap(static_cast<int>((float) (*players)[i].getPosY() + (float) fovDistance * (float) cos_a1), true);
+                        int x2 = minimapRemap(static_cast<int>((float) (*players)[i].getPosX() + (float) fovDistance * (float) sin_a2), false);
+                        int y2 = minimapRemap(static_cast<int>((float) (*players)[i].getPosY() + (float) fovDistance * (float) cos_a2), true);
+
+                        drawSimpleLine(x, y, x1, y1, thickness, color);
+                        drawSimpleLine(x, y, x2, y2, thickness, color);
+                   }
+                }
+            }
+
+
+            void drawSimpleSquare(int x0, int y0, int x1, int y1, int thickness, sf::Color color)
+            {
+                drawSimpleLine(x0, y0, x1, y0, thickness, color);
+                drawSimpleLine(x0, y1, x1, y1, thickness, color);
+                drawSimpleLine(x1, y0, x1, y1, thickness, color);
+                drawSimpleLine(x0, y0, x0, y1, thickness, color);
+            }
+
+            void drawSimpleLine(int x0, int y0, int x1, int y1, int thickness, sf::Color color)
+            {
+
+                 int dx = std::abs(x1 - x0);
+                int dy = std::abs(y1 - y0);
+                int steps = std::max(dx, dy); // Use the longer dimension for steps
+
+                float xIncrement = static_cast<float>(x1 - x0) / steps;
+                float yIncrement = static_cast<float>(y1 - y0) / steps;
+
+                for (int t = 0; t < thickness; ++t)
+                {
+                    float x = static_cast<float>(x0);
+                    float y = static_cast<float>(y0);
+
+                    for (int i = 0; i <= steps; ++i)
+                    {
+                        drawPixel(static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), color); // Round and draw pixel
+
+                        x += xIncrement;
+                        y += yIncrement;
+                    }
+
+                    // Offset the starting and ending points for the next line
+                    x0 -= static_cast<int>(xIncrement);
+                    y0 -= static_cast<int>(yIncrement);
+                    x1 -= static_cast<int>(xIncrement);
+                    y1 -= static_cast<int>(yIncrement);
+                }
+
+            }
+
+            void drawSimpleCircle(int centerX, int centerY, int radius, sf::Color color) {
                 for (int y = -radius; y <= radius; y++) {
                     for (int x = -radius; x <= radius; x++) {
                         if (x * x + y * y <= radius * radius) {
@@ -243,6 +402,18 @@ namespace MinimapRenderer
                 pixels[place + 2] = color.b;
                 pixels[place + 3] = color.a; 
 
+            }
+
+            int minimapRemap(int value, bool isVertical)
+            {
+                if(isVertical == true)
+                {
+                    return remap(value, vertexsBounds->yPosMin, vertexsBounds->yPosMax, 0, height);
+                }
+                else
+                {
+                    return remap(value, vertexsBounds->xPosMin, vertexsBounds->xPosMax, 0, width);
+                }
             }
             
             int remap(int x, int x_min, int x_max, int y_min, int y_max) {
