@@ -213,6 +213,7 @@ int main()
         LevelBuild::level_bounds_t* bounds = levelBuild.getLevelBounds();
         bsp.renderBsp();
         minimapRenderer.drawMinimap();
+
         vector<int> nodes = bsp.getNodesTree();
         vector<int> segs = bsp.getSegsTree();
         for(int i =0; i < segs.size(); i++)
@@ -223,25 +224,7 @@ int main()
         //{
         //    minimapRenderer.drawNodeById(nodes[i]);
         //}
-        //minimapRenderer.drawNodeById(nodes[nodes.size() - 1]);
-
-        /*
-        minimapRenderer.drawNodeById(nodes[currentNode]);
-        
-        
-        if(clockTimer.getElapsedTime().asSeconds() > 1)
-        {   
-        
-            currentNode++;
-            if(currentNode == nodes.size())
-            {
-                minimapRenderer.drawMinimap();
-                currentNode = 0;
-            }
-            cout << "draw next node" << endl; 
-            clockTimer.restart();
-        }
-        */
+       
         minimapRenderer.update();
         window.draw(*minimapRenderer.getMinimap());
 

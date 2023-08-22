@@ -19,6 +19,7 @@ class BSP
             nodes = level->get()->getNodes();
             subsectors = level->get()->getSubSectors();
             segs = level->get()->getSegs();
+            vertexs = level->get()->getVertexs();
         }
 
         void renderBsp()
@@ -26,7 +27,7 @@ class BSP
             nodesTree.clear();
             segsTree.clear();
             renderBspNode(nodes.size()-1);
-        }
+        }     
 
         vector<int> getNodesTree()
         {
@@ -44,6 +45,7 @@ class BSP
         Player* player;
         unique_ptr<LevelData::LevelData>* level;
         vector<LevelData::Node> nodes;
+        vector<LevelData::Vertex> vertexs;
         vector<LevelData::SSector> subsectors;
         vector<LevelData::Seg> segs;
 
@@ -52,14 +54,37 @@ class BSP
 
         int SUB_SECTOR_IDENTIFIER = 32768;
 
+        bool addSegmentToFOV(pair<int, int> vertex1, pair<int, int> vertex2)
+        {
+            float angle1 = pointToAngle(vertex1);
+            float angle2 = pointToAngle(vertex2);
+            float span = norm(angle1 - angle2);
+            if(span >= 180)
+            {
+                return false;
+            }else
+            {
+                return true;
+            }
+        }
+
         void renderSubSector(int subSectorId)
         {
             LevelData::SSector subSector = subsectors[subSectorId];
             
             for(int i = 0; i < subSector.segCount; i++)
             {   
-                //cout << subSector.firistSegNumber + i << endl;
-                segsTree.push_back(subSector.firistSegNumber + i);
+                LevelData::Seg seg = segs[subSector.firistSegNumber + i];
+                int v1 = seg.startVertex;
+                int v2 = seg.endVertex;
+                LevelData::Vertex vertex1 = vertexs[v1];
+                LevelData::Vertex vertex2 = vertexs[v2];
+
+                if(addSegmentToFOV(pair<int,int>(vertex1.x, vertex1.y), pair<int,int>(vertex2.x, vertex2.y)))
+                {
+                    segsTree.push_back(subSector.firistSegNumber + i);
+                }
+                
             }
             
         }
@@ -186,14 +211,14 @@ class BSP
                     return true;
                 }
             }     
-            cout << "bounding box:" << endl;
-            cout << "p=(" << a.first << ","<<a.second << ")" << endl;
-            cout << "p=(" << b.first << ","<<b.second << ")" << endl;
-            cout << "p=(" << c.first << ","<<c.second << ")" << endl;
-            cout << "p=(" << d.first << ","<<d.second << ")" << endl;
-            cout << "is outside of player angle of view:"<< endl;
-            cout << "player=(" << player->getPosX() << "," << player->getPosY() << ")" << endl;
-            cout << "angle=(" << player->getAngle() << ")" << endl;
+            //cout << "bounding box:" << endl;
+            //cout << "p=(" << a.first << ","<<a.second << ")" << endl;
+            //cout << "p=(" << b.first << ","<<b.second << ")" << endl;
+            //cout << "p=(" << c.first << ","<<c.second << ")" << endl;
+            //cout << "p=(" << d.first << ","<<d.second << ")" << endl;
+            //cout << "is outside of player angle of view:"<< endl;
+            //cout << "player=(" << player->getPosX() << "," << player->getPosY() << ")" << endl;
+            //cout << "angle=(" << player->getAngle() << ")" << endl;
             return false;
         }
 
