@@ -64,6 +64,29 @@ class BSP
                 return false;
             }else
             {
+                angle1 -= player->getAngle();
+                angle2 -= player->getAngle();
+
+                float span1 = norm(angle1 + hFov);
+                if(span1 > fov)
+                {
+                    if(span1 >= span + fov)
+                    {
+                        return false;
+                    }
+                    angle1 = hFov;
+                }
+
+                float span2 = norm(hFov - angle2);
+                if(span2 > fov)
+                {
+                    if(span2 >= span + fov)
+                    {
+                        return false;
+                    }
+                    angle2 = -hFov;
+                }
+
                 return true;
             }
         }
