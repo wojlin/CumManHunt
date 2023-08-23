@@ -1,35 +1,38 @@
-#include "include/GameData/GameData.h"
-
-#include "include/GameData/LevelData.h"
-#include "include/GameData/ColorMapData.h"
-#include "include/GameData/PlayPalData.h"
-#include "include/GameData/ResourcesData.h"
-#include "include/GameData/EndoomData.h"
-#include "include/GameData/AudioInfoData.h"
-#include "include/GameData/SoundData.h"
-#include "include/GameData/DemoData.h"
-
-#include "include/Renderer/LevelBuild.h"
-#include "include/Renderer/MinimapRenderer.h"
-#include "include/Renderer/BSP.h"
-
-#include "include/Controller/Player.h"
-
-
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-
-#include <chrono>
-
-using namespace std;
+#include "engine.h"
 
 
 
 
-int main()
+//public
+
+Engine::Engine()
+{
+
+}
+
+float* Engine::getDeltaSeconds()
+{
+    return &deltaSeconds;
+}
+
+int* Engine::getPlayerSpeed()
+{
+    return &PLAYER_SPEED;
+}
+
+int* Engine::getPlayerRotationSpeed()
+{
+    return &PLAYER_ROTATION_SPEED;
+}
+
+sf::RenderWindow* Engine::getWindow()
+{
+    return &window;
+}
+
+void Engine::run()
 {
     GameData gameData = GameData();
-    
     gameData.loadIWAD("../tests/iwad_doom2.WAD");
     gameData.compile();
 
@@ -47,30 +50,6 @@ int main()
     unique_ptr<LevelData::LevelData> level = gameData.getLevelData(0);
     level->printInfo();
 
-
-    int WINDOW_WIDTH = 1800; // in pixels
-    int WINDOW_HEIGHT = 1000; // in pixels
-    int FRAMERATE_LIMIT = 60;  // frames per second
-    bool VSYNC = false;
-
-    int MINIMAP_SIZE = 100; // in percents
-    int MINIMAP_CONTENT_PERCENTAGE_OFFSET = 5; // in percents
-    int MINIMAP_BORFER_PERCENTAGE = 1; // in percents
-
-    int FOV = 90;
-
-    int MINIMAP_FOV_DISTANCE_PERCENT = 50;
-
-    int PLAYER_SPEED = 300;
-
-    float playerRotation = 0.0f;
-     float rotationSpeed = 1.0f; // Adjust as needed
-     int framesBeforeReset = 0;
-    const int resetFrequency = 5; // Reset every 10 frames
-
-    auto start = std::chrono::high_resolution_clock::now();
-    
-
     LevelBuild::LevelBuild levelBuild = LevelBuild::LevelBuild(&level, wad);
     
 
@@ -83,134 +62,24 @@ int main()
     BSP bsp = BSP(&level, &players[0], FOV);
     bsp.renderBsp();
 
-    
-    
-    //vector<LevelData::Seg> segArray = 
-    //for(LevelData::Seg seg: segArray)
-    //{
-    //    cout << seg.startVertex << " " << seg.endVertex << endl;
-    //}
-
 
     MinimapRenderer::MinimapRenderer minimapRenderer = MinimapRenderer::MinimapRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, MINIMAP_SIZE, MINIMAP_CONTENT_PERCENTAGE_OFFSET, MINIMAP_BORFER_PERCENTAGE, FOV, MINIMAP_FOV_DISTANCE_PERCENT, &level, &levelBuild, &players);
-    minimapRenderer.drawMinimap();
-    
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration = end - start;
-    std::cout << "Time taken: " << duration.count() << " seconds" << std::endl;
-
-
-    sf::RenderWindow window;
-    sf::Event event;
-    sf::Clock clock;
-    sf::Clock clockTimer;
-    sf::Time deltaTime;
-    
-    sf::Text fpsText;
-
-    sf::Font font;
-    if (!font.loadFromFile("font.ttf")) {
-        // Handle font loading error
-        return 1;
-    }
-
-    fpsText.setFont(font);
-    fpsText.setCharacterSize(34);
-    fpsText.setFillColor(sf::Color::White);
-    fpsText.setPosition(100.0f, 100.0f);
     
 
-    window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CumManHunt");
-    window.setSize(sf::Vector2u(WINDOW_WIDTH, WINDOW_HEIGHT));
-    window.setVerticalSyncEnabled(VSYNC);
-    window.setFramerateLimit(FRAMERATE_LIMIT);
-    window.setMouseCursorVisible(false);
+    setupWindow();
+    setupFPS();
 
-    sf::Vector2i prevMousePosition;
-    sf::Vector2i windowCenter(window.getSize().x / 2, window.getSize().y / 2);
-
-    sf::Mouse::setPosition(windowCenter, window);
-
-    int currentNode = 0;
-    clockTimer.restart();
+    Input input = Input(*this);
+            
 
     while (window.isOpen())
     {
-        // check all the window's events that were triggered since the last iteration of the loop
-        sf::Event event;
-        while (window.pollEvent(event))
-        {     
-            if (event.type == sf::Event::Closed)
-            {
-                window.close();
-            }    
-        }  
-
-        deltaTime = clock.restart();
-        float dtSeconds = deltaTime.asSeconds();
-        float fps = 1.0f / dtSeconds;
-
-        std::ostringstream ss;
-        ss << "FPS: " << static_cast<int>(fps);
-        fpsText.setString(ss.str());
-        
-
-        // Calculate mouse movement
-        sf::Vector2i currentMousePosition = sf::Mouse::getPosition(window);
-        sf::Vector2i mouseMovement = currentMousePosition - windowCenter;
-        // Reset the mouse position to the center of the screen periodically
-        if (framesBeforeReset >= resetFrequency) {
-            sf::Mouse::setPosition(windowCenter, window);
-            framesBeforeReset = 0;
-        } else {
-            framesBeforeReset++;
-        }
-        // Update player rotation based on mouse movement
-        playerRotation += static_cast<float>(mouseMovement.x) * rotationSpeed * deltaTime.asSeconds();
-        sf::Vector2f movementDirection(std::cos(playerRotation * M_PI / 180.0f), std::sin(playerRotation * M_PI / 180.0f));
-
-
-
-        sf::Vector2f forward(std::cos(playerRotation * (3.14159f / 180.0f)), std::sin(playerRotation * (3.14159f / 180.0f)));
-        sf::Vector2f movement(0.0f, 0.0f);
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-            movement += forward;
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-            movement -= forward;
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-            movement -= sf::Vector2f(-forward.y, forward.x); // Strafe left
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-            movement += sf::Vector2f(-forward.y, forward.x); // Strafe right
-
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-        {
-            cout << "close" << endl;
-            window.close();
-        }
-
-
-
-        
-        if (movement != sf::Vector2f(0.0f, 0.0f)) 
-        {
-            float length = std::sqrt(movement.x * movement.x + movement.y * movement.y);
-            movement /= length;
-            players[0].setPosX(players[0].getPosX() + PLAYER_SPEED * dtSeconds * movement.x);
-            players[0].setPosY(players[0].getPosY() + PLAYER_SPEED * dtSeconds * movement.y);
-        }
-    
-        
-
-
-        players[0].setAngle(playerRotation);
-        
-
+        calculateFPS();                          
 
         window.clear(sf::Color::Black);
 
-        LevelBuild::level_bounds_t* bounds = levelBuild.getLevelBounds();
+        input.manageInputs(&players[0]);
+
         bsp.renderBsp();
         minimapRenderer.drawMinimap();
 
@@ -224,19 +93,66 @@ int main()
         //{
         //    minimapRenderer.drawNodeById(nodes[i]);
         //}
-       
+    
         minimapRenderer.update();
+
         window.draw(*minimapRenderer.getMinimap());
-
         window.draw(fpsText);
+        window.display();       
+    }
+}
 
-        window.display();
 
-        
+
+//private
+
+void Engine::setupWindow()
+{
+    window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), TITLE);
+    window.setSize(sf::Vector2u(WINDOW_WIDTH, WINDOW_HEIGHT));
+    window.setVerticalSyncEnabled(VSYNC);
+    window.setFramerateLimit(FRAMERATE_LIMIT);
+    window.setMouseCursorVisible(false);
+}
+
+void Engine::setupFPS()
+{      
+    
+    if (!fpsFont.loadFromFile("font.ttf")) {
+        // Handle font loading error
+        return;
     }
 
-    return 0;
-
+    fpsText.setFont(fpsFont);
+    fpsText.setCharacterSize(34);
+    fpsText.setFillColor(sf::Color::White);
+    fpsText.setPosition(100.0f, 100.0f);
 }
+
+void Engine::calculateFPS()
+{
+    deltaTime = clock.restart();
+    deltaSeconds = deltaTime.asSeconds();
+    fpsMeasure = 1.0f / deltaSeconds;
+
+    std::ostringstream ss;
+    ss << "FPS: " << static_cast<int>(fpsMeasure);
+    fpsText.setString(ss.str());
+}
+
+
+
+// main code
+
+int main()
+{
+    Engine engine = Engine();
+    engine.run();
+
+    return 0;
+}
+
+
+
 
 
