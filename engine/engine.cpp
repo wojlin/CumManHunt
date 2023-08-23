@@ -1,13 +1,65 @@
 #include "engine.h"
 
-
-
-
 //public
 
 Engine::Engine()
 {
 
+}
+
+vertexs_bounds_t Engine::getVertexsBounds()
+{
+    return vertexsBounds;
+}
+
+level_bounds_t Engine::getLevelBounds()
+{
+    return levelBounds;
+}
+
+unique_ptr<LevelData::LevelData> Engine::getLevelData()
+{
+    return std::move(level);
+}
+
+int* Engine::getMinimapFovDistancePercent()
+{
+    return &MINIMAP_FOV_DISTANCE_PERCENT;
+}
+
+int* Engine::getMinimapBorderPercentage()
+{
+    return &MINIMAP_BORFER_PERCENTAGE;
+}
+
+int* Engine::getMinimapContentPercentageOffset()
+{
+    return &MINIMAP_CONTENT_PERCENTAGE_OFFSET;
+}
+
+int* Engine::getMinimapSize()
+{
+    return &MINIMAP_SIZE;
+}
+
+int* Engine::getWindowWidth()
+{
+    return &WINDOW_WIDTH;
+}
+
+int* Engine::getWindowHeight()
+{
+    return &WINDOW_HEIGHT;
+}
+
+int* Engine::getPlayerFOV()
+{
+    return &FOV;
+}
+
+int* Engine::getPlayerHalfFOV()
+{
+    return &H_FOV;
 }
 
 float* Engine::getDeltaSeconds()
@@ -47,11 +99,14 @@ void Engine::run()
 
     gameData.printInfo();
 
-    unique_ptr<LevelData::LevelData> level = gameData.getLevelData(0);
+    level = gameData.getLevelData(0);
     level->printInfo();
 
-    LevelBuild::LevelBuild levelBuild = LevelBuild::LevelBuild(&level, wad);
+    LevelBuild levelBuild = LevelBuild(&level, wad);
+    levelBounds = levelBuild.getLevelBounds();
+    vertexsBounds = levelBuild.getVertexsBounds();
     
+    int currentPlayer = 0;
 
     vector<Player> players;
     for(int i = 1; i < 5; i++)
@@ -59,16 +114,14 @@ void Engine::run()
         players.push_back(Player(levelBuild.getPlayerInfo(i)));
     }
     
-    BSP bsp = BSP(&level, &players[0], FOV);
+    BSP bsp = BSP(&level, &players[currentPlayer], FOV);
     bsp.renderBsp();
-
-
-    MinimapRenderer::MinimapRenderer minimapRenderer = MinimapRenderer::MinimapRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, MINIMAP_SIZE, MINIMAP_CONTENT_PERCENTAGE_OFFSET, MINIMAP_BORFER_PERCENTAGE, FOV, MINIMAP_FOV_DISTANCE_PERCENT, &level, &levelBuild, &players);
-    
 
     setupWindow();
     setupFPS();
 
+
+    MinimapRenderer minimapRenderer = MinimapRenderer(*this, &players[currentPlayer]);
     Input input = Input(*this);
             
 
@@ -78,7 +131,7 @@ void Engine::run()
 
         window.clear(sf::Color::Black);
 
-        input.manageInputs(&players[0]);
+        input.manageInputs(&players[currentPlayer]);
 
         bsp.renderBsp();
         minimapRenderer.drawMinimap();

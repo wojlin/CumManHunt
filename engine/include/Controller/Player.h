@@ -7,7 +7,7 @@ class Player
 {
     public:
 
-        Player(LevelBuild::player_info_t* playerInfo)
+        Player(player_info_t* playerInfo)
         {
             number = playerInfo->number;
             posX = playerInfo->posX;

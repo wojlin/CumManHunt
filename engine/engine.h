@@ -34,6 +34,28 @@ class Engine
 
         Engine();
 
+        vertexs_bounds_t getVertexsBounds();
+
+        level_bounds_t getLevelBounds();
+
+        unique_ptr<LevelData::LevelData> getLevelData();
+
+        int* getMinimapFovDistancePercent();
+
+        int* getMinimapBorderPercentage();
+
+        int* getMinimapContentPercentageOffset();
+
+        int* getMinimapSize();
+
+        int* getWindowWidth();
+
+        int* getWindowHeight();
+
+        int* getPlayerFOV();
+
+        int* getPlayerHalfFOV();
+
         float* getDeltaSeconds();
 
         int* getPlayerSpeed();
@@ -69,6 +91,10 @@ class Engine
         int H_HEIGHT = WINDOW_HEIGHT / 2;
 
         int SCREEN_DIST = H_WIDTH / tan(radians(H_FOV));
+
+        unique_ptr<LevelData::LevelData> level;
+        level_bounds_t levelBounds;
+        vertexs_bounds_t vertexsBounds;
 
         float deltaSeconds;
         float fpsMeasure;
