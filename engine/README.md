@@ -20,6 +20,7 @@ engine
 │
 │
 ├── engine.cpp
+├── engine.h
 └── README.md
 
 ```
@@ -29,11 +30,11 @@ engine
 compile & build:
 
 ```bash
-g++ engine.cpp src/GameData/*.cpp -o game -lm -lasound -lSDL2 -lSDL2main
+g++ *.cpp src/GameData/*.cpp src/Controller/*.cpp src/Renderer/*.cpp src/Utils/*.cpp -o game -lm -lasound -lSDL2 -lSDL2main -lsfml-graphics -lsfml-window -lsfml-system
 ```
 
 run:
-```
+```bash
 ./game
 ```
 
@@ -55,4 +56,9 @@ cd /usr/src/gtest
 sudo cmake -Bbuild
 sudo cmake --build build
 sudo cp ./build/lib/libgtest* /usr/lib
+```
+
+#### SFML
+```sh
+sudo apt-get install libsfml-dev
 ```

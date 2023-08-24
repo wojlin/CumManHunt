@@ -127,35 +127,35 @@ void GameData::compile()
  * @brief this functions returns class that contains info about level based on that level name
  * 
  * @param number 
- * @return unique_ptr<LevelData> 
+ * @return LevelData::LevelData
  */
-unique_ptr<LevelData::LevelData> GameData::getLevelData(string name)
+LevelData::LevelData GameData::getLevelData(string name)
 {
     WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
     for(int x =0; x<wad->levelsList.size(); x++)
     {
         if(wad->levelsList[x].name == name)
         {
-            return make_unique<LevelData::LevelData>(wad, &wad->levelsList[0]);
+            return LevelData::LevelData(wad, &wad->levelsList[0]);
         }
     }
-    return nullptr;
+    throw WADReadoutException("level not found");
 }
 
 /**
  * @brief this functions returns class that contains info about level based on that level number in vector
  * 
  * @param number 
- * @return unique_ptr<LevelData> 
+ * @return LevelData::LevelData
  */
-unique_ptr<LevelData::LevelData> GameData::getLevelData(int number)
+LevelData::LevelData GameData::getLevelData(int number)
 {
     WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
     if(number >= wad->levelsList.size())
     {
-        return nullptr;
+        throw WADReadoutException("level not found");
     }
-    return make_unique<LevelData::LevelData>(wad, &wad->levelsList[number]);
+    return LevelData::LevelData(wad, &wad->levelsList[number]);
 }
 
 

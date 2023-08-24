@@ -1,6 +1,6 @@
 #include "../../include/Renderer/LevelBuild.h"
 
-LevelBuild::LevelBuild(unique_ptr<LevelData::LevelData> *lLevel, WADStructure::WADStructure *lWad)
+LevelBuild::LevelBuild(LevelData::LevelData *lLevel, WADStructure::WADStructure *lWad)
 {
     level = lLevel;
     wad = lWad;
@@ -44,7 +44,7 @@ vector<player_info_t> LevelBuild::calculatePlayersInfo()
 {
     vector<player_info_t> lPlayersInfo;
     player_info_t player;
-    for(LevelData::Thing thing: level->get()->getThings())
+    for(LevelData::Thing thing: level->getThings())
     {
         for(int x = 1; x< 5; x++)
         {
@@ -64,7 +64,7 @@ vector<player_info_t> LevelBuild::calculatePlayersInfo()
 
 level_bounds_t LevelBuild::calculateLevelBounds()
 {
-    vector<LevelData::Vertex> vertexs = level->get()->getVertexs();
+    vector<LevelData::Vertex> vertexs = level->getVertexs();
     int lowestX = 0;
     int highestX = 0;
     int lowestY = 0;
@@ -100,7 +100,7 @@ level_bounds_t LevelBuild::calculateLevelBounds()
 
 vertexs_bounds_t LevelBuild::calculateVertexsBounds()
 {
-    vector<LevelData::Vertex> vertexs = level->get()->getVertexs();
+    vector<LevelData::Vertex> vertexs = level->getVertexs();
     int lowestX = 0;
     int highestX = 0;
     int lowestY = 0;

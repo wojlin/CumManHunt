@@ -38,7 +38,7 @@ class MinimapRenderer
         Engine& engine;
         Player* player;
         
-        LevelData::LevelData level;
+        LevelData::LevelData* level;
         vertexs_bounds_t vertexsBounds;
         vector<LevelData::Vertex> vertexs;
         vector<LevelData::Linedef> lines;

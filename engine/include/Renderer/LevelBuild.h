@@ -34,7 +34,7 @@ class LevelBuild
 {
     public:
 
-        LevelBuild(unique_ptr<LevelData::LevelData> *lLevel, WADStructure::WADStructure *lWad);
+        LevelBuild(LevelData::LevelData *lLevel, WADStructure::WADStructure *lWad);
 
         level_bounds_t getLevelBounds();
 
@@ -48,7 +48,7 @@ class LevelBuild
         
 
     private:
-        unique_ptr<LevelData::LevelData>* level;
+        LevelData::LevelData* level;
         WADStructure::WADStructure* wad;
         level_bounds_t levelBounds;
         vertexs_bounds_t vertexsBounds;

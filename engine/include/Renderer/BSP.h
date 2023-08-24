@@ -10,16 +10,16 @@ class BSP
 {
     public:
 
-        BSP(unique_ptr<LevelData::LevelData> *lLevel, Player *lPlayer, int lFov)
+        BSP(LevelData::LevelData *lLevel, Player *lPlayer, int lFov)
         {
             player = lPlayer;
             level = lLevel;
             fov = lFov;
             hFov = (int) ((float) fov / 2.0);
-            nodes = level->get()->getNodes();
-            subsectors = level->get()->getSubSectors();
-            segs = level->get()->getSegs();
-            vertexs = level->get()->getVertexs();
+            nodes = level->getNodes();
+            subsectors = level->getSubSectors();
+            segs = level->getSegs();
+            vertexs = level->getVertexs();
         }
 
         void renderBsp()
@@ -29,21 +29,21 @@ class BSP
             renderBspNode(nodes.size()-1);
         }     
 
-        vector<int> getNodesTree()
+        vector<int>* getNodesTree()
         {
-            return nodesTree;
+            return &nodesTree;
         }
 
-        vector<int> getSegsTree()
+        vector<int>* getSegsTree()
         {
-            return segsTree;
+            return &segsTree;
         }
         
     private:
         int fov;
         int hFov;
         Player* player;
-        unique_ptr<LevelData::LevelData>* level;
+        LevelData::LevelData* level;
         vector<LevelData::Node> nodes;
         vector<LevelData::Vertex> vertexs;
         vector<LevelData::SSector> subsectors;

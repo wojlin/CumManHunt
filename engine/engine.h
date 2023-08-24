@@ -27,6 +27,7 @@
 
 
 class Input;
+class LevelRenderer;
 
 class Engine
 {
@@ -38,7 +39,7 @@ class Engine
 
         level_bounds_t getLevelBounds();
 
-        unique_ptr<LevelData::LevelData> getLevelData();
+        LevelData::LevelData* getLevelData();
 
         int* getMinimapFovDistancePercent();
 
@@ -62,6 +63,8 @@ class Engine
 
         int* getPlayerRotationSpeed();
 
+        int* getScreenDist();
+
         sf::RenderWindow* getWindow();
 
         void run();
@@ -75,7 +78,7 @@ class Engine
         int FRAMERATE_LIMIT = 60;  // frames per second
         bool VSYNC = false;
 
-        int MINIMAP_SIZE = 100; // in percents
+        int MINIMAP_SIZE = 50; // in percents
         int MINIMAP_CONTENT_PERCENTAGE_OFFSET = 5; // in percents
         int MINIMAP_BORFER_PERCENTAGE = 1; // in percents
 
@@ -92,7 +95,7 @@ class Engine
 
         int SCREEN_DIST = H_WIDTH / tan(radians(H_FOV));
 
-        unique_ptr<LevelData::LevelData> level;
+        LevelData::LevelData level;
         level_bounds_t levelBounds;
         vertexs_bounds_t vertexsBounds;
 
