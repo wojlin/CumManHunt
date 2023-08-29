@@ -20,12 +20,14 @@ class BSP
             subsectors = level->getSubSectors();
             segs = level->getSegs();
             vertexs = level->getVertexs();
+            traverse = true;
         }
 
         void renderBsp()
         {
             nodesTree.clear();
             segsTree.clear();
+            traverse = true;
             renderBspNode(nodes.size()-1);
         }     
 
@@ -51,6 +53,8 @@ class BSP
 
         vector<int> segsTree;
         vector<int> nodesTree;
+
+        bool traverse = true;
 
         int SUB_SECTOR_IDENTIFIER = 32768;
 
@@ -274,49 +278,52 @@ class BSP
 
         void renderBspNode(int nodeId)
         { 
-            
-            //cout << "traversing node: " << nodeId  << endl;
-            if(nodeId < 0)
+            if(traverse)
             {
-                //cout << "found subsector!" << endl;
-                int subSectorId = nodeId + SUB_SECTOR_IDENTIFIER;
-                //cout << nodeId << " " <<subSectorId << endl;
-                renderSubSector(subSectorId);
-                return;
-            }
-
-            nodesTree.push_back(nodeId);
-            
-            
-
-            LevelData::Node* node = &nodes[nodeId];
-
-            // front = right, back = left
-
-            if(isOnBackSide(node) == true)
-            {
-                //cout << "player is on back side!" << endl;
-                //cout << nodeId << endl;
-                renderBspNode(node->leftChild);
-                if(checkBbox(node->rightBoxBottom, node-> rightBoxTop, node->rightBoxLeft, node->rightBoxRight))
+                //cout << "traversing node: " << nodeId  << endl;
+                if(nodeId < 0)
                 {
-                    renderBspNode(node->rightChild);
+                    //cout << "found subsector!" << endl;
+                    int subSectorId = nodeId + SUB_SECTOR_IDENTIFIER;
+                    //cout << nodeId << " " <<subSectorId << endl;
+                    renderSubSector(subSectorId);
+                    return;
                 }
+
+                nodesTree.push_back(nodeId);
                 
                 
-            }
-            else
-            {
-                //cout << "player is on front side!" << endl;
-                //cout << nodeId << endl;
-                renderBspNode(node->rightChild);
-                
-                if(checkBbox(node->leftBoxBottom, node-> leftBoxTop, node->leftBoxLeft, node->leftBoxRight))
+
+                LevelData::Node* node = &nodes[nodeId];
+
+                // front = right, back = left
+
+                if(isOnBackSide(node) == true)
                 {
+                    //cout << "player is on back side!" << endl;
+                    //cout << nodeId << endl;
                     renderBspNode(node->leftChild);
+                    if(checkBbox(node->rightBoxBottom, node-> rightBoxTop, node->rightBoxLeft, node->rightBoxRight))
+                    {
+                        renderBspNode(node->rightChild);
+                    }
+                    
+                    
                 }
-                
-            }
+                else
+                {
+                    //cout << "player is on front side!" << endl;
+                    //cout << nodeId << endl;
+                    renderBspNode(node->rightChild);
+                    
+                    if(checkBbox(node->leftBoxBottom, node-> leftBoxTop, node->leftBoxLeft, node->leftBoxRight))
+                    {
+                        renderBspNode(node->leftChild);
+                    }
+                    
+                }
+            }       
+            
         }
 
         bool isOnBackSide(LevelData::Node *node)
