@@ -33,18 +33,19 @@ int  LevelRenderer::angleToX(float angle)
 
     if(angle > 0)
     {
-        x = *(engine.getScreenDist()) = tan(radians(angle)) * *(engine.getWindowWidth());
+        x = *(engine.getScreenDist()) - tan(radians(angle)) * *(engine.getWindowWidth());
     }
     else
     {
         x = -tan(radians(angle)) * *(engine.getWindowWidth()) + *(engine.getScreenDist());
     }
 
-    return (int) x;
+    return *(engine.getWindowWidth()) - (int) x;
 }
 
 void LevelRenderer::drawSegmentsById(vector<int>* segmentsIds)
 {
+    cout << "|ssss|" << endl;
     for(int i = 0; i < segmentsIds->size(); i++)
     {
         LevelData::Seg segment = segs[(*segmentsIds)[i]];
@@ -68,31 +69,48 @@ void LevelRenderer::drawSegmentsById(vector<int>* segmentsIds)
         angle1 -= player->getAngle();
         angle2 -= player->getAngle();
 
-        float span1 = norm(angle1 + (*engine.getPlayerHalfFOV()));
-        if(span1 > (*engine.getPlayerFOV()))
+        int hFov = (*engine.getPlayerHalfFOV());
+        int fov = (*engine.getPlayerFOV());
+
+        float span1 = norm(angle1 + hFov);
+        if(span1 > fov)
         {
-            if(span1 >= span + (*engine.getPlayerFOV()))
+            if(span1 >= span + fov)
             {
                 continue;
             }
-            angle1 = (*engine.getPlayerHalfFOV());
+            angle1 = hFov;
         }
 
-        float span2 = norm((*engine.getPlayerHalfFOV()) - angle2);
-        if(span2 > (*engine.getPlayerFOV()))
+        float span2 = norm(hFov - angle2);
+        if(span2 > fov)
         {
-            if(span2 >= span + (*engine.getPlayerFOV()))
+            if(span2 >= span + fov)
             {
-                continue;;
+                continue;
             }
-            angle2 = -(*engine.getPlayerHalfFOV());
+            angle2 = -hFov;
         }
 
         int x1 = angleToX(angle1);
         int x2 = angleToX(angle2);
         float angle = rwAngle;
-        drawVerticalLine(x1, 0, 0, sf::Color::Green);
-        drawVerticalLine(x2, 0, 0, sf::Color::Green);
+        cout << "g:" << x1 << endl;
+        cout << "r:" << x2 << endl;
+        if(x1 > 0)
+        {
+            if(x1 < *(engine.getWindowWidth()))
+            {
+                drawVerticalLine(x1, 0, 0, sf::Color::Green);
+            }
+        }
+        if(x2 > 0)
+        {
+            if(x2 < *(engine.getWindowWidth()))
+            {
+                drawVerticalLine(x2, 0, 0, sf::Color::Red);
+            }
+        }
     }
 }  
 

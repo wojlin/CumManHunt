@@ -73,8 +73,8 @@ class Engine
 
         string TITLE = "CumManHunt";
 
-        int WINDOW_WIDTH = 1800; // in pixels
-        int WINDOW_HEIGHT = 1000; // in pixels
+        int WINDOW_WIDTH = 800;//1800; // in pixels
+        int WINDOW_HEIGHT = 500;//1000; // in pixels
         int FRAMERATE_LIMIT = 60;  // frames per second
         bool VSYNC = false;
 
@@ -93,7 +93,7 @@ class Engine
         int H_WIDTH = WINDOW_WIDTH / 2;
         int H_HEIGHT = WINDOW_HEIGHT / 2;
 
-        int SCREEN_DIST = H_WIDTH / tan(radians(H_FOV));
+        int SCREEN_DIST = (int) ((float) H_WIDTH / (float) tan(radians(H_FOV)));
 
         LevelData::LevelData level;
         level_bounds_t levelBounds;
