@@ -17,6 +17,7 @@
 #include "include/Renderer/LevelRenderer.h"
 #include "include/Renderer/BSP.h"
 
+
 #include "include/Controller/Player.h"
 #include "include/Controller/Input.h"
 
@@ -28,6 +29,7 @@
 
 class Input;
 class LevelRenderer;
+class BSP;
 
 class Engine
 {
@@ -73,8 +75,8 @@ class Engine
 
         string TITLE = "CumManHunt";
 
-        int WINDOW_WIDTH = 800;//1800; // in pixels
-        int WINDOW_HEIGHT = 500;//1000; // in pixels
+        int WINDOW_WIDTH = 1800; // in pixels
+        int WINDOW_HEIGHT = 1000; // in pixels
         int FRAMERATE_LIMIT = 60;  // frames per second
         bool VSYNC = false;
 

@@ -1,4 +1,6 @@
-/*#include "../../include/Renderer/SegmentHandler.h"
+/*
+
+#include "../../include/Renderer/SegmentHandler.h"
 
 SegmentHandler::SegmentHandler(Engine& lEngine, Player *lPlayer) : engine(lEngine)
 {
@@ -22,7 +24,7 @@ void SegmentHandler::initScreenRange()
 
 void SegmentHandler::clipSolidWalls(int x1, int x2)
 {
-    if(screenRange.size())
+    if(!screen_range.empty())
     {
         std::set<int> currentWall;
         for (int i = x1; i < x2; ++i) 
@@ -30,14 +32,45 @@ void SegmentHandler::clipSolidWalls(int x1, int x2)
             screenRange.insert(i);
         }
 
-        std::set<int> intersection;
-        std::set_intersection(screenRange.begin(), screenRange.end(), currentWall.begin(), currentWall.end(), std::inserter(intersection, intersection.begin()));
-        
-        
-    }
-    else
-    {
+        std::unordered_set<int> intersection;
+        for (int x : curr_wall) {
+            if (screen_range.count(x)) {
+                intersection.insert(x);
+            }
+        }
 
+        if (!intersection.empty()) 
+        {
+            if (intersection.size() == curr_wall.size()) 
+            {
+                //draw_solid_wall_range(x_start, x_end - 1);
+            } 
+            else 
+            {
+                std::vector<int> arr(intersection.begin(), intersection.end());
+                std::sort(arr.begin(), arr.end());
+                int x = arr[0];
+                int x2 = arr.back();
+                for (size_t i = 1; i < arr.size(); ++i) {
+                    int x1 = arr[i - 1];
+                    x2 = arr[i];
+                    if (x2 - x1 > 1) {
+                        //draw_solid_wall_range(x, x1);
+                        x = x2;
+                    }
+                }
+                //draw_solid_wall_range(x, x2);
+            }
+            
+            for (int x : intersection) {
+                screen_range.erase(x);
+            }
+        }
+    }
+    else 
+    {
+        BSP * bsp = *(engine.getBSP());
+        bsp->setTraverse(false);
     }
     
 }
@@ -67,5 +100,4 @@ void SegmentHandler::classifySegment(LevelData::Seg segment, int x1, int x2, flo
         return;
     }
 }
-
 */
