@@ -11,7 +11,12 @@
 #include <cmath>
 #include <SFML/Graphics.hpp>
 
+#include "SegmentHandler.h"
+
 class Engine;
+
+#include "../Utils/Common.h"
+
 
 class LevelRenderer
 {
@@ -22,6 +27,8 @@ class LevelRenderer
         void drawLevel();
 
         void drawSegmentsById(vector<int>* segmentsIds);
+
+        void drawData(vector<segmentDrawData>* drawData);
 
         void update();
 

@@ -43,9 +43,33 @@ int  LevelRenderer::angleToX(float angle)
     return *(engine.getWindowWidth()) - (int) x;
 }
 
+void LevelRenderer::drawData(vector<segmentDrawData>* drawData)
+{
+    for(int i = 0; i < drawData->size(); i++)
+    {
+        segmentDrawData segment = (*drawData)[i];
+        int x1 = segment.x1;
+        int x2 = segment.x2;
+
+        if(x1 > 0)
+        {
+            if(x1 < *(engine.getWindowWidth()))
+            {
+                drawVerticalLine(x1, 0, 0, sf::Color::Green);
+            }
+        }
+        if(x2 > 0)
+        {
+            if(x2 < *(engine.getWindowWidth()))
+            {
+                drawVerticalLine(x2, 0, 0, sf::Color::Red);
+            }
+        }
+    }
+}
+
 void LevelRenderer::drawSegmentsById(vector<int>* segmentsIds)
 {
-    cout << "|ssss|" << endl;
     for(int i = 0; i < segmentsIds->size(); i++)
     {
         LevelData::Seg segment = segs[(*segmentsIds)[i]];
@@ -95,8 +119,6 @@ void LevelRenderer::drawSegmentsById(vector<int>* segmentsIds)
         int x1 = angleToX(angle1);
         int x2 = angleToX(angle2);
         float angle = rwAngle;
-        cout << "g:" << x1 << endl;
-        cout << "r:" << x2 << endl;
         if(x1 > 0)
         {
             if(x1 < *(engine.getWindowWidth()))

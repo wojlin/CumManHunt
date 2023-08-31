@@ -21,22 +21,34 @@ void SegmentHandler::initScreenRange()
     {
         screenRange.insert(i);
     }
+    drawData.clear();
 }
 
 void SegmentHandler::clipSolidWalls(int x1, int x2)
-{
+{   
     if(!screenRange.empty())
-    {
+    {   
         std::set<int> currentWall;
-        for (int i = x1; i < x2; ++i) 
+        if(x1 < x2)
         {
-            screenRange.insert(i);
+            for (int i = x1; i < x2; ++i) 
+            {
+                currentWall.insert(i);
+            }
+        }else
+        {
+            for (int i = x2; i < x1; ++i) 
+            {
+                currentWall.insert(i);
+            }
         }
 
         std::set<int> intersection;
-        for (int x : currentWall) {
-            if (screenRange.count(x)) {
-                intersection.insert(x);
+        
+        
+        for (const int &num : currentWall) {
+            if (currentWall.count(num) > 0) {
+                intersection.insert(num);
             }
         }
 
@@ -44,7 +56,10 @@ void SegmentHandler::clipSolidWalls(int x1, int x2)
         {
             if (intersection.size() == currentWall.size()) 
             {
-                //draw_solid_wall_range(x_start, x_end - 1);
+                segmentDrawData data;
+                data.x1 = x1;
+                data.x2 = x2 - 1;
+                drawData.push_back(data);
             } 
             else 
             {
@@ -56,11 +71,21 @@ void SegmentHandler::clipSolidWalls(int x1, int x2)
                     int x1 = arr[i - 1];
                     x2 = arr[i];
                     if (x2 - x1 > 1) {
-                        //draw_solid_wall_range(x, x1);
+
+                        segmentDrawData data;
+                        data.x1 = x;
+                        data.x2 = x1;
+                        drawData.push_back(data);
+
+
                         x = x2;
                     }
                 }
-                //draw_solid_wall_range(x, x2);
+
+                segmentDrawData data;
+                data.x1 = x;
+                data.x2 = x2;
+                drawData.push_back(data);
             }
             
             for (int x : intersection) {

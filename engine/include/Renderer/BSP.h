@@ -7,9 +7,15 @@
 #include "LevelBuild.h"
 #include <utility>
 
+#include "SegmentHandler.h"
+
 #include "../../engine.h"
 
+#include "../Utils/Common.h"
+
 class Engine;
+class SegmentHandler;
+
 
 struct bspFov
 {
@@ -31,6 +37,8 @@ class BSP
 
         vector<int>* getSegsTree();
 
+        vector<segmentDrawData>* getDrawData();
+
         void setTraverse(bool state);
         
     private:
@@ -44,6 +52,8 @@ class BSP
         vector<LevelData::Vertex> vertexs;
         vector<LevelData::SSector> subsectors;
         vector<LevelData::Seg> segs;
+
+        SegmentHandler* segmentHandler;
 
         vector<int> segsTree;
         vector<int> nodesTree;

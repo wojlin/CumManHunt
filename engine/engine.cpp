@@ -127,8 +127,6 @@ void Engine::run()
     MinimapRenderer minimapRenderer = MinimapRenderer(*this, &players[currentPlayer]);
     LevelRenderer levelRenderer = LevelRenderer(*this, &players[currentPlayer]);
     Input input = Input(*this);
-            
-    SegmentHandler segmentHandler = SegmentHandler(*this, &players[currentPlayer]);
 
     while (window.isOpen())
     {
@@ -141,12 +139,13 @@ void Engine::run()
         bsp.renderBsp();
         vector<int>* nodes = bsp.getNodesTree();
         vector<int>* segs = bsp.getSegsTree();
+        vector<segmentDrawData>* drawData = bsp.getDrawData();
         
         
-
 
         levelRenderer.clearDrawingBoard();
-        levelRenderer.drawSegmentsById(segs);
+        //levelRenderer.drawSegmentsById(segs);
+        levelRenderer.drawData(drawData);
         levelRenderer.update();
 
         minimapRenderer.drawMinimap();

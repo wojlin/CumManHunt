@@ -13,7 +13,10 @@
 #include <set>
 #include <vector>
 
+#include "../Utils/Common.h"
+
 class Engine;
+
 
 class SegmentHandler
 {
@@ -26,6 +29,8 @@ class SegmentHandler
         void initScreenRange();
 
         void clipSolidWalls(int x1, int x2);
+
+        vector<segmentDrawData> drawData;
 
     private:
         Engine& engine;

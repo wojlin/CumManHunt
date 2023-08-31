@@ -12,6 +12,8 @@ BSP::BSP(Engine& lEngine, Player *lPlayer): engine(lEngine)
     segs = level->getSegs();
     vertexs = level->getVertexs();
     traverse = true;
+
+    segmentHandler = new SegmentHandler(engine, player);
 }
 
 void BSP::renderBsp()
@@ -20,7 +22,8 @@ void BSP::renderBsp()
     segsTree.clear();
     traverse = true;
 
-    //segmentHandler.initScreenRange();
+
+    segmentHandler->initScreenRange();
 
     renderBspNode(nodes.size()-1);
 }     
@@ -38,6 +41,11 @@ vector<int>* BSP::getSegsTree()
 void BSP::setTraverse(bool state)
 {
     traverse = state;
+}
+
+vector<segmentDrawData>* BSP::getDrawData()
+{
+    return &segmentHandler->drawData;
 }
 
 // private:
@@ -127,7 +135,7 @@ void BSP::renderSubSector(int subSectorId)
 
         if(result.visible == true)
         {
-            //segmentHandler.classifySegment(seg, result.x1, result.x2, result.rw_angle1);
+            segmentHandler->classifySegment(seg, result.x1, result.x2, result.rw_angle1);
             segsTree.push_back(subSector.firistSegNumber + i);
         }
         
