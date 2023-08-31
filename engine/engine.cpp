@@ -103,11 +103,12 @@ void Engine::run()
     DemoData::DemoData* demo = gameData.getResourceFromWAD<DemoData::DemoData>();
 
     gameData.printInfo();
-    level = gameData.getLevelData(0);
-    level.printInfo();
 
     setupWindow();
     setupFPS();
+
+    level = gameData.getLevelData(0);
+    level.printInfo();
 
     LevelBuild levelBuild = LevelBuild(&level, wad);
     levelBounds = levelBuild.getLevelBounds();
@@ -121,12 +122,13 @@ void Engine::run()
         players.push_back(Player(levelBuild.getPlayerInfo(i)));
     }
     
+    
     BSP bsp = BSP(*this, &players[currentPlayer]);
     MinimapRenderer minimapRenderer = MinimapRenderer(*this, &players[currentPlayer]);
     LevelRenderer levelRenderer = LevelRenderer(*this, &players[currentPlayer]);
     Input input = Input(*this);
             
-    
+    SegmentHandler segmentHandler = SegmentHandler(*this, &players[currentPlayer]);
 
     while (window.isOpen())
     {

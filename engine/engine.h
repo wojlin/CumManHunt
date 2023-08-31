@@ -16,7 +16,7 @@
 #include "include/Renderer/MinimapRenderer.h"
 #include "include/Renderer/LevelRenderer.h"
 #include "include/Renderer/BSP.h"
-
+#include "include/Renderer/SegmentHandler.h"
 
 #include "include/Controller/Player.h"
 #include "include/Controller/Input.h"
@@ -30,6 +30,7 @@
 class Input;
 class LevelRenderer;
 class BSP;
+class SegmentHandler;
 
 class Engine
 {

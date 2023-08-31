@@ -1,10 +1,10 @@
-/*
-
 #include "../../include/Renderer/SegmentHandler.h"
+
 
 SegmentHandler::SegmentHandler(Engine& lEngine, Player *lPlayer) : engine(lEngine)
 {
     LevelData::LevelData* level;
+    level = engine.getLevelData();
     nodes = level->getNodes();
     vertexs = level->getVertexs();
     subsectors = level->getSubSectors();
@@ -12,6 +12,7 @@ SegmentHandler::SegmentHandler(Engine& lEngine, Player *lPlayer) : engine(lEngin
     linedefs = level->getLinedefs();
     sidedefs = level->getSidedefs();
 }
+
 
 void SegmentHandler::initScreenRange()
 {
@@ -24,7 +25,7 @@ void SegmentHandler::initScreenRange()
 
 void SegmentHandler::clipSolidWalls(int x1, int x2)
 {
-    if(!screen_range.empty())
+    if(!screenRange.empty())
     {
         std::set<int> currentWall;
         for (int i = x1; i < x2; ++i) 
@@ -32,16 +33,16 @@ void SegmentHandler::clipSolidWalls(int x1, int x2)
             screenRange.insert(i);
         }
 
-        std::unordered_set<int> intersection;
-        for (int x : curr_wall) {
-            if (screen_range.count(x)) {
+        std::set<int> intersection;
+        for (int x : currentWall) {
+            if (screenRange.count(x)) {
                 intersection.insert(x);
             }
         }
 
         if (!intersection.empty()) 
         {
-            if (intersection.size() == curr_wall.size()) 
+            if (intersection.size() == currentWall.size()) 
             {
                 //draw_solid_wall_range(x_start, x_end - 1);
             } 
@@ -63,14 +64,14 @@ void SegmentHandler::clipSolidWalls(int x1, int x2)
             }
             
             for (int x : intersection) {
-                screen_range.erase(x);
+                screenRange.erase(x);
             }
         }
     }
     else 
     {
-        BSP * bsp = *(engine.getBSP());
-        bsp->setTraverse(false);
+        //BSP * bsp = *(engine.getBSP());
+        //bsp->setTraverse(false);
     }
     
 }
@@ -100,4 +101,3 @@ void SegmentHandler::classifySegment(LevelData::Seg segment, int x1, int x2, flo
         return;
     }
 }
-*/

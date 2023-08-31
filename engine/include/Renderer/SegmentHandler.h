@@ -11,17 +11,19 @@
 #include <cmath>
 #include <SFML/Graphics.hpp>
 #include <set>
+#include <vector>
 
 class Engine;
 
 class SegmentHandler
 {
     public:
+
         SegmentHandler(Engine& lEngine, Player *lPlayer);
 
         void classifySegment(LevelData::Seg segment, int x1, int x2, float rwAngle);
 
-        void SegmentHandler::initScreenRange();
+        void initScreenRange();
 
         void clipSolidWalls(int x1, int x2);
 
