@@ -13,7 +13,7 @@ MinimapRenderer::MinimapRenderer(Engine& lEngine, Player *lPlayer) : engine(lEng
     width = size;
     height = size;
     minimapSize = size;
-    level = *(engine.getLevelData()).get();
+    level = engine.getLevelData();
     fov = *(engine.getPlayerFOV());
     fovDistance = static_cast<int>(((float) shortestLine * ( (float) *(engine.getMinimapFovDistancePercent()) / 100.0))) * 2;
     hFov = static_cast<int>((float) fov / 2.0);
@@ -21,10 +21,10 @@ MinimapRenderer::MinimapRenderer(Engine& lEngine, Player *lPlayer) : engine(lEng
     border = static_cast<int>(((float) shortestLine * ( (float) *(engine.getMinimapBorderPercentage()) / 100.0)));
 
     vertexsBounds = engine.getVertexsBounds();
-    vertexs = level.getVertexs();
-    lines = level.getLinedefs();
-    nodes = level.getNodes();
-    segs = level.getSegs();
+    vertexs = level->getVertexs();
+    lines =  level->getLinedefs();
+    nodes =  level->getNodes();
+    segs =  level->getSegs();
 
 
     setupDrawingBoard();  

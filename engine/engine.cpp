@@ -17,9 +17,9 @@ level_bounds_t Engine::getLevelBounds()
     return levelBounds;
 }
 
-unique_ptr<LevelData::LevelData> Engine::getLevelData()
+LevelData::LevelData* Engine::getLevelData()
 {
-    return std::move(level);
+    return &level;
 }
 
 int* Engine::getMinimapFovDistancePercent()
@@ -77,6 +77,11 @@ int* Engine::getPlayerRotationSpeed()
     return &PLAYER_ROTATION_SPEED;
 }
 
+int* Engine::getScreenDist()
+{
+    return &SCREEN_DIST;
+}
+
 sf::RenderWindow* Engine::getWindow()
 {
     return &window;
@@ -99,8 +104,11 @@ void Engine::run()
 
     gameData.printInfo();
 
+    setupWindow();
+    setupFPS();
+
     level = gameData.getLevelData(0);
-    level->printInfo();
+    level.printInfo();
 
     LevelBuild levelBuild = LevelBuild(&level, wad);
     levelBounds = levelBuild.getLevelBounds();
@@ -114,16 +122,11 @@ void Engine::run()
         players.push_back(Player(levelBuild.getPlayerInfo(i)));
     }
     
-    BSP bsp = BSP(&level, &players[currentPlayer], FOV);
-    bsp.renderBsp();
-
-    setupWindow();
-    setupFPS();
-
-
+    
+    BSP bsp = BSP(*this, &players[currentPlayer]);
     MinimapRenderer minimapRenderer = MinimapRenderer(*this, &players[currentPlayer]);
+    LevelRenderer levelRenderer = LevelRenderer(*this, &players[currentPlayer]);
     Input input = Input(*this);
-            
 
     while (window.isOpen())
     {
@@ -134,13 +137,23 @@ void Engine::run()
         input.manageInputs(&players[currentPlayer]);
 
         bsp.renderBsp();
+        vector<int>* nodes = bsp.getNodesTree();
+        vector<int>* segs = bsp.getSegsTree();
+        vector<segmentDrawData>* drawData = bsp.getDrawData();
+        
+        
+
+        levelRenderer.clearDrawingBoard();
+        //levelRenderer.drawSegmentsById(segs);
+        levelRenderer.drawData(drawData);
+        levelRenderer.update();
+
         minimapRenderer.drawMinimap();
 
-        vector<int> nodes = bsp.getNodesTree();
-        vector<int> segs = bsp.getSegsTree();
-        for(int i =0; i < segs.size(); i++)
+        
+        for(int i =0; i < segs->size(); i++)
         {
-            minimapRenderer.drawSegById(segs[i]);
+            minimapRenderer.drawSegById((*segs)[i]);
         }
         //for(int i =0; i < nodes.size(); i++)
         //{
@@ -149,6 +162,7 @@ void Engine::run()
     
         minimapRenderer.update();
 
+        window.draw(*levelRenderer.getLevel());
         window.draw(*minimapRenderer.getMinimap());
         window.draw(fpsText);
         window.display();       

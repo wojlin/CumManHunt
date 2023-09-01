@@ -16,6 +16,7 @@
 #include "include/Renderer/MinimapRenderer.h"
 #include "include/Renderer/LevelRenderer.h"
 #include "include/Renderer/BSP.h"
+//#include "include/Renderer/SegmentHandler.h"
 
 #include "include/Controller/Player.h"
 #include "include/Controller/Input.h"
@@ -25,8 +26,13 @@
 
 #include <chrono>
 
+#include "include/Utils/Common.h"
+
 
 class Input;
+class LevelRenderer;
+class BSP;
+//class SegmentHandler;
 
 class Engine
 {
@@ -38,7 +44,7 @@ class Engine
 
         level_bounds_t getLevelBounds();
 
-        unique_ptr<LevelData::LevelData> getLevelData();
+        LevelData::LevelData* getLevelData();
 
         int* getMinimapFovDistancePercent();
 
@@ -62,6 +68,8 @@ class Engine
 
         int* getPlayerRotationSpeed();
 
+        int* getScreenDist();
+
         sf::RenderWindow* getWindow();
 
         void run();
@@ -75,7 +83,7 @@ class Engine
         int FRAMERATE_LIMIT = 60;  // frames per second
         bool VSYNC = false;
 
-        int MINIMAP_SIZE = 100; // in percents
+        int MINIMAP_SIZE = 50; // in percents
         int MINIMAP_CONTENT_PERCENTAGE_OFFSET = 5; // in percents
         int MINIMAP_BORFER_PERCENTAGE = 1; // in percents
 
@@ -90,9 +98,9 @@ class Engine
         int H_WIDTH = WINDOW_WIDTH / 2;
         int H_HEIGHT = WINDOW_HEIGHT / 2;
 
-        int SCREEN_DIST = H_WIDTH / tan(radians(H_FOV));
+        int SCREEN_DIST = (int) ((float) H_WIDTH / (float) tan(radians(H_FOV)));
 
-        unique_ptr<LevelData::LevelData> level;
+        LevelData::LevelData level;
         level_bounds_t levelBounds;
         vertexs_bounds_t vertexsBounds;
 

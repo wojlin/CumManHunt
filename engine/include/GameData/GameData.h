@@ -75,7 +75,7 @@ class GameData
          * @param number 
          * @return unique_ptr<LevelData> 
          */
-        unique_ptr<LevelData::LevelData> getLevelData(string name);
+        LevelData::LevelData getLevelData(string name);
 
         /**
          * @brief this functions returns class that contains info about level based on that level number in vector
@@ -83,7 +83,7 @@ class GameData
          * @param number 
          * @return unique_ptr<LevelData> 
          */
-        unique_ptr<LevelData::LevelData> getLevelData(int number);
+        LevelData::LevelData getLevelData(int number);
 
         /**
          * @brief Get the Resource From WAD object
