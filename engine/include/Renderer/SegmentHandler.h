@@ -16,7 +16,7 @@
 #include "../Utils/Common.h"
 
 class Engine;
-
+class Player;
 
 class SegmentHandler
 {
@@ -28,7 +28,7 @@ class SegmentHandler
 
         void initScreenRange();
 
-        void clipSolidWalls(int x1, int x2);
+        void clipSolidWalls(LevelData::Seg segment, int x1, int x2);
 
         vector<segmentDrawData> drawData;
 

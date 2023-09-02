@@ -1,5 +1,6 @@
 
 #include "../../include/Controller/Input.h"
+#include "../../include/Controller/Player.h"
 
 Input::Input(Engine& lEngine) : engine(lEngine)
 {

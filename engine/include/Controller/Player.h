@@ -3,59 +3,38 @@
 
 #include "../Renderer/LevelBuild.h"
 
+#include "../../engine.h"
+
+class Engine;
+
 class Player
 {
     public:
 
-        Player(player_info_t* playerInfo)
-        {
-            number = playerInfo->number;
-            posX = playerInfo->posX;
-            posY = playerInfo->posY;
-            angle = playerInfo->angle;
-        }
+        Player(Engine& lEngine, player_info_t* playerInfo);
 
-        int getNumber()
-        {
-            return number;
-        }
+        int getNumber();
 
-        float getPosX()
-        {
-            return posX;
-        }
+        float getPosX();
 
-        float getPosY()
-        {
-            return posY;
-        }
+        float getPosY();
 
-        float getAngle()
-        {
-            return angle;
-        }
+        float getAngle();
 
+        void setPosX(float value);
 
-        void setPosX(float value)
-        {
-            posX = value;
-        }
+        void setPosY(float value);
 
-        void setPosY(float value)
-        {
-            posY = value;
-        }
-
-        void setAngle(float value)
-        {
-            angle = value;
-        }
+        void setAngle(float value);
 
     private:
         int number; 
         float posX;
         float posY;
         float angle;
+        float height;
+
+        Engine& engine;
 };
 
 #endif

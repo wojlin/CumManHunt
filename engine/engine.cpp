@@ -72,6 +72,11 @@ int* Engine::getPlayerSpeed()
     return &PLAYER_SPEED;
 }
 
+int* Engine::getPlayerHeight()
+{
+    return &PLAYER_HEIGHT;
+}
+
 int* Engine::getPlayerRotationSpeed()
 {
     return &PLAYER_ROTATION_SPEED;
@@ -119,7 +124,7 @@ void Engine::run()
     vector<Player> players;
     for(int i = 1; i < 5; i++)
     {
-        players.push_back(Player(levelBuild.getPlayerInfo(i)));
+        players.push_back(Player(*this, levelBuild.getPlayerInfo(i)));
     }
     
     

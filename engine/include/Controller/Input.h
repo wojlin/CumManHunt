@@ -9,6 +9,7 @@
 #include <cmath>
 
 class Engine;
+class Player;
 
 class Input
 {

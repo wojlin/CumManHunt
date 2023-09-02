@@ -1,5 +1,5 @@
 #include "../../include/Renderer/SegmentHandler.h"
-
+#include "../../include/Controller/Player.h"
 
 SegmentHandler::SegmentHandler(Engine& lEngine, Player *lPlayer) : engine(lEngine)
 {
@@ -24,7 +24,7 @@ void SegmentHandler::initScreenRange()
     drawData.clear();
 }
 
-void SegmentHandler::clipSolidWalls(int x1, int x2)
+void SegmentHandler::clipSolidWalls(LevelData::Seg segment, int x1, int x2)
 {   
     if(!screenRange.empty())
     {   
@@ -57,6 +57,7 @@ void SegmentHandler::clipSolidWalls(int x1, int x2)
             if (intersection.size() == currentWall.size()) 
             {
                 segmentDrawData data;
+                data.segment = segment;
                 data.x1 = x1;
                 data.x2 = x2 - 1;
                 drawData.push_back(data);
@@ -73,6 +74,7 @@ void SegmentHandler::clipSolidWalls(int x1, int x2)
                     if (x2 - x1 > 1) {
 
                         segmentDrawData data;
+                        data.segment = segment;
                         data.x1 = x;
                         data.x2 = x1;
                         drawData.push_back(data);
@@ -83,6 +85,7 @@ void SegmentHandler::clipSolidWalls(int x1, int x2)
                 }
 
                 segmentDrawData data;
+                data.segment = segment;
                 data.x1 = x;
                 data.x2 = x2;
                 drawData.push_back(data);
@@ -122,7 +125,7 @@ void SegmentHandler::classifySegment(LevelData::Seg segment, int x1, int x2, flo
     }else
     {
         int frontSidedefId = linedef.frontSidedef;
-        clipSolidWalls(x1, x2);
+        clipSolidWalls(segment, x1, x2);
         return;
     }
 }

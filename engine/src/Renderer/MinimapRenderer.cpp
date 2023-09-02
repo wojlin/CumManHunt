@@ -1,4 +1,5 @@
 #include "../../include/Renderer/MinimapRenderer.h"
+#include "../../include/Controller/Player.h"
 
 MinimapRenderer::MinimapRenderer(Engine& lEngine, Player *lPlayer) : engine(lEngine)
 {

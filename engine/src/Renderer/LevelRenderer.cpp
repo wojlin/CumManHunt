@@ -51,6 +51,8 @@ void LevelRenderer::drawData(vector<segmentDrawData>* drawData)
         int x1 = segment.x1;
         int x2 = segment.x2;
 
+        //int worldFrontZ1 = 
+
         if(x1 > 0)
         {
             if(x1 < *(engine.getWindowWidth()))

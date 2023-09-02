@@ -16,7 +16,6 @@
 #include "include/Renderer/MinimapRenderer.h"
 #include "include/Renderer/LevelRenderer.h"
 #include "include/Renderer/BSP.h"
-//#include "include/Renderer/SegmentHandler.h"
 
 #include "include/Controller/Player.h"
 #include "include/Controller/Input.h"
@@ -32,7 +31,7 @@
 class Input;
 class LevelRenderer;
 class BSP;
-//class SegmentHandler;
+class Player;
 
 class Engine
 {
@@ -59,6 +58,8 @@ class Engine
         int* getWindowHeight();
 
         int* getPlayerFOV();
+
+        int* getPlayerHeight();
 
         int* getPlayerHalfFOV();
 
@@ -94,6 +95,8 @@ class Engine
 
         int PLAYER_SPEED = 300;
         int PLAYER_ROTATION_SPEED = 1;
+
+        int PLAYER_HEIGHT = 48;
 
         int H_WIDTH = WINDOW_WIDTH / 2;
         int H_HEIGHT = WINDOW_HEIGHT / 2;
