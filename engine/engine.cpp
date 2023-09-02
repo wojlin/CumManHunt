@@ -145,6 +145,9 @@ void Engine::run()
         input.manageInputs(&players[currentPlayer]);
 
         bsp.renderBsp();
+
+        players[currentPlayer].setHeight(bsp.getSubSectorHeight() + PLAYER_HEIGHT);
+        
         vector<int>* nodes = bsp.getNodesTree();
         vector<int>* segs = bsp.getSegsTree();
         vector<segmentDrawData>* drawData = bsp.getDrawData();

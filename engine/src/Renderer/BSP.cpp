@@ -11,6 +11,9 @@ BSP::BSP(Engine& lEngine, Player *lPlayer): engine(lEngine)
     subsectors = level->getSubSectors();
     segs = level->getSegs();
     vertexs = level->getVertexs();
+    sectors = level->getSectors();
+    lines = level->getLinedefs();
+    sides = level->getSidedefs();
     traverse = true;
 
     segmentHandler = new SegmentHandler(engine, player);
@@ -118,6 +121,34 @@ int BSP::angleToX(float angle)
     return *(engine.getWindowWidth()) - (int) x;
 }
 
+
+int BSP::getSubSectorHeight()
+{
+    int sub_sector_id = nodes.size()-1;
+
+    while(sub_sector_id > 0)
+    {
+        LevelData::Node* node = &nodes[sub_sector_id];
+
+        bool is_on_back = isOnBackSide(node);
+        if(is_on_back)
+        {
+            sub_sector_id = nodes[sub_sector_id].leftChild;
+        }
+        else
+        {
+            sub_sector_id = nodes[sub_sector_id].rightChild;
+        }      
+    }
+
+    LevelData::SSector sub_sector = subsectors[sub_sector_id + SUB_SECTOR_IDENTIFIER];
+    LevelData::Seg seg = segs[sub_sector.firistSegNumber];
+    LevelData::Linedef line = lines[seg.lindefNumber];
+    LevelData::Sidedef side = sides[line.frontSidedef];
+    LevelData::Sector sector = sectors[side.sectorNumber];
+    cout << "HEIGHT:" << sector.floorHeight << endl;
+    return sector.floorHeight;
+}
 
 void BSP::renderSubSector(int subSectorId)
 {

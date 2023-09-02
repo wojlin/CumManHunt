@@ -40,6 +40,8 @@ class BSP
         vector<segmentDrawData>* getDrawData();
 
         void setTraverse(bool state);
+
+        int getSubSectorHeight();
         
     private:
         Engine& engine;
@@ -52,6 +54,9 @@ class BSP
         vector<LevelData::Vertex> vertexs;
         vector<LevelData::SSector> subsectors;
         vector<LevelData::Seg> segs;
+        vector<LevelData::Sector> sectors;
+        vector<LevelData::Linedef> lines;
+        vector<LevelData::Sidedef> sides;
 
         SegmentHandler* segmentHandler;
 
@@ -71,6 +76,8 @@ class BSP
         int angleToX(float angle);
 
         float pointToAngle(std::pair<int, int> vertex);
+
+        
 
         float norm(float angle);
 

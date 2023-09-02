@@ -115,9 +115,9 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
 
 
 
-    cout << "drawing line: " << segment.segment.lindefNumber << endl;
+    //cout << "drawing line: " << segment.segment.lindefNumber << endl;
 
-    cout << "x1: " << x1 << "   x2:" << x2 << endl;
+    //cout << "x1: " << x1 << "   x2:" << x2 << endl;
 
     int lineId = segment.segment.lindefNumber;
 
@@ -141,12 +141,12 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
     bool drawFloor = worldFrontZ2 < 0;
 
     float rwNormalAngle = remapValue(segment.segment.angle, -32768, 32767, 0, 360) + 90;
-    cout << "pre angle:" << segment.segment.angle << "    rwNormalAngle:" << rwNormalAngle << endl;
+    //cout << "pre angle:" << segment.segment.angle << "    rwNormalAngle:" << rwNormalAngle << endl;
     float offsetAngle = rwNormalAngle - segment.rwAngle;
 
     float hypotenuse = calculateDistance(player->getPosX(), player->getPosY(), startVertex.x, startVertex.y);
     float rwDistance = hypotenuse * cos(radians(offsetAngle));
-    cout << "hypotenuse:" << hypotenuse << "   rwDistance: " << rwDistance << endl;
+    //cout << "hypotenuse:" << hypotenuse << "   rwDistance: " << rwDistance << endl;
 
     float rwScale1 = scaleFromGlobalAngle(x1, rwNormalAngle, rwDistance);
     float rwScaleStep;
@@ -160,7 +160,7 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
         rwScaleStep = 0.0;
     }
 
-    cout << "sclae1:" << rwScale1 << "   step:" << rwScaleStep << endl;
+   // cout << "sclae1:" << rwScale1 << "   step:" << rwScaleStep << endl;
 
     float wallY1 = (*(engine.getWindowHeight()) / 2) - worldFrontZ1 * rwScale1;
     float wallY1Step = -rwScaleStep * worldFrontZ1;
@@ -174,7 +174,7 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
 
     sf::Color color = getSegmentColor(segment.segment.lindefNumber);
 
-    cout << "lets go to drawing!" << endl;
+    //cout << "lets go to drawing!" << endl;
 
     for(int i = x1; i < x2 + 1; i ++)
     {
@@ -197,7 +197,7 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
             if(wy2 < 0)
             {wy2=0;}
 
-            cout << i << " " << wy1 << " " << wy2 << " color:" << unsigned(color.r) << "," << unsigned(color.g) << "," << unsigned(color.b) << endl;
+            //cout << i << " " << wy1 << " " << wy2 << " color:" << unsigned(color.r) << "," << unsigned(color.g) << "," << unsigned(color.b) << endl;
             drawVerticalLine(i, wy1, wy2, color);
                 
                         
