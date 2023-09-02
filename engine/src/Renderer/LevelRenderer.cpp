@@ -15,6 +15,17 @@ LevelRenderer::LevelRenderer(Engine& lEngine, Player *lPlayer): engine(lEngine)
 
     xToAngleTable = xtoAngle();
 
+    for(int i = 0; i < *(engine.getWindowWidth()); i++)
+    {
+        upperClip.push_back(-1);
+    }
+
+    for(int i = 0; i < *(engine.getWindowWidth()); i++)
+    {
+        lowerClip.push_back(*(engine.getWindowHeight()));
+    }
+    
+
     setupDrawingBoard();
 }     
 
@@ -91,6 +102,220 @@ float LevelRenderer::scaleFromGlobalAngle(int x, float rwNormalAngle, float rwDi
 
 void LevelRenderer::drawPortalWall(segmentDrawData segment)
 {
+    int x1 = segment.x1;
+    int x2 = segment.x2;
+
+    // TODO: later remove
+
+    if( x1 < 0 || x2 < 0 || x1 > *(engine.getWindowWidth()) || x2 > *(engine.getWindowWidth()))
+    {
+        return;
+    }
+
+    // initial setup
+
+    int lineId = segment.segment.lindefNumber;
+
+    LevelData::Linedef line = lines[lineId];
+    LevelData::Sidedef frontSide = sides[line.frontSidedef];
+    LevelData::Sidedef backSide = sides[line.backSidedef];
+    LevelData::Sector frontSector = sectors[frontSide.sectorNumber];
+    LevelData::Sector backSector = sectors[backSide.sectorNumber];
+    LevelData::Vertex startVertex = vertexs[segment.segment.startVertex];
+    LevelData::Vertex endVertex = vertexs[segment.segment.endVertex];
+
+    string upperWallTexture = frontSide.upperTextureName;
+    string lowerWallTexture = frontSide.lowerTextureName;
+
+    string ceilTexture = frontSector.ceilingTextureName;
+    string floorTexture = frontSector.floorTextureName;
+    int lightLevel = frontSector.lightLevel;
+
+
+    
+
+    // checking conditions and choosing either to draw this segment or not:
+
+    int worldFrontZ1 = static_cast<int>(frontSector.ceilingHeight) - static_cast<int>(player->getHeight());
+    int worldBackZ1 = static_cast<int>(backSector.ceilingHeight) - static_cast<int>(player->getHeight());
+    int worldFrontZ2 = static_cast<int>(frontSector.floorHeight) - static_cast<int>(player->getHeight());
+    int worldBackZ2 = static_cast<int>(backSector.floorHeight) - static_cast<int>(player->getHeight());
+
+    bool bDrawUpperWall = false;
+    bool bDrawCeil = false;
+
+    bool bDrawLowerWall = false;
+    bool bDrawFloor = false;
+
+    if(worldFrontZ1 != worldBackZ1 ||
+        frontSector.lightLevel != backSector.lightLevel ||
+        frontSector.ceilingTextureName != backSector.ceilingTextureName)
+    {
+        bDrawUpperWall = frontSide.upperTextureName != "-" && worldBackZ1 < worldFrontZ1;
+        bDrawCeil = worldFrontZ1 >= 0;
+    }
+
+    if(worldFrontZ2 != worldBackZ2 ||
+        frontSector.lightLevel != backSector.lightLevel ||
+        frontSector.floorTextureName != backSector.floorTextureName)
+    {
+        bDrawLowerWall = frontSide.lowerTextureName != "-" && worldBackZ2 > worldFrontZ2;
+        bDrawFloor = worldFrontZ2 <= 0;
+    }
+
+    if(!bDrawUpperWall && !bDrawCeil && !bDrawLowerWall && !bDrawFloor)
+    {
+        return;
+    }
+
+    // actual drawing calculations:
+
+    float rwNormalAngle = remapValue(segment.segment.angle, -32768, 32767, 0, 360) + 90;
+    //cout << "pre angle:" << segment.segment.angle << "    rwNormalAngle:" << rwNormalAngle << endl;
+    float offsetAngle = rwNormalAngle - segment.rwAngle;
+
+    float hypotenuse = calculateDistance(player->getPosX(), player->getPosY(), startVertex.x, startVertex.y);
+    float rwDistance = hypotenuse * cos(radians(offsetAngle));
+    //cout << "hypotenuse:" << hypotenuse << "   rwDistance: " << rwDistance << endl;
+
+    float rwScale1 = scaleFromGlobalAngle(x1, rwNormalAngle, rwDistance);
+    float rwScaleStep;
+
+    if(x1 < x2)
+    {
+        float scale2 = scaleFromGlobalAngle(x2, rwNormalAngle, rwDistance);
+        rwScaleStep = (float) (scale2 - rwScale1) / (float) (x2 - x1);
+    }else
+    {
+        rwScaleStep = 0.0;
+    }
+
+   // cout << "sclae1:" << rwScale1 << "   step:" << rwScaleStep << endl;
+
+    float wallY1 = (*(engine.getWindowHeight()) / 2) - worldFrontZ1 * rwScale1;
+    float wallY1Step = -rwScaleStep * worldFrontZ1;
+
+    float wallY2 = (*(engine.getWindowHeight()) / 2) - worldFrontZ2 * rwScale1;
+    float wallY2Step = -rwScaleStep * worldFrontZ2;
+
+
+    float portalY1;
+    float portalY1Step;
+
+    float portalY2;
+    float portalY2Step;
+
+    vector<int> localUpperClip = upperClip;
+    vector<int> localLowerClip = lowerClip;
+
+    if(bDrawUpperWall)
+    {
+        if(worldBackZ1 > worldFrontZ2)
+        {
+            portalY1 = (*(engine.getWindowHeight()) / 2) - worldBackZ1 * rwScale1;
+            portalY1Step = -rwScaleStep * worldBackZ1;
+        }
+        else
+        {
+            portalY1 = wallY2;
+            portalY1Step = wallY2Step;
+        }
+    }
+
+    if(bDrawLowerWall)
+    {
+        if(worldBackZ2 < worldFrontZ1)
+        {
+            portalY2Step = (*(engine.getWindowHeight()) / 2) - worldBackZ2 * rwScale1;
+            portalY2Step = -rwScaleStep * worldBackZ2;
+        }
+        else
+        {
+            portalY2 = wallY1;
+            portalY2Step = wallY1Step;
+        }
+    }
+
+    for(int x = x1; x < x2 + 1; x++)
+    {
+        float drawWallY1 = wallY1 - 1;
+        float drawWallY2 = wallY2;
+
+        if(bDrawUpperWall)
+        {
+            float drawUpperWallY1 = wallY1 - 1;
+            float drawUpperWallY2 = portalY1;
+
+            if(bDrawCeil)
+            {
+                int cy1 = (int) localUpperClip[x] + 1;
+                int cy2 = (int) min( (int) (drawWallY1 - 1) , (int) (localLowerClip[x] - 1) );
+                drawVerticalLine(x, cy1, cy2, ceilTexture, lightLevel);
+            }
+
+            int wy1 = (int) max( (int) drawUpperWallY1, localUpperClip[x] + 1);
+            int wy2 = (int) min((int) drawUpperWallY2, localLowerClip[x] - 1);
+            drawVerticalLine(x, wy1, wy2, upperWallTexture, lightLevel);
+
+            if(localUpperClip[x] < wy2)
+            {
+                localUpperClip[x] = wy2;
+            }
+
+            portalY1 += portalY1Step;
+        }
+
+        if(bDrawCeil)
+        {
+            int cy1 = localUpperClip[x] + 1;
+            int cy2 = (int) min( (int) drawWallY1 - 1, localLowerClip[x] - 1);
+            drawVerticalLine(x, cy1, cy2, ceilTexture, lightLevel);
+
+            if(localUpperClip[x] < cy2)
+            {
+                localUpperClip[x] = cy2;
+            }
+        }
+
+        if(bDrawLowerWall)
+        {
+            if(bDrawFloor)
+            {
+                int fy1 = (int) max( (int) drawWallY2 +1, localUpperClip[x] + 1);
+                int fy2 = localLowerClip[x] - 1;
+                drawVerticalLine(x, fy1, fy2, floorTexture, lightLevel);
+            }
+
+            float drawLowerWallY1 = portalY2 - 1;
+            float drawLowerWallY2 = wallY2;
+
+            int wy1 = (int) max((int) drawLowerWallY1, localUpperClip[x] + 1);
+            int wy2 = (int) max( (int) drawLowerWallY2, localLowerClip[x] - 1);
+            drawVerticalLine(x, wy1, wy2, lowerWallTexture, lightLevel);
+
+            if(localLowerClip[x] > wy1)
+            {
+                localLowerClip[x] = wy1;
+            }
+
+            portalY2 += portalY2Step;
+        }
+
+        if(bDrawFloor)
+        {
+            int fy1 = (int) max( (int) drawWallY2 + 1, localUpperClip[x] + 1);
+            int fy2 = localLowerClip[x] - 1;
+            drawVerticalLine(x, fy1, fy2, floorTexture, lightLevel);
+
+            if(localLowerClip[x] > drawWallY2 + 1)
+            {
+                localLowerClip[x] = fy2;
+            }
+
+        }
+
+    }
+
 
 }
 
@@ -99,25 +324,11 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
 
     int x1 = segment.x1;
     int x2 = segment.x2;
-    /*
-    if(x1 > x2)
-    {
-        int temp = x1;
-        x1 = x2;
-        x2 = temp;
-    }
-    */
 
     if( x1 < 0 || x2 < 0 || x1 > *(engine.getWindowWidth()) || x2 > *(engine.getWindowWidth()))
     {
         return;
     }
-
-
-
-    //cout << "drawing line: " << segment.segment.lindefNumber << endl;
-
-    //cout << "x1: " << x1 << "   x2:" << x2 << endl;
 
     int lineId = segment.segment.lindefNumber;
 
@@ -128,8 +339,8 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
     LevelData::Vertex endVertex = vertexs[segment.segment.endVertex];
 
     string wallTexture = side.middleTextureName;
-    string ceilTexture = side.upperTextureName;
-    string floorTexture = side.lowerTextureName;
+    string ceilTexture = sector.ceilingTextureName;
+    string floorTexture = sector.floorTextureName;
     int lightLevel = sector.lightLevel;
 
 
@@ -168,11 +379,6 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
     float wallY2 = (*(engine.getWindowHeight()) / 2) - worldFrontZ2 * rwScale1;
     float wallY2Step = -rwScaleStep * worldFrontZ2;
 
-    
-
-    
-
-    sf::Color color = getSegmentColor(segment.segment.lindefNumber);
 
     //cout << "lets go to drawing!" << endl;
 
@@ -198,8 +404,7 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
             {wy2=0;}
 
             //cout << i << " " << wy1 << " " << wy2 << " color:" << unsigned(color.r) << "," << unsigned(color.g) << "," << unsigned(color.b) << endl;
-            drawVerticalLine(i, wy1, wy2, color);
-                
+            drawVerticalLine(i, wy1, wy2, wallTexture, lightLevel);
                         
         }
 
@@ -213,20 +418,6 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
 
     } 
 
-    if(x1 > 0)
-    {
-        if(x1 < *(engine.getWindowWidth()))
-        {
-            drawVerticalLine(x1, 0, 0, sf::Color::Green);
-        }
-    }
-    if(x2 > 0)
-    {
-        if(x2 < *(engine.getWindowWidth()))
-        {
-            drawVerticalLine(x2, 0, 0, sf::Color::Red);
-        }
-    }
 }
 
 void LevelRenderer::drawData(vector<segmentDrawData>* drawData)
@@ -248,16 +439,22 @@ void LevelRenderer::drawData(vector<segmentDrawData>* drawData)
     }
 }
 
-sf::Color LevelRenderer::getSegmentColor(int segmentId)
+size_t LevelRenderer::hashString(const std::string& str) {
+    std::hash<std::string> hasher;
+    return hasher(str);
+}
+
+sf::Color LevelRenderer::getRandomColor(string textureName, int lightLevel)
 {
-    std::seed_seq seed_sequence{segmentId};
-    std::mt19937 rng(seed_sequence);
+    size_t seed = hashString(textureName);
+    std::mt19937 mt(seed);
+
     std::uniform_int_distribution<int> distribution(40, 255);
 
     sf::Color color;
-    color.r = distribution(rng);
-    color.g = distribution(rng);
-    color.b = distribution(rng);
+    color.r = distribution(mt) - lightLevel * 1;
+    color.g = distribution(mt) - lightLevel * 1;
+    color.b = distribution(mt) - lightLevel * 1;
     color.a = 255;
     return color;
 }
@@ -317,21 +514,22 @@ void LevelRenderer::drawSegmentsById(vector<int>* segmentsIds)
         {
             if(x1 < *(engine.getWindowWidth()))
             {
-                drawVerticalLine(x1, 0, 0, sf::Color::Green);
+                drawVerticalLine(x1, 0, 0, "xD", 10);
             }
         }
         if(x2 > 0)
         {
             if(x2 < *(engine.getWindowWidth()))
             {
-                drawVerticalLine(x2, 0, 0, sf::Color::Red);
+                drawVerticalLine(x2, 0, 0, "xD", 10);
             }
         }
     }
 }  
 
-void LevelRenderer::drawVerticalLine(int posX, int bottomOffset, int topOffset, sf::Color color)
+void LevelRenderer::drawVerticalLine(int posX, int bottomOffset, int topOffset, string textureName, int lightLevel)
 {
+    sf::Color color = getRandomColor(textureName, lightLevel);
     if(bottomOffset < topOffset)
     {
         for(int i = bottomOffset; i < topOffset; i++)
@@ -345,6 +543,26 @@ void LevelRenderer::drawVerticalLine(int posX, int bottomOffset, int topOffset, 
 
 void LevelRenderer::drawPixel(int x, int y, sf::Color color)
 {
+
+    if(y > *(engine.getWindowHeight()))
+    {
+        return;
+    }
+
+    if(y < 0)
+    {
+        return;
+    }
+
+    if(x < 0)
+    {
+        return;
+    }
+
+    if(x > *(engine.getWindowWidth()))
+    {
+        return;
+    }
     
     int place = (width*y*4)+(x*4);
     if(place >= width*height*4)

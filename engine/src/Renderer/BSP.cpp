@@ -166,7 +166,7 @@ void BSP::renderSubSector(int subSectorId)
 
         if(result.visible == true)
         {
-            if(result.x1 > result.x2) // TODO check this later
+            if(result.x1 > result.x2) // TODO: check bugs and remove this later
             {
                 int temp = result.x1;
                 result.x1 = result.x2;
