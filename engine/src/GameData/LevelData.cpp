@@ -427,7 +427,7 @@ namespace LevelData
         {
             std::ifstream file(lump.path, std::ios::binary);
             file.seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Sidedef);
+            std::size_t num = lump.size / sizeof(Sidedef_raw_t);
             
             for (std::size_t i = 0; i < num; ++i)
             {
@@ -583,7 +583,7 @@ namespace LevelData
         {
             std::ifstream file(lump.path, std::ios::binary);
             file.seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Sector);
+            std::size_t num = lump.size / sizeof(rawSector);
             
             for (std::size_t i = 0; i < num; ++i)
             {

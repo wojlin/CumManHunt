@@ -10,6 +10,7 @@
 
 #include <cmath>
 #include <SFML/Graphics.hpp>
+#include <random>
 
 #include "SegmentHandler.h"
 
@@ -27,6 +28,10 @@ class LevelRenderer
         void drawLevel();
 
         void drawSegmentsById(vector<int>* segmentsIds);
+
+        void drawSolidWall(segmentDrawData segment);
+
+        void drawPortalWall(segmentDrawData segment);
 
         void drawData(vector<segmentDrawData>* drawData);
 
@@ -54,16 +59,31 @@ class LevelRenderer
 
         vector<LevelData::Vertex> vertexs;
         vector<LevelData::Linedef> lines;
+        vector<LevelData::Sidedef> sides;
         vector<LevelData::Node> nodes;
         vector<LevelData::Seg> segs;
+        vector<LevelData::Sector> sectors;
+
+        vector<float> xToAngleTable;
 
         sf::Color backgroundColor = sf::Color::Black;
 
+        float MAX_SEG_SCALE = 64.0;
+        float MIN_SEG_SCALE = 0.00390625;
+
         int angleToX(float angle);
+
+        int remapValue(int value, int oldMin, int oldMax, int newMin, int newMax);
         
         void drawVerticalLine(int posX, int bottomOffset, int topOffset, sf::Color color);
 
+        float scaleFromGlobalAngle(int x, float rwNormalAngle, float rwDistance);
+
+        vector<float> xtoAngle();
+
         void drawPixel(int x, int y, sf::Color color);
+
+        sf::Color getSegmentColor(int segmentId);
 
 };
 

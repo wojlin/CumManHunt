@@ -28,7 +28,9 @@ class SegmentHandler
 
         void initScreenRange();
 
-        void clipSolidWalls(LevelData::Seg segment, int x1, int x2);
+        void clipSolidWalls(LevelData::Seg segment, int x1, int x2, float rwAngle);
+
+        void clipPortalWalls(LevelData::Seg segment, int x1, int x2, float rwAngle);
 
         vector<segmentDrawData> drawData;
 
@@ -42,6 +44,7 @@ class SegmentHandler
         vector<LevelData::Seg> segs;
         vector<LevelData::Linedef> linedefs;
         vector<LevelData::Sidedef> sidedefs;
+        vector<LevelData::Sector> sectors;
 
         std::set<int> screenRange;
 };

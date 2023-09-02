@@ -21,11 +21,15 @@ class Player
 
         float getAngle();
 
+        float getHeight();
+
         void setPosX(float value);
 
         void setPosY(float value);
 
         void setAngle(float value);
+
+        void setHeight(float value);
 
     private:
         int number; 

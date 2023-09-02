@@ -29,6 +29,11 @@ float Player::getAngle()
     return angle;
 }
 
+float Player::getHeight()
+{
+    return height;
+}
+
 
 void Player::setPosX(float value)
 {
@@ -43,4 +48,9 @@ void Player::setPosY(float value)
 void Player::setAngle(float value)
 {
     angle = value;
+}
+
+void Player::setHeight(float value)
+{
+    height = value;
 }

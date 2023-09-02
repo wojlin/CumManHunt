@@ -114,6 +114,7 @@ void Engine::run()
 
     level = gameData.getLevelData(0);
     level.printInfo();
+    //level.printDetailedInfo();
 
     LevelBuild levelBuild = LevelBuild(&level, wad);
     levelBounds = levelBuild.getLevelBounds();
@@ -135,6 +136,8 @@ void Engine::run()
 
     while (window.isOpen())
     {
+        cout << " ||| NEW FRAME |||" << endl;
+
         calculateFPS();                          
 
         window.clear(sf::Color::Black);
