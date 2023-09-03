@@ -27,99 +27,87 @@ void SegmentHandler::initScreenRange()
 
 void SegmentHandler::clipPortalWalls(LevelData::Seg segment, int x_start, int x_end, float rwAngle)
 {
+    //create set filled with all the segment width on the screen
     std::set<int> currentWall;
-    if(x_start < x_end)
+    for (int i = x_start; i < x_end; i++) 
     {
-        for (int i = x_start; i < x_end; ++i) 
-        {
-            currentWall.insert(i);
-        }
-    }else
-    {
-        for (int i = x_end; i < x_start; ++i) 
-        {
-            currentWall.insert(i);
-        }
+        currentWall.insert(i);
     }
 
+    // create intersection of segment and whole screen
     std::set<int> intersection;
-        
-        
-        for (const int &num : currentWall) {
-            if (currentWall.count(num) > 0) {
-                intersection.insert(num);
-            }
-        }
+    std::set_intersection(screenRange.begin(), screenRange.end(), currentWall.begin(), currentWall.end(), std::inserter(intersection, intersection.begin()));
 
-        if (!intersection.empty()) 
+    if (!intersection.empty())  // check if intersection occured
+    {
+        if (intersection.size() == currentWall.size()) 
         {
-            if (intersection.size() == currentWall.size()) 
-            {
-                segmentDrawData data;
-                data.segment = segment;
-                data.x1 = x_start;
-                data.x2 = x_end - 1;
-                data.rwAngle = rwAngle;
-                data.isPortal = true;
-                drawData.push_back(data);
-            } 
-            else 
-            {
-                std::vector<int> arr(intersection.begin(), intersection.end());
-                std::sort(arr.begin(), arr.end());
-                int x = arr[0];
-                int x2 = arr.back();
-                for (size_t i = 1; i < arr.size(); ++i) {
-                    int x1 = arr[i - 1];
-                    x2 = arr[i];
-                    if (x2 - x1 > 1) {
+            // paste whole segment to the screen
+            segmentDrawData data;
+            data.segment = segment;
+            data.x1 = x_start;
+            data.x2 = x_end - 1;
+            data.rwAngle = rwAngle;
+            data.isPortal = true;
+            drawData.push_back(data);
+        } 
+        else 
+        {
+            // split the segment and paste it to screen
+            std::vector<int> arr(intersection.begin(), intersection.end());
+            std::sort(arr.begin(), arr.end());
+            int x = arr[0];
+            int x2 = arr.back();
+            for (size_t i = 1; i < arr.size(); ++i) {
+                int x1 = arr[i - 1];
+                x2 = arr[i];
+                if (x2 - x1 > 1) {
 
-                        segmentDrawData data;
-                        data.segment = segment;
-                        data.x1 = x;
-                        data.x2 = x1;
-                        data.rwAngle = rwAngle;
-                        data.isPortal = true;
-                        drawData.push_back(data);
+                    segmentDrawData data;
+                    data.segment = segment;
+                    data.x1 = x;
+                    data.x2 = x1;
+                    data.rwAngle = rwAngle;
+                    data.isPortal = true;
+                    drawData.push_back(data);
 
-                        x = x2;
-                    }
+                    x = x2;
                 }
-
-                segmentDrawData data;
-                data.segment = segment;
-                data.x1 = x;
-                data.x2 = arr[arr.size() -1];
-                data.rwAngle = rwAngle;
-                data.isPortal = true;
-                drawData.push_back(data);
             }
+
+            segmentDrawData data;
+            data.segment = segment;
+            data.x1 = x;
+            data.x2 = arr.back();
+            data.rwAngle = rwAngle;
+            data.isPortal = true;
+            drawData.push_back(data);
         }
+    }
 }
 
 void SegmentHandler::clipSolidWalls(LevelData::Seg segment, int x_start, int x_end, float rwAngle)
 {   
+    // no need to calculate futher if all the screen is covered
     if(!screenRange.empty())
     {   
+
+        //create set filled with all the segment width on the screen
         std::set<int> currentWall;
         for (int i = x_start; i < x_end; ++i) 
         {
             currentWall.insert(i);
         }
 
+        // create intersection of segment and whole screen
         std::set<int> intersection;
-        
-        
-        for (const int &num : currentWall) {
-            if (currentWall.count(num) > 0) {
-                intersection.insert(num);
-            }
-        }
+        std::set_intersection(screenRange.begin(), screenRange.end(), currentWall.begin(), currentWall.end(), std::inserter(intersection, intersection.begin()));
 
-        if (!intersection.empty()) 
+        if (!intersection.empty()) // check if intersection occured
         {
             if (intersection.size() == currentWall.size()) 
             {
+                // paste whole segment to the screen
                 segmentDrawData data;
                 data.segment = segment;
                 data.x1 = x_start;
@@ -128,8 +116,9 @@ void SegmentHandler::clipSolidWalls(LevelData::Seg segment, int x_start, int x_e
                 data.isPortal = false;
                 drawData.push_back(data);
             } 
-            else 
+            else  
             {
+                // split the segment and paste it to screen
                 std::vector<int> arr(intersection.begin(), intersection.end());
                 std::sort(arr.begin(), arr.end());
                 int x = arr[0];
@@ -146,8 +135,6 @@ void SegmentHandler::clipSolidWalls(LevelData::Seg segment, int x_start, int x_e
                         data.rwAngle = rwAngle;
                         data.isPortal = false;
                         drawData.push_back(data);
-
-
                         x = x2;
                     }
                 }
@@ -168,6 +155,7 @@ void SegmentHandler::clipSolidWalls(LevelData::Seg segment, int x_start, int x_e
     }
     else 
     {
+        // disabling futher traversal of BSP tree
         BSP* bsp = engine.getBSP();
         bsp->setTraverse(false);
     }
