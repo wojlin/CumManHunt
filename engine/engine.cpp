@@ -161,10 +161,12 @@ void Engine::run()
         
 
         levelRenderer.clearDrawingBoard();
-        
-        levelRenderer.drawData(drawData);
-        //levelRenderer.drawSegmentsById(segs);
+        levelRenderer.drawScene();
         levelRenderer.update();
+        
+        //levelRenderer.drawData(drawData);
+        //levelRenderer.drawSegmentsById(segs);
+        
 
         minimapRenderer.drawMinimap();
 
@@ -180,7 +182,7 @@ void Engine::run()
     
         minimapRenderer.update();
 
-        window.draw(*levelRenderer.getLevel());
+        window.draw(*levelRenderer.getScene());
         window.draw(*minimapRenderer.getMinimap());
         window.draw(fpsText);
         window.display();       

@@ -55,23 +55,19 @@ void SegmentHandler::clipPortalWalls(LevelData::Seg segment, int x_start, int x_
         {
             // split the segment and paste it to screen
             std::vector<int> arr(intersection.begin(), intersection.end());
-            std::sort(arr.begin(), arr.end());
             int x = arr[0];
-            int x2 = arr.back();
-            for (size_t i = 1; i < arr.size(); ++i) {
-                int x1 = arr[i - 1];
-                x2 = arr[i];
-                if (x2 - x1 > 1) {
-
+            for (size_t i = 1; i < arr.size(); i++) {
+                if (arr[i] - arr[i - 1] > 1) 
+                {
                     segmentDrawData data;
                     data.segment = segment;
                     data.x1 = x;
-                    data.x2 = x1;
+                    data.x2 = arr[i - 1];
                     data.rwAngle = rwAngle;
                     data.isPortal = true;
                     drawData.push_back(data);
 
-                    x = x2;
+                    x = arr[i];
                 }
             }
 

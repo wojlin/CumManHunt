@@ -15,6 +15,17 @@ LevelRenderer::LevelRenderer(Engine& lEngine, Player *lPlayer): engine(lEngine)
 
     xToAngleTable = xtoAngle();
 
+    createClips();
+    
+
+    setupDrawingBoard();
+}     
+
+void LevelRenderer::createClips()
+{
+    upperClip.clear();
+    lowerClip.clear();
+
     for(int i = 0; i < *(engine.getWindowWidth()); i++)
     {
         upperClip.push_back(-1);
@@ -24,17 +35,16 @@ LevelRenderer::LevelRenderer(Engine& lEngine, Player *lPlayer): engine(lEngine)
     {
         lowerClip.push_back(*(engine.getWindowHeight()));
     }
-    
-
-    setupDrawingBoard();
-}     
-
-void LevelRenderer::drawLevel()
-{
-
 }
 
-sf::Sprite* LevelRenderer::getLevel()
+void LevelRenderer::drawScene()
+{
+    BSP* bsp = engine.getBSP();
+    vector<segmentDrawData>* draw = bsp->getDrawData();
+    drawData(draw);
+}
+
+sf::Sprite* LevelRenderer::getScene()
 {
     return &(sprite);
 }
@@ -42,7 +52,7 @@ sf::Sprite* LevelRenderer::getLevel()
          
 //private
 
-int  LevelRenderer::angleToX(float angle)
+int  LevelRenderer::angleToX(double angle)
 {
     float x;
 
@@ -58,24 +68,24 @@ int  LevelRenderer::angleToX(float angle)
     return (int) x;
 }
 
-vector<float> LevelRenderer::xtoAngle()
+vector<double> LevelRenderer::xtoAngle()
 {
-    vector<float> xToAngleTable;
+    vector<double> xToAngleTable;
     for(int i = 0; i < *(engine.getWindowWidth()) + 1; i++)
     {
-        float angle = degrees(atan( ( ( (float) *(engine.getWindowWidth()) / 2.0 ) - i ) / (float) *(engine.getScreenDist() )));
+        double angle = degrees(atan( ( ( (double) *(engine.getWindowWidth()) / 2.0 ) - i ) / (double) *(engine.getScreenDist() )));
         xToAngleTable.push_back(angle);
     }
     return xToAngleTable;
 }
 
-float LevelRenderer::scaleFromGlobalAngle(int x, float rwNormalAngle, float rwDistance)
+double LevelRenderer::scaleFromGlobalAngle(int x, double rwNormalAngle, double rwDistance)
 {
-    float xAngle = xToAngleTable[x];
-    float num = (float) *(engine.getScreenDist()) * cos(radians(rwNormalAngle - (float) xAngle - (float) player->getAngle()));
-    float den = rwDistance * cos(radians(xAngle));
+    double xAngle = xToAngleTable[x];
+    double num = (double) *(engine.getScreenDist()) * cos(radians(rwNormalAngle - (double) xAngle - (double) player->getAngle()));
+    double den = rwDistance * cos(radians(xAngle));
 
-    float scale = num / den;
+    double scale = num / den;
     scale = min(MAX_SEG_SCALE, max(MIN_SEG_SCALE, scale));
 
     return scale;
@@ -111,10 +121,10 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
     // checking conditions and choosing either to draw this segment or not:
 
-    int worldFrontZ1 = static_cast<int>(frontSector->ceilingHeight) - static_cast<int>(player->getHeight());
-    int worldBackZ1 = static_cast<int>(backSector->ceilingHeight) - static_cast<int>(player->getHeight());
-    int worldFrontZ2 = static_cast<int>(frontSector->floorHeight) - static_cast<int>(player->getHeight());
-    int worldBackZ2 = static_cast<int>(backSector->floorHeight) - static_cast<int>(player->getHeight());
+    double worldFrontZ1 = (double) (frontSector->ceilingHeight) - (double) (player->getHeight());
+    double worldBackZ1 = (double) (backSector->ceilingHeight) - (double) (player->getHeight());
+    double worldFrontZ2 = (double) (frontSector->floorHeight) - (double) (player->getHeight());
+    double worldBackZ2 = (double) (backSector->floorHeight) - (double) (player->getHeight());
 
     bool bDrawUpperWall = false;
     bool bDrawCeil = false;
@@ -145,41 +155,41 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
     // actual drawing calculations:
 
-    float rwNormalAngle = segment.segment.angle + 90; 
-    float offsetAngle = rwNormalAngle - segment.rwAngle;
-    float hypotenuse = calculateDistance( (float) player->getPosX(), (float) player->getPosY(), (float) startVertex->x, (float) startVertex->y);
-    float rwDistance = hypotenuse * cos(radians(offsetAngle));
-    float rwScale1 = scaleFromGlobalAngle(x1, rwNormalAngle, rwDistance);
-    float rwScaleStep;
+    double rwNormalAngle = segment.segment.angle + 90.0; 
+    double offsetAngle = rwNormalAngle - (double) segment.rwAngle;
+    double hypotenuse = calculateDistance( (double) player->getPosX(), (double) player->getPosY(), (double) startVertex->x, (double) startVertex->y);
+    double rwDistance = hypotenuse * cos(radians(offsetAngle));
+    double rwScale1 = scaleFromGlobalAngle(x1, rwNormalAngle, rwDistance);
+    double rwScaleStep;
 
     if(x1 < x2)
     {
-        float scale2 = scaleFromGlobalAngle(x2, rwNormalAngle, rwDistance);
-        rwScaleStep = (float) (scale2 - rwScale1) / (float) (x2 - x1);
+        double scale2 = scaleFromGlobalAngle(x2, rwNormalAngle, rwDistance);
+        rwScaleStep = (double) (scale2 - rwScale1) / (double) (x2 - x1);
     }else
     {
         rwScaleStep = 0.0;
     }
 
     // the y positions of the top / bottom edges of the wall on the screen
-    float wallY1 = (float) (*(engine.getWindowHeight()) / 2.0) - (float) worldFrontZ1 * rwScale1;
-    float wallY1Step = -rwScaleStep * worldFrontZ1;
+    double wallY1 = (double) ( (double) *(engine.getWindowHeight()) / 2.0) - (double) worldFrontZ1 * rwScale1;
+    double wallY1Step = -rwScaleStep * worldFrontZ1;
 
-    float wallY2 = (float) (*(engine.getWindowHeight()) / 2.0) - (float) worldFrontZ2 * rwScale1;
-    float wallY2Step = -rwScaleStep * worldFrontZ2;
+    double wallY2 = (double) ( (double) *(engine.getWindowHeight()) / 2.0) - (double) worldFrontZ2 * rwScale1;
+    double wallY2Step = -rwScaleStep * worldFrontZ2;
 
     
-    float portalY1;
-    float portalY1Step;
-    float portalY2;
-    float portalY2Step;
+    double portalY1;
+    double portalY1Step;
+    double portalY2;
+    double portalY2Step;
     
 
     if(bDrawUpperWall)
     {
         if(worldBackZ1 > worldFrontZ2)
         {
-            portalY1 = (float) (*(engine.getWindowHeight()) / 2) - worldBackZ1 * rwScale1;
+            portalY1 = (double) ( (double)*(engine.getWindowHeight()) / 2.0) - worldBackZ1 * rwScale1;
             portalY1Step = -rwScaleStep * worldBackZ1;
         }
         else
@@ -193,7 +203,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
     {
         if(worldBackZ2 < worldFrontZ1)
         {
-            portalY2 = (float) (*(engine.getWindowHeight()) / 2) - worldBackZ2 * rwScale1;
+            portalY2 = (double) ( (double) *(engine.getWindowHeight()) / 2.0) - worldBackZ2 * rwScale1;
             portalY2Step = -rwScaleStep * worldBackZ2;
         }
         else
@@ -207,23 +217,23 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
     for(int x = x1; x < x2 + 1; x++)
     {
-        float drawWallY1 = wallY1 - 1;
-        float drawWallY2 = wallY2;
+        double drawWallY1 = wallY1 - 1;
+        double drawWallY2 = wallY2;
 
         if(bDrawUpperWall)
         {
-            float drawUpperWallY1 = wallY1 - 1;
-            float drawUpperWallY2 = portalY1;
+            double drawUpperWallY1 = wallY1 - 1;
+            double drawUpperWallY2 = portalY1;
 
             if(bDrawCeil)
             {
                 int cy1 = (int) upperClip[x] + 1;
-                int cy2 = min(static_cast<int>(drawWallY1 - 1), lowerClip[x] - 1);
+                int cy2 = (int) min((double) (drawWallY1 - 1), (double) (lowerClip[x] - 1.0));
                 drawVerticalLine(x, cy1, cy2, ceilColor);
             }
 
-            int wy1 = max(static_cast<int>(drawUpperWallY1), upperClip[x] + 1);
-            int wy2 = min(static_cast<int>(drawUpperWallY2), lowerClip[x] - 1);
+            int wy1 = max((double) (drawUpperWallY1), upperClip[x] + 1);
+            int wy2 = min((double) (drawUpperWallY2), lowerClip[x] - 1);
             drawVerticalLine(x, wy1, wy2, upperWallColor);
 
             if(upperClip[x] < wy2)
@@ -236,8 +246,8 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
         if(bDrawCeil)
         {
-            int cy1 = upperClip[x] + 1;
-            int cy2 = min(static_cast<int>(drawWallY1 - 1), lowerClip[x] - 1);
+            int cy1 = (int) upperClip[x] + 1;
+            int cy2 = (int) min( (double) (drawWallY1 - 1), (double) (lowerClip[x] - 1.0));
             drawVerticalLine(x, cy1, cy2, ceilColor);
 
             if(upperClip[x] < cy2)
@@ -250,16 +260,16 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
         {
             if(bDrawFloor)
             {
-                int fy1 = (int) max( (int) drawWallY2 +1, upperClip[x] + 1);
-                int fy2 = lowerClip[x] - 1;
+                int fy1 = (int) max( (double) drawWallY2 +1, (double) upperClip[x] + 1);
+                int fy2 = (int) (lowerClip[x] - 1.0);
                 drawVerticalLine(x, fy1, fy2, florColor);
             }
 
             float drawLowerWallY1 = portalY2 - 1;
             float drawLowerWallY2 = wallY2;
 
-            int wy1 = max(static_cast<int>(drawLowerWallY1), upperClip[x] + 1);
-            int wy2 = min(static_cast<int>(drawLowerWallY2), lowerClip[x] - 1);
+            int wy1 = (int) max( (double) (drawLowerWallY1), (double) upperClip[x] + 1);
+            int wy2 = (int) min( (double) (drawLowerWallY2), (double) lowerClip[x] - 1);
             drawVerticalLine(x, wy1, wy2, lowerWallColor);
 
             if(lowerClip[x] > wy1)
@@ -272,7 +282,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
         if(bDrawFloor)
         {
-            int fy1 = max(static_cast<int>(drawWallY2 + 1), upperClip[x] + 1);
+            int fy1 = max( (double) (drawWallY2 + 1), (double) (upperClip[x] + 1.0));
             int fy2 = lowerClip[x] - 1;
             drawVerticalLine(x, fy1, fy2, florColor);
 
@@ -316,58 +326,58 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
     sf::Color florColor = getRandomColor(floorTexture, lightLevel);
 
     //calculations
-    int worldFrontZ1 = static_cast<int>(sector->ceilingHeight) - static_cast<int>(player->getHeight());
-    int worldFrontZ2 = static_cast<int>(sector->floorHeight) - static_cast<int>(player->getHeight());
+    double worldFrontZ1 = (double) (sector->ceilingHeight) - (double) (player->getHeight());
+    double worldFrontZ2 = (double) (sector->floorHeight) - (double) (player->getHeight());
 
     bool drawWall = side->middleTextureName != "-"; // decide if drawing wall is needed
     bool drawCeiling = worldFrontZ1 > 0; // decide if drawing ceiling is needed
     bool drawFloor = worldFrontZ2 < 0; // decide if drawing floor is needed
 
-    float rwNormalAngle = segment.segment.angle + 90; 
-    float offsetAngle = rwNormalAngle - segment.rwAngle;
-    float hypotenuse = calculateDistance( (float) player->getPosX(), (float) player->getPosY(), (float) startVertex->x, (float) startVertex->y);
-    float rwDistance = hypotenuse * cos(radians(offsetAngle));
-    float rwScale1 = scaleFromGlobalAngle(x1, rwNormalAngle, rwDistance);
-    float rwScaleStep;
+    double rwNormalAngle = (double) segment.segment.angle + 90.0; 
+    double offsetAngle = rwNormalAngle - (double) segment.rwAngle;
+    double hypotenuse = calculateDistance( (double) player->getPosX(), (double) player->getPosY(), (double) startVertex->x, (double) startVertex->y);
+    double rwDistance = hypotenuse * cos(radians(offsetAngle));
+    double rwScale1 = scaleFromGlobalAngle(x1, rwNormalAngle, rwDistance);
+    double rwScaleStep;
 
     if(x1 < x2)
     {
-        float scale2 = scaleFromGlobalAngle(x2, rwNormalAngle, rwDistance);
-        rwScaleStep = (float) (scale2 - rwScale1) / (float) (x2 - x1);
+        double scale2 = scaleFromGlobalAngle(x2, rwNormalAngle, rwDistance);
+        rwScaleStep = (double) (scale2 - rwScale1) / (double) (x2 - x1);
     }else
     {
         rwScaleStep = 0.0;
     }
 
-    float wallY1 = (float) (*(engine.getWindowHeight()) / 2) - (float) worldFrontZ1 * rwScale1;
-    float wallY1Step = (float) -rwScaleStep * (float) worldFrontZ1;
+    double wallY1 = (double) (*(engine.getWindowHeight()) / 2.0) - (double) worldFrontZ1 * (double) rwScale1;
+    double wallY1Step = (double) -rwScaleStep * (double) worldFrontZ1;
 
-    float wallY2 = (float) (*(engine.getWindowHeight()) / 2) - (float) worldFrontZ2 * rwScale1;
-    float wallY2Step = (float) -rwScaleStep * (float) worldFrontZ2;
+    double wallY2 = (double) (*(engine.getWindowHeight()) / 2.0) - (double) worldFrontZ2 * (double) rwScale1;
+    double wallY2Step = (double) -rwScaleStep * (double) worldFrontZ2;
 
     for(int i = x1; i < x2 + 1; i ++)
     {
-        int drawWallY1 = wallY1 - 1;
-        int drawWallY2 = wallY2;
+        double drawWallY1 = wallY1 - 1.0;
+        double drawWallY2 = wallY2;
 
         if(drawCeiling)
         {
-            int cy1 = upperClip[i] + 1;
-            int cy2 = min(static_cast<int>(drawWallY1 - 1), lowerClip[i] - 1);
+            int cy1 = (int) std::round(upperClip[i] + 1.0);
+            int cy2 = (int) min( (double) (drawWallY1 - 1.0), (double) (lowerClip[i] - 1.0) );
             drawVerticalLine(i, cy1, cy2, ceilColor);
         }
 
         if(drawWall)
         {
-            int wy1 = max(static_cast<int>(drawWallY1), upperClip[i] + 1);
-            int wy2 = min(static_cast<int>(drawWallY2), lowerClip[i] - 1); 
+            int wy1 = (int) max((double)(drawWallY1), (double) (upperClip[i] + 1.0));
+            int wy2 = (int) min((double)(drawWallY2), (double) (lowerClip[i] - 1.0)); 
             drawVerticalLine(i, wy1, wy2, wallColor);                   
         }
 
         if(drawFloor)
         {
-            int fy1 = max(static_cast<int>(drawWallY2 + 1), upperClip[i] + 1);
-            int fy2 = lowerClip[i] - 1;
+            int fy1 = (int) max((double)(drawWallY2 + 1.0), (double) (upperClip[i] + 1.0));
+            int fy2 = (int) std::round(lowerClip[i] - 1.0);
             drawVerticalLine(i, fy1, fy2, florColor);
         }
 
@@ -492,57 +502,18 @@ void LevelRenderer::drawVerticalLine(int posX, int bottomOffset, int topOffset, 
 
 void LevelRenderer::drawPixel(int x, int y, sf::Color color)
 {
-
-    if(y > *(engine.getWindowHeight()))
-    {
-        return;
-    }
-
-    if(y < 0)
-    {
-        return;
-    }
-
-    if(x < 0)
-    {
-        return;
-    }
-
-    if(x > *(engine.getWindowWidth()))
-    {
-        return;
-    }
-    
     int place = (width*y*4)+(x*4);
-    if(place >= width*height*4)
-    {
-        return;
-    }
-
     pixels[place] = color.r;
     pixels[place + 1] = color.g;
     pixels[place + 2] = color.b;
     pixels[place + 3] = color.a; 
-
 }
 
 void LevelRenderer::update()
 {
     texture.update(pixels);
     sprite.setTexture(texture);
-
-    upperClip.clear();
-    lowerClip.clear();
-
-    for(int i = 0; i < *(engine.getWindowWidth()); i++)
-    {
-        upperClip.push_back(-1);
-    }
-
-    for(int i = 0; i < *(engine.getWindowWidth()); i++)
-    {
-        lowerClip.push_back(*(engine.getWindowHeight()));
-    }
+    createClips();
 }
 
 

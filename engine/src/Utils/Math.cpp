@@ -1,11 +1,11 @@
 # include "../../include/Utils/Math.h"
 
-float radians(float degrees)
+double radians(double degrees)
 {
     return degrees * (PI / 180.0);
 }
 
-float degrees(float radians)
+double degrees(double radians)
 {
     return radians * (180.0 / PI);
 }
@@ -30,8 +30,8 @@ float norm(float angle)
     }
 }
 
-float calculateDistance(float x1, float y1, float x2, float y2) {
-    float dx = x2 - x1;
-    float dy = y2 - y1;
+double calculateDistance(double  x1, double  y1, double  x2, double  y2) {
+    double  dx = x1 - x2;
+    double  dy = y1 - y2;
     return std::sqrt(dx * dx + dy * dy);
 }

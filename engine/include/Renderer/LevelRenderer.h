@@ -25,7 +25,9 @@ class LevelRenderer
 
         LevelRenderer(Engine& lEngine, Player *lPlayer);    
 
-        void drawLevel();
+        void drawScene();
+
+        sf::Sprite* getScene();
 
         void drawSegmentsById(vector<int>* segmentsIds);
 
@@ -41,7 +43,7 @@ class LevelRenderer
 
         void setupDrawingBoard();
 
-        sf::Sprite* getLevel();
+        
          
 
     private:
@@ -64,29 +66,31 @@ class LevelRenderer
         vector<LevelData::Seg> segs;
         vector<LevelData::Sector> sectors;
 
-        vector<float> xToAngleTable;
+        vector<double> xToAngleTable;
 
-        vector<int> lowerClip;
-        vector<int> upperClip;
+        vector<double> lowerClip;
+        vector<double> upperClip;
 
         sf::Color backgroundColor = sf::Color::Black;
 
-        float MAX_SEG_SCALE = 64.0;
-        float MIN_SEG_SCALE = 0.00390625;
+        double MAX_SEG_SCALE = 64.0;
+        double MIN_SEG_SCALE = 0.00001;//0.00390625;
 
-        int angleToX(float angle);
+        int angleToX(double angle);
         
         void drawVerticalLine(int posX, int bottomOffset, int topOffset, sf::Color color);
 
-        float scaleFromGlobalAngle(int x, float rwNormalAngle, float rwDistance);
+        double scaleFromGlobalAngle(int x, double rwNormalAngle, double rwDistance);
 
-        vector<float> xtoAngle();
+        vector<double> xtoAngle();
 
         void drawPixel(int x, int y, sf::Color color);
 
         sf::Color getRandomColor(string textureName, int lightLevel);
 
         size_t hashString(const std::string& str);
+
+        void createClips();
 
 };
 

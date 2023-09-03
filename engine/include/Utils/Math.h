@@ -6,14 +6,14 @@
 
 const double PI = 3.14159265358979323846;
 
-float radians(float degrees);
+double radians(double degrees);
 
-float degrees(float radians);
+double degrees(double radians);
 
 float pointToAngle(std::pair<int, int> vertex, int x, int y);
 
 float norm(float angle);
 
-float calculateDistance(float x1, float y1, float x2, float y2);
+double calculateDistance(double  x1, double  y1, double  x2, double  y2);
 
 #endif

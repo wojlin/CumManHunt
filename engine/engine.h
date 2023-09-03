@@ -98,7 +98,7 @@ class Engine
         int PLAYER_SPEED = 100;
         int PLAYER_ROTATION_SPEED = 1;
 
-        int PLAYER_HEIGHT = 48;
+        int PLAYER_HEIGHT = 42;
 
         int H_WIDTH = WINDOW_WIDTH / 2;
         int H_HEIGHT = WINDOW_HEIGHT / 2;
