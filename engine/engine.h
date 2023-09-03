@@ -103,7 +103,7 @@ class Engine
         int H_WIDTH = WINDOW_WIDTH / 2;
         int H_HEIGHT = WINDOW_HEIGHT / 2;
 
-        int SCREEN_DIST = (int) ((float) H_WIDTH / (float) tan(radians(H_FOV)));
+        int SCREEN_DIST = (int) ((float) H_WIDTH / (float) tan(radians((float)H_FOV)));
 
         LevelData::LevelData level;
         level_bounds_t levelBounds;

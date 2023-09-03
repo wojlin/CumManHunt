@@ -69,10 +69,10 @@ bspFov BSP::addSegmentToFOV(pair<int, int> vertex1, pair<int, int> vertex2)
         return result;
     }else
     {
-        int rw_angle1 = angle1;
+        int rw_angle1 = static_cast<int>(angle1);
 
-        angle1 -= player->getAngle();
-        angle2 -= player->getAngle();
+        angle1 -= (float) player->getAngle();
+        angle2 -= (float) player->getAngle();
 
         float span1 = norm(angle1 + hFov);
         if(span1 > fov)
@@ -111,14 +111,14 @@ int BSP::angleToX(float angle)
 
     if(angle > 0)
     {
-        x = *(engine.getScreenDist()) - tan(radians(angle)) * *(engine.getWindowWidth());
+        x = (float) *(engine.getScreenDist()) - tan(radians(angle)) * ( (float) *(engine.getWindowWidth()) / 2.0);
     }
     else
     {
-        x = -tan(radians(angle)) * *(engine.getWindowWidth()) + *(engine.getScreenDist());
+        x = -tan(radians(angle)) * ( (float) *(engine.getWindowWidth()) / 2.0) + (float) *(engine.getScreenDist());
     }
 
-    return *(engine.getWindowWidth()) - (int) x;
+    return (int) x;
 }
 
 
@@ -157,8 +157,8 @@ void BSP::renderSubSector(int subSectorId)
     for(int i = 0; i < subSector.segCount; i++)
     {   
         LevelData::Seg seg = segs[subSector.firistSegNumber + i];
-        int v1 = seg.startVertex;
-        int v2 = seg.endVertex;
+        int v1 = static_cast<int>(seg.startVertex);
+        int v2 = static_cast<int>(seg.endVertex);
         LevelData::Vertex vertex1 = vertexs[v1];
         LevelData::Vertex vertex2 = vertexs[v2];
 
@@ -166,13 +166,15 @@ void BSP::renderSubSector(int subSectorId)
 
         if(result.visible == true)
         {
+
+            /*
             if(result.x1 > result.x2) // TODO: check bugs and remove this later
             {
                 int temp = result.x1;
                 result.x1 = result.x2;
                 result.x2 = temp;
             }
-
+            */
             segmentHandler->classifySegment(seg, result.x1, result.x2, result.rw_angle1);
             segsTree.push_back(subSector.firistSegNumber + i);
         }
@@ -319,13 +321,7 @@ float BSP::pointToAngle(std::pair<int, int> vertex)
     //cout << "######" << endl;
     float deltaX = (float) vertex.first - (float) player->getPosX();
     float deltaY = (float) vertex.second - (float) player->getPosY();
-    float radian_angle = atan2(deltaY, deltaX);
-    float degree_angle = radian_angle * (180.0 / M_PI);
-    //cout << "deltaX " << deltaX << endl;
-    //cout << "deltaY " << deltaY << endl;
-    //cout << "radian angle " << radian_angle << endl;
-    //cout << "degree " << degree_angle << endl;
-    return degree_angle;
+    return degrees(atan2(deltaY, deltaX));
 }
 
 float BSP::norm(float angle)
@@ -357,8 +353,6 @@ void BSP::renderBspNode(int nodeId)
 
         nodesTree.push_back(nodeId);
         
-        
-
         LevelData::Node* node = &nodes[nodeId];
 
         // front = right, back = left

@@ -511,20 +511,10 @@ void LevelRenderer::drawSegmentsById(vector<int>* segmentsIds)
         int x1 = angleToX(angle1);
         int x2 = angleToX(angle2);
         float angle = rwAngle;
-        if(x1 > 0)
-        {
-            if(x1 < *(engine.getWindowWidth()))
-            {
-                drawVerticalLine(x1, 0, 0, "xD", 10);
-            }
-        }
-        if(x2 > 0)
-        {
-            if(x2 < *(engine.getWindowWidth()))
-            {
-                drawVerticalLine(x2, 0, 0, "xD", 10);
-            }
-        }
+
+        drawVerticalLine(x1, 0, *(engine.getWindowHeight()), "XD", 1);
+        drawVerticalLine(x2, 0, *(engine.getWindowHeight()), "XD", 1);
+
     }
 }  
 
