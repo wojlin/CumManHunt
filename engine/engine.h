@@ -95,7 +95,7 @@ class Engine
 
         int MINIMAP_FOV_DISTANCE_PERCENT = 50;
 
-        int PLAYER_SPEED = 300;
+        int PLAYER_SPEED = 100;
         int PLAYER_ROTATION_SPEED = 1;
 
         int PLAYER_HEIGHT = 48;

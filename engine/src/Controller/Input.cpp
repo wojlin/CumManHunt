@@ -51,11 +51,11 @@ void Input::manageInputs(Player *player)
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
-        movement -= sf::Vector2f(-forward.y, forward.x);
+        movement += sf::Vector2f(-forward.y, forward.x);
     }          
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
-            movement += sf::Vector2f(-forward.y, forward.x);
+            movement -= sf::Vector2f(-forward.y, forward.x);
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
     {

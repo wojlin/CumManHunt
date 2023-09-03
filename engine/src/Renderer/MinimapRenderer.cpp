@@ -221,7 +221,7 @@ void MinimapRenderer::drawSimpleLine(int x0, int y0, int x1, int y1, int thickne
 
         for (int i = 0; i <= steps; ++i)
         {
-            drawPixel(static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), color); // Round and draw pixel
+            drawPixel(static_cast<int>(x + 0.5), height - static_cast<int>(y + 0.5), color); // Round and draw pixel
 
             x += xIncrement;
             y += yIncrement;
@@ -240,7 +240,7 @@ void MinimapRenderer::drawSimpleCircle(int centerX, int centerY, int radius, sf:
     for (int y = -radius; y <= radius; y++) {
         for (int x = -radius; x <= radius; x++) {
             if (x * x + y * y <= radius * radius) {
-                drawPixel(centerX + x, centerY + y, color);
+                drawPixel(centerX + x, height - (centerY + y), color);
             }
         }
     }
@@ -304,7 +304,8 @@ void MinimapRenderer::drawLine(LevelData::Linedef* line)
         int y = y0;
 
         while (true) {
-            drawPixel(x, y, lineColor);
+            cout << "x:" << x << "   y:" << y << endl;
+            drawPixel( x, height - y, lineColor);
 
             if (x == x1 && y == y1)
                 break;
@@ -345,8 +346,8 @@ void MinimapRenderer::drawVertex(LevelData::Vertex* vertex)
 void MinimapRenderer::drawCross(int x, int y, int size)
 {   
         for (int i = -size; i <= size; ++i) {
-        drawPixel(x + i, y, vertexColor);
-        drawPixel(x, y + i, vertexColor);
+        drawPixel(x + i,  height - y, vertexColor);
+        drawPixel(x, height - (y + i), vertexColor);
     }      
 }
 
