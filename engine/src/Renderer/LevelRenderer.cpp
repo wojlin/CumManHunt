@@ -139,9 +139,6 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
         return;
     }
 
-    vector<int> localUpperClip = upperClip;
-    vector<int> localLowerClip = lowerClip;
-
     // actual drawing calculations:
 
     float rwNormalAngle = segment.segment.angle + 90; 
@@ -216,18 +213,18 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
             if(bDrawCeil)
             {
-                int cy1 = (int) localUpperClip[x] + 1;
-                int cy2 = min(static_cast<int>(drawWallY1 - 1), localLowerClip[x] - 1);
+                int cy1 = (int) upperClip[x] + 1;
+                int cy2 = min(static_cast<int>(drawWallY1 - 1), lowerClip[x] - 1);
                 drawVerticalLine(x, cy1, cy2, ceilTexture, lightLevel);
             }
 
-            int wy1 = max(static_cast<int>(drawUpperWallY1), localUpperClip[x] + 1);
-            int wy2 = min(static_cast<int>(drawUpperWallY2), localLowerClip[x] - 1);
+            int wy1 = max(static_cast<int>(drawUpperWallY1), upperClip[x] + 1);
+            int wy2 = min(static_cast<int>(drawUpperWallY2), lowerClip[x] - 1);
             drawVerticalLine(x, wy1, wy2, upperWallTexture, lightLevel);
 
-            if(localUpperClip[x] < wy2)
+            if(upperClip[x] < wy2)
             {
-                localUpperClip[x] = wy2;
+                upperClip[x] = wy2;
             }
 
             portalY1 += portalY1Step;
@@ -235,13 +232,13 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
         if(bDrawCeil)
         {
-            int cy1 = localUpperClip[x] + 1;
-            int cy2 = min(static_cast<int>(drawWallY1 - 1), localLowerClip[x] - 1);
+            int cy1 = upperClip[x] + 1;
+            int cy2 = min(static_cast<int>(drawWallY1 - 1), lowerClip[x] - 1);
             drawVerticalLine(x, cy1, cy2, ceilTexture, lightLevel);
 
-            if(localUpperClip[x] < cy2)
+            if(upperClip[x] < cy2)
             {
-                localUpperClip[x] = cy2;
+                upperClip[x] = cy2;
             }
         }
 
@@ -249,21 +246,21 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
         {
             if(bDrawFloor)
             {
-                int fy1 = (int) max( (int) drawWallY2 +1, localUpperClip[x] + 1);
-                int fy2 = localLowerClip[x] - 1;
+                int fy1 = (int) max( (int) drawWallY2 +1, upperClip[x] + 1);
+                int fy2 = lowerClip[x] - 1;
                 drawVerticalLine(x, fy1, fy2, floorTexture, lightLevel);
             }
 
             float drawLowerWallY1 = portalY2 - 1;
             float drawLowerWallY2 = wallY2;
 
-            int wy1 = max(static_cast<int>(drawLowerWallY1), localUpperClip[x] + 1);
-            int wy2 = min(static_cast<int>(drawLowerWallY2), localLowerClip[x] - 1);
+            int wy1 = max(static_cast<int>(drawLowerWallY1), upperClip[x] + 1);
+            int wy2 = min(static_cast<int>(drawLowerWallY2), lowerClip[x] - 1);
             drawVerticalLine(x, wy1, wy2, lowerWallTexture, lightLevel);
 
-            if(localLowerClip[x] > wy1)
+            if(lowerClip[x] > wy1)
             {
-                localLowerClip[x] = wy1;
+                lowerClip[x] = wy1;
             }
 
             portalY2 += portalY2Step;
@@ -271,13 +268,13 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
         if(bDrawFloor)
         {
-            int fy1 = max(static_cast<int>(drawWallY2 + 1), localUpperClip[x] + 1);
-            int fy2 = localLowerClip[x] - 1;
+            int fy1 = max(static_cast<int>(drawWallY2 + 1), upperClip[x] + 1);
+            int fy2 = lowerClip[x] - 1;
             drawVerticalLine(x, fy1, fy2, floorTexture, lightLevel);
 
-            if(localLowerClip[x] > drawWallY2 + 1)
+            if(lowerClip[x] > drawWallY2 + 1)
             {
-                localLowerClip[x] = fy2;
+                lowerClip[x] = fy2;
             }
 
         }
@@ -338,9 +335,6 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
     float wallY2 = (float) (*(engine.getWindowHeight()) / 2) - (float) worldFrontZ2 * rwScale1;
     float wallY2Step = (float) -rwScaleStep * (float) worldFrontZ2;
 
-    vector<int> localUpperClip = upperClip;
-    vector<int> localLowerClip = lowerClip;
-
     for(int i = x1; i < x2 + 1; i ++)
     {
         int drawWallY1 = wallY1 - 1;
@@ -348,22 +342,22 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
 
         if(drawCeiling)
         {
-            int cy1 = localUpperClip[i] + 1;
-            int cy2 = min(static_cast<int>(drawWallY1 - 1), localLowerClip[i] - 1);
+            int cy1 = upperClip[i] + 1;
+            int cy2 = min(static_cast<int>(drawWallY1 - 1), lowerClip[i] - 1);
             drawVerticalLine(i, cy1, cy2, ceilTexture, lightLevel);
         }
 
         if(drawWall)
         {
-            int wy1 = max(static_cast<int>(drawWallY1), localUpperClip[i] + 1);
-            int wy2 = min(static_cast<int>(drawWallY2), localLowerClip[i] - 1); 
+            int wy1 = max(static_cast<int>(drawWallY1), upperClip[i] + 1);
+            int wy2 = min(static_cast<int>(drawWallY2), lowerClip[i] - 1); 
             drawVerticalLine(i, wy1, wy2, wallTexture, lightLevel);                   
         }
 
         if(drawFloor)
         {
-            int fy1 = max(static_cast<int>(drawWallY2 + 1), localUpperClip[i] + 1);
-            int fy2 = localLowerClip[i] - 1;
+            int fy1 = max(static_cast<int>(drawWallY2 + 1), upperClip[i] + 1);
+            int fy2 = lowerClip[i] - 1;
             drawVerticalLine(i, fy1, fy2, floorTexture, lightLevel);
         }
 
@@ -525,6 +519,19 @@ void LevelRenderer::update()
 {
     texture.update(pixels);
     sprite.setTexture(texture);
+
+    upperClip.clear();
+    lowerClip.clear();
+
+    for(int i = 0; i < *(engine.getWindowWidth()); i++)
+    {
+        upperClip.push_back(-1);
+    }
+
+    for(int i = 0; i < *(engine.getWindowWidth()); i++)
+    {
+        lowerClip.push_back(*(engine.getWindowHeight()));
+    }
 }
 
 
