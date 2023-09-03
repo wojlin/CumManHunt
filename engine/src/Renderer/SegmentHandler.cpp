@@ -177,8 +177,8 @@ void SegmentHandler::clipSolidWalls(LevelData::Seg segment, int x_start, int x_e
     }
     else 
     {
-        //BSP * bsp = *(engine.getBSP());
-        //bsp->setTraverse(false);
+        BSP* bsp = engine.getBSP();
+        bsp->setTraverse(false);
     }
     
 }

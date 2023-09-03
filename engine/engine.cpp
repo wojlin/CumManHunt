@@ -87,6 +87,13 @@ int* Engine::getScreenDist()
     return &SCREEN_DIST;
 }
 
+
+BSP* Engine::getBSP()
+{
+    return bsp;
+}
+
+
 sf::RenderWindow* Engine::getWindow()
 {
     return &window;
@@ -129,7 +136,7 @@ void Engine::run()
     }
     
     
-    BSP bsp = BSP(*this, &players[currentPlayer]);
+    bsp = new BSP(*this, &players[currentPlayer]);
     MinimapRenderer minimapRenderer = MinimapRenderer(*this, &players[currentPlayer]);
     LevelRenderer levelRenderer = LevelRenderer(*this, &players[currentPlayer]);
     Input input = Input(*this);
@@ -144,13 +151,13 @@ void Engine::run()
 
         input.manageInputs(&players[currentPlayer]);
 
-        bsp.renderBsp();
+        bsp->renderBsp();
 
-        players[currentPlayer].setHeight(bsp.getSubSectorHeight() + PLAYER_HEIGHT);
+        players[currentPlayer].setHeight(bsp->getSubSectorHeight() + PLAYER_HEIGHT);
         
-        vector<int>* nodes = bsp.getNodesTree();
-        vector<int>* segs = bsp.getSegsTree();
-        vector<segmentDrawData>* drawData = bsp.getDrawData();
+        vector<int>* nodes = bsp->getNodesTree();
+        vector<int>* segs = bsp->getSegsTree();
+        vector<segmentDrawData>* drawData = bsp->getDrawData();
         
         
 

@@ -382,26 +382,25 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
 
     //cout << "lets go to drawing!" << endl;
 
+    vector<int> localUpperClip = upperClip;
+    vector<int> localLowerClip = lowerClip;
+
     for(int i = x1; i < x2 + 1; i ++)
     {
-        float drawWallY1 = wallY1 - 1;
-        float drawWallY2 = wallY2;
+        int drawWallY1 = wallY1 - 1;
+        int drawWallY2 = wallY2;
 
         if(drawCeiling)
         {
-
+            int cy1 = localUpperClip[i] + 1;
+            int cy2 = (int) min( (int) drawWallY1 - 1, (int) localLowerClip[i] - 1);
+            drawVerticalLine(i, cy1, cy2, wallTexture, lightLevel);
         }
 
         if(drawWall)
         {
             int wy1 = (int) drawWallY1;
             int wy2 = (int) drawWallY2;
-
-            if(wy1 < 0)
-            {wy1=0;}
-
-            if(wy2 < 0)
-            {wy2=0;}
 
             //cout << i << " " << wy1 << " " << wy2 << " color:" << unsigned(color.r) << "," << unsigned(color.g) << "," << unsigned(color.b) << endl;
             drawVerticalLine(i, wy1, wy2, wallTexture, lightLevel);
@@ -410,7 +409,9 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
 
         if(drawFloor)
         {
-            
+            int fy1 = (int) max( (int) drawWallY2 + 1, (int) localUpperClip[i] + 1);
+            int fy2 = localLowerClip[i] - 1;
+            drawVerticalLine(i, fy1, fy2, wallTexture, lightLevel);
         }
 
         wallY1 += wallY1Step;

@@ -71,6 +71,8 @@ class Engine
 
         int* getScreenDist();
 
+        BSP* getBSP();
+
         sf::RenderWindow* getWindow();
 
         void run();
@@ -106,6 +108,9 @@ class Engine
         LevelData::LevelData level;
         level_bounds_t levelBounds;
         vertexs_bounds_t vertexsBounds;
+
+
+        BSP* bsp;
 
         float deltaSeconds;
         float fpsMeasure;
