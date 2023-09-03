@@ -496,6 +496,11 @@ namespace LevelData
             {
                 Seg seg;       
                 file.read(reinterpret_cast<char*>(&seg), sizeof(Seg));
+
+                int oldRange = 32767 + 32768;
+                int newRange = 360;
+                seg.angle = ((seg.angle + 32768) * newRange) / oldRange;
+
                 lSegs.push_back(seg);
             }
             file.close();

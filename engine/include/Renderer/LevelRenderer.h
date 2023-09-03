@@ -75,8 +75,6 @@ class LevelRenderer
         float MIN_SEG_SCALE = 0.00390625;
 
         int angleToX(float angle);
-
-        int remapValue(int value, int oldMin, int oldMax, int newMin, int newMax);
         
         void drawVerticalLine(int posX, int bottomOffset, int topOffset, string textureName, int lightLevel);
 

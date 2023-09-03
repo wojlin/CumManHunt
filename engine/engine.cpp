@@ -143,7 +143,6 @@ void Engine::run()
 
     while (window.isOpen())
     {
-        cout << " ||| NEW FRAME |||" << endl;
 
         calculateFPS();                          
 

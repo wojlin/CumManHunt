@@ -304,7 +304,6 @@ void MinimapRenderer::drawLine(LevelData::Linedef* line)
         int y = y0;
 
         while (true) {
-            cout << "x:" << x << "   y:" << y << endl;
             drawPixel( x, height - y, lineColor);
 
             if (x == x1 && y == y1)

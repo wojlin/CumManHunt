@@ -146,7 +146,6 @@ int BSP::getSubSectorHeight()
     LevelData::Linedef line = lines[seg.lindefNumber];
     LevelData::Sidedef side = sides[line.frontSidedef];
     LevelData::Sector sector = sectors[side.sectorNumber];
-    cout << "HEIGHT:" << sector.floorHeight << endl;
     return sector.floorHeight;
 }
 
