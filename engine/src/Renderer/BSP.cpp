@@ -166,15 +166,6 @@ void BSP::renderSubSector(int subSectorId)
 
         if(result.visible == true)
         {
-
-            /*
-            if(result.x1 > result.x2) // TODO: check bugs and remove this later
-            {
-                int temp = result.x1;
-                result.x1 = result.x2;
-                result.x2 = temp;
-            }
-            */
             segmentHandler->classifySegment(seg, result.x1, result.x2, result.rw_angle1);
             segsTree.push_back(subSector.firistSegNumber + i);
         }

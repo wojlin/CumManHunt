@@ -102,18 +102,9 @@ void SegmentHandler::clipSolidWalls(LevelData::Seg segment, int x_start, int x_e
     if(!screenRange.empty())
     {   
         std::set<int> currentWall;
-        if(x_start < x_end)
+        for (int i = x_start; i < x_end; ++i) 
         {
-            for (int i = x_start; i < x_end; ++i) 
-            {
-                currentWall.insert(i);
-            }
-        }else
-        {
-            for (int i = x_end; i < x_start; ++i) 
-            {
-                currentWall.insert(i);
-            }
+            currentWall.insert(i);
         }
 
         std::set<int> intersection;

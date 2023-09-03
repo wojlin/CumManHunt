@@ -48,14 +48,14 @@ int  LevelRenderer::angleToX(float angle)
 
     if(angle > 0)
     {
-        x = *(engine.getScreenDist()) - tan(radians(angle)) * *(engine.getWindowWidth());
+        x = (float) *(engine.getScreenDist()) - tan(radians(angle)) * ( (float) *(engine.getWindowWidth()) / 2.0);
     }
     else
     {
-        x = -tan(radians(angle)) * *(engine.getWindowWidth()) + *(engine.getScreenDist());
+        x = -tan(radians(angle)) * ( (float) *(engine.getWindowWidth()) / 2.0) + (float) *(engine.getScreenDist());
     }
 
-    return *(engine.getWindowWidth()) - (int) x;
+    return (int) x;
 }
 
 int LevelRenderer::remapValue(int value, int oldMin, int oldMax, int newMin, int newMax) {
@@ -394,7 +394,7 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
         {
             int cy1 = localUpperClip[i] + 1;
             int cy2 = (int) min( (int) drawWallY1 - 1, (int) localLowerClip[i] - 1);
-            drawVerticalLine(i, cy1, cy2, wallTexture, lightLevel);
+            drawVerticalLine(i, cy1, cy2, ceilTexture, lightLevel);
         }
 
         if(drawWall)
@@ -411,7 +411,7 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
         {
             int fy1 = (int) max( (int) drawWallY2 + 1, (int) localUpperClip[i] + 1);
             int fy2 = localLowerClip[i] - 1;
-            drawVerticalLine(i, fy1, fy2, wallTexture, lightLevel);
+            drawVerticalLine(i, fy1, fy2, floorTexture, lightLevel);
         }
 
         wallY1 += wallY1Step;
@@ -430,7 +430,7 @@ void LevelRenderer::drawData(vector<segmentDrawData>* drawData)
         
         if(segment.isPortal)
         {
-            drawPortalWall(segment);
+            //drawPortalWall(segment);
         }
         else
         {
@@ -480,10 +480,10 @@ void LevelRenderer::drawSegmentsById(vector<int>* segmentsIds)
             continue;
         }
 
-        float rwAngle = angle1;
+        float rwAngle = static_cast<int>(angle1);
    
-        angle1 -= player->getAngle();
-        angle2 -= player->getAngle();
+        angle1 -= (float) player->getAngle();
+        angle2 -= (float) player->getAngle();
 
         int hFov = (*engine.getPlayerHalfFOV());
         int fov = (*engine.getPlayerFOV());

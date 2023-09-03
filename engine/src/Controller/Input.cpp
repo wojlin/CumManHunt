@@ -33,7 +33,7 @@ void Input::manageInputs(Player *player)
     }
 
     // Update player rotation based on mouse movement
-    playerRotation += static_cast<float>(mouseMovement.x) * *(engine.getPlayerRotationSpeed()) * *(engine.getDeltaSeconds());
+    playerRotation -= static_cast<float>(mouseMovement.x) * *(engine.getPlayerRotationSpeed()) * *(engine.getDeltaSeconds());
     sf::Vector2f movementDirection(std::cos(playerRotation * M_PI / 180.0f), std::sin(playerRotation * M_PI / 180.0f));
 
 
