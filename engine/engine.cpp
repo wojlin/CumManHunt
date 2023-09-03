@@ -163,7 +163,7 @@ void Engine::run()
         levelRenderer.clearDrawingBoard();
         
         levelRenderer.drawData(drawData);
-        levelRenderer.drawSegmentsById(segs);
+        //levelRenderer.drawSegmentsById(segs);
         levelRenderer.update();
 
         minimapRenderer.drawMinimap();

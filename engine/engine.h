@@ -81,7 +81,7 @@ class Engine
 
         string TITLE = "CumManHunt";
 
-        int WINDOW_WIDTH = 1800; // in pixels
+        int WINDOW_WIDTH = 1920; // in pixels
         int WINDOW_HEIGHT = 1000; // in pixels
         int FRAMERATE_LIMIT = 60;  // frames per second
         bool VSYNC = false;

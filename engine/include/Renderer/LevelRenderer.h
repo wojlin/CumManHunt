@@ -76,7 +76,7 @@ class LevelRenderer
 
         int angleToX(float angle);
         
-        void drawVerticalLine(int posX, int bottomOffset, int topOffset, string textureName, int lightLevel);
+        void drawVerticalLine(int posX, int bottomOffset, int topOffset, sf::Color color);
 
         float scaleFromGlobalAngle(int x, float rwNormalAngle, float rwDistance);
 

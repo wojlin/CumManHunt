@@ -104,6 +104,10 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
     string floorTexture = frontSector->floorTextureName;
     int lightLevel = frontSector->lightLevel;
 
+    sf::Color upperWallColor = getRandomColor(upperWallTexture, lightLevel);
+    sf::Color lowerWallColor = getRandomColor(lowerWallTexture, lightLevel);
+    sf::Color ceilColor = getRandomColor(ceilTexture, lightLevel);
+    sf::Color florColor = getRandomColor(floorTexture, lightLevel);
 
     // checking conditions and choosing either to draw this segment or not:
 
@@ -215,12 +219,12 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
             {
                 int cy1 = (int) upperClip[x] + 1;
                 int cy2 = min(static_cast<int>(drawWallY1 - 1), lowerClip[x] - 1);
-                drawVerticalLine(x, cy1, cy2, ceilTexture, lightLevel);
+                drawVerticalLine(x, cy1, cy2, ceilColor);
             }
 
             int wy1 = max(static_cast<int>(drawUpperWallY1), upperClip[x] + 1);
             int wy2 = min(static_cast<int>(drawUpperWallY2), lowerClip[x] - 1);
-            drawVerticalLine(x, wy1, wy2, upperWallTexture, lightLevel);
+            drawVerticalLine(x, wy1, wy2, upperWallColor);
 
             if(upperClip[x] < wy2)
             {
@@ -234,7 +238,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
         {
             int cy1 = upperClip[x] + 1;
             int cy2 = min(static_cast<int>(drawWallY1 - 1), lowerClip[x] - 1);
-            drawVerticalLine(x, cy1, cy2, ceilTexture, lightLevel);
+            drawVerticalLine(x, cy1, cy2, ceilColor);
 
             if(upperClip[x] < cy2)
             {
@@ -248,7 +252,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
             {
                 int fy1 = (int) max( (int) drawWallY2 +1, upperClip[x] + 1);
                 int fy2 = lowerClip[x] - 1;
-                drawVerticalLine(x, fy1, fy2, floorTexture, lightLevel);
+                drawVerticalLine(x, fy1, fy2, florColor);
             }
 
             float drawLowerWallY1 = portalY2 - 1;
@@ -256,7 +260,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
             int wy1 = max(static_cast<int>(drawLowerWallY1), upperClip[x] + 1);
             int wy2 = min(static_cast<int>(drawLowerWallY2), lowerClip[x] - 1);
-            drawVerticalLine(x, wy1, wy2, lowerWallTexture, lightLevel);
+            drawVerticalLine(x, wy1, wy2, lowerWallColor);
 
             if(lowerClip[x] > wy1)
             {
@@ -270,7 +274,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
         {
             int fy1 = max(static_cast<int>(drawWallY2 + 1), upperClip[x] + 1);
             int fy2 = lowerClip[x] - 1;
-            drawVerticalLine(x, fy1, fy2, floorTexture, lightLevel);
+            drawVerticalLine(x, fy1, fy2, florColor);
 
             if(lowerClip[x] > drawWallY2 + 1)
             {
@@ -303,7 +307,13 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
     string wallTexture = side->middleTextureName;
     string ceilTexture = sector->ceilingTextureName;
     string floorTexture = sector->floorTextureName;
+
+
     int lightLevel = sector->lightLevel;
+
+    sf::Color wallColor = getRandomColor(wallTexture, lightLevel);
+    sf::Color ceilColor = getRandomColor(ceilTexture, lightLevel);
+    sf::Color florColor = getRandomColor(floorTexture, lightLevel);
 
     //calculations
     int worldFrontZ1 = static_cast<int>(sector->ceilingHeight) - static_cast<int>(player->getHeight());
@@ -344,21 +354,21 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
         {
             int cy1 = upperClip[i] + 1;
             int cy2 = min(static_cast<int>(drawWallY1 - 1), lowerClip[i] - 1);
-            drawVerticalLine(i, cy1, cy2, ceilTexture, lightLevel);
+            drawVerticalLine(i, cy1, cy2, ceilColor);
         }
 
         if(drawWall)
         {
             int wy1 = max(static_cast<int>(drawWallY1), upperClip[i] + 1);
             int wy2 = min(static_cast<int>(drawWallY2), lowerClip[i] - 1); 
-            drawVerticalLine(i, wy1, wy2, wallTexture, lightLevel);                   
+            drawVerticalLine(i, wy1, wy2, wallColor);                   
         }
 
         if(drawFloor)
         {
             int fy1 = max(static_cast<int>(drawWallY2 + 1), upperClip[i] + 1);
             int fy2 = lowerClip[i] - 1;
-            drawVerticalLine(i, fy1, fy2, floorTexture, lightLevel);
+            drawVerticalLine(i, fy1, fy2, florColor);
         }
 
         wallY1 += wallY1Step;
@@ -459,15 +469,16 @@ void LevelRenderer::drawSegmentsById(vector<int>* segmentsIds)
         int x2 = angleToX(angle2);
         float angle = rwAngle;
 
-        drawVerticalLine(x1, 0, *(engine.getWindowHeight()), "XD", 1);
-        drawVerticalLine(x2, 0, *(engine.getWindowHeight()), "XD", 1);
+        sf::Color color = getRandomColor("XD", 1);
+
+        drawVerticalLine(x1, 0, *(engine.getWindowHeight()), color);
+        drawVerticalLine(x2, 0, *(engine.getWindowHeight()), color);
 
     }
 }  
 
-void LevelRenderer::drawVerticalLine(int posX, int bottomOffset, int topOffset, string textureName, int lightLevel)
+void LevelRenderer::drawVerticalLine(int posX, int bottomOffset, int topOffset, sf::Color color)
 {
-    sf::Color color = getRandomColor(textureName, lightLevel);
     if(bottomOffset < topOffset)
     {
         for(int i = bottomOffset; i < topOffset; i++)
