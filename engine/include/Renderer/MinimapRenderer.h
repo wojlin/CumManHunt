@@ -11,7 +11,7 @@
 #include <SFML/Graphics.hpp>
 
 class Engine;
-
+class Player;
 
 class MinimapRenderer
 {

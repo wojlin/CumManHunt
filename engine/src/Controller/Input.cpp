@@ -1,5 +1,6 @@
 
 #include "../../include/Controller/Input.h"
+#include "../../include/Controller/Player.h"
 
 Input::Input(Engine& lEngine) : engine(lEngine)
 {
@@ -32,7 +33,7 @@ void Input::manageInputs(Player *player)
     }
 
     // Update player rotation based on mouse movement
-    playerRotation += static_cast<float>(mouseMovement.x) * *(engine.getPlayerRotationSpeed()) * *(engine.getDeltaSeconds());
+    playerRotation -= static_cast<float>(mouseMovement.x) * *(engine.getPlayerRotationSpeed()) * *(engine.getDeltaSeconds());
     sf::Vector2f movementDirection(std::cos(playerRotation * M_PI / 180.0f), std::sin(playerRotation * M_PI / 180.0f));
 
 
@@ -50,11 +51,11 @@ void Input::manageInputs(Player *player)
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
-        movement -= sf::Vector2f(-forward.y, forward.x);
+        movement += sf::Vector2f(-forward.y, forward.x);
     }          
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
-            movement += sf::Vector2f(-forward.y, forward.x);
+            movement -= sf::Vector2f(-forward.y, forward.x);
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
     {

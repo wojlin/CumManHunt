@@ -427,7 +427,7 @@ namespace LevelData
         {
             std::ifstream file(lump.path, std::ios::binary);
             file.seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Sidedef);
+            std::size_t num = lump.size / sizeof(Sidedef_raw_t);
             
             for (std::size_t i = 0; i < num; ++i)
             {
@@ -486,16 +486,37 @@ namespace LevelData
     {
         vector<Seg> lSegs;
 
+        struct rawSeg
+        {
+            int16_t startVertex;
+            int16_t endVertex;
+            int16_t angle;
+            int16_t lindefNumber;
+            int16_t direction;
+            int16_t offset;
+        };
+
         try
         {
             std::ifstream file(lump.path, std::ios::binary);
             file.seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Seg);
+            std::size_t num = lump.size / sizeof(rawSeg);
             
             for (std::size_t i = 0; i < num; ++i)
             {
-                Seg seg;       
-                file.read(reinterpret_cast<char*>(&seg), sizeof(Seg));
+                rawSeg raw;
+                file.read(reinterpret_cast<char*>(&raw), sizeof(raw));
+
+                Seg seg;  
+                seg.direction = raw.direction;
+                seg.endVertex = raw.endVertex;
+                seg.startVertex = raw.startVertex;
+                seg.offset = raw.offset;
+                seg.lindefNumber = raw.lindefNumber;
+
+                int oldRange = 32767 + 32768;
+                int newRange = 360;
+                seg.angle = ((raw.angle + 32768) * newRange) / oldRange;
                 lSegs.push_back(seg);
             }
             file.close();
@@ -583,7 +604,7 @@ namespace LevelData
         {
             std::ifstream file(lump.path, std::ios::binary);
             file.seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Sector);
+            std::size_t num = lump.size / sizeof(rawSector);
             
             for (std::size_t i = 0; i < num; ++i)
             {

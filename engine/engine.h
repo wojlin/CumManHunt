@@ -16,7 +16,6 @@
 #include "include/Renderer/MinimapRenderer.h"
 #include "include/Renderer/LevelRenderer.h"
 #include "include/Renderer/BSP.h"
-//#include "include/Renderer/SegmentHandler.h"
 
 #include "include/Controller/Player.h"
 #include "include/Controller/Input.h"
@@ -32,7 +31,7 @@
 class Input;
 class LevelRenderer;
 class BSP;
-//class SegmentHandler;
+class Player;
 
 class Engine
 {
@@ -60,6 +59,8 @@ class Engine
 
         int* getPlayerFOV();
 
+        int* getPlayerHeight();
+
         int* getPlayerHalfFOV();
 
         float* getDeltaSeconds();
@@ -70,6 +71,8 @@ class Engine
 
         int* getScreenDist();
 
+        BSP* getBSP();
+
         sf::RenderWindow* getWindow();
 
         void run();
@@ -78,7 +81,7 @@ class Engine
 
         string TITLE = "CumManHunt";
 
-        int WINDOW_WIDTH = 1800; // in pixels
+        int WINDOW_WIDTH = 1920; // in pixels
         int WINDOW_HEIGHT = 1000; // in pixels
         int FRAMERATE_LIMIT = 60;  // frames per second
         bool VSYNC = false;
@@ -92,17 +95,22 @@ class Engine
 
         int MINIMAP_FOV_DISTANCE_PERCENT = 50;
 
-        int PLAYER_SPEED = 300;
+        int PLAYER_SPEED = 100;
         int PLAYER_ROTATION_SPEED = 1;
+
+        int PLAYER_HEIGHT = 42;
 
         int H_WIDTH = WINDOW_WIDTH / 2;
         int H_HEIGHT = WINDOW_HEIGHT / 2;
 
-        int SCREEN_DIST = (int) ((float) H_WIDTH / (float) tan(radians(H_FOV)));
+        int SCREEN_DIST = (int) ((float) H_WIDTH / (float) tan(radians((float)H_FOV)));
 
         LevelData::LevelData level;
         level_bounds_t levelBounds;
         vertexs_bounds_t vertexsBounds;
+
+
+        BSP* bsp;
 
         float deltaSeconds;
         float fpsMeasure;

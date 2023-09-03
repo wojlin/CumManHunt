@@ -1,17 +1,20 @@
 # include "../../include/Utils/Math.h"
 
-float radians(float degrees)
+double radians(double degrees)
 {
     return degrees * (PI / 180.0);
+}
+
+double degrees(double radians)
+{
+    return radians * (180.0 / PI);
 }
 
 float pointToAngle(std::pair<int, int> vertex, int x, int y)
 {
     float deltaX = (float) vertex.first - (float) x;
     float deltaY = (float) vertex.second - (float) y;
-    float radian_angle = atan2(deltaY, deltaX);
-    float degree_angle = radian_angle * (180.0 / M_PI);
-    return degree_angle;
+    return degrees(atan2(deltaY, deltaX));
 }
 
 float norm(float angle)
@@ -25,4 +28,10 @@ float norm(float angle)
     {
         return angle;
     }
+}
+
+double calculateDistance(double  x1, double  y1, double  x2, double  y2) {
+    double  dx = x1 - x2;
+    double  dy = y1 - y2;
+    return std::sqrt(dx * dx + dy * dy);
 }

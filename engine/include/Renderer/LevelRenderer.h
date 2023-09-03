@@ -10,6 +10,7 @@
 
 #include <cmath>
 #include <SFML/Graphics.hpp>
+#include <random>
 
 #include "SegmentHandler.h"
 
@@ -24,9 +25,15 @@ class LevelRenderer
 
         LevelRenderer(Engine& lEngine, Player *lPlayer);    
 
-        void drawLevel();
+        void drawScene();
+
+        sf::Sprite* getScene();
 
         void drawSegmentsById(vector<int>* segmentsIds);
+
+        void drawSolidWall(segmentDrawData segment);
+
+        void drawPortalWall(segmentDrawData segment);
 
         void drawData(vector<segmentDrawData>* drawData);
 
@@ -36,7 +43,7 @@ class LevelRenderer
 
         void setupDrawingBoard();
 
-        sf::Sprite* getLevel();
+        
          
 
     private:
@@ -54,16 +61,36 @@ class LevelRenderer
 
         vector<LevelData::Vertex> vertexs;
         vector<LevelData::Linedef> lines;
+        vector<LevelData::Sidedef> sides;
         vector<LevelData::Node> nodes;
         vector<LevelData::Seg> segs;
+        vector<LevelData::Sector> sectors;
+
+        vector<double> xToAngleTable;
+
+        vector<double> lowerClip;
+        vector<double> upperClip;
 
         sf::Color backgroundColor = sf::Color::Black;
 
-        int angleToX(float angle);
+        double MAX_SEG_SCALE = 64.0;
+        double MIN_SEG_SCALE = 0.00001;//0.00390625;
+
+        int angleToX(double angle);
         
         void drawVerticalLine(int posX, int bottomOffset, int topOffset, sf::Color color);
 
+        double scaleFromGlobalAngle(int x, double rwNormalAngle, double rwDistance);
+
+        vector<double> xtoAngle();
+
         void drawPixel(int x, int y, sf::Color color);
+
+        sf::Color getRandomColor(string textureName, int lightLevel);
+
+        size_t hashString(const std::string& str);
+
+        void createClips();
 
 };
 

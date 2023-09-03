@@ -59,7 +59,7 @@ namespace LevelData
     {
         int16_t startVertex;
         int16_t endVertex;
-        int16_t angle;
+        double angle;
         int16_t lindefNumber;
         int16_t direction;
         int16_t offset;
