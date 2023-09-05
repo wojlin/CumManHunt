@@ -136,7 +136,7 @@ LevelData::LevelData GameData::getLevelData(string name)
     {
         if(wad->levelsList[x].name == name)
         {
-            return LevelData::LevelData(wad, &wad->levelsList[0]);
+            return LevelData::LevelData(wad, &wad->levelsList[0], getResourceFromWAD<ResourcesData::ResourcesData>());
         }
     }
     throw WADReadoutException("level not found");
@@ -155,7 +155,7 @@ LevelData::LevelData GameData::getLevelData(int number)
     {
         throw WADReadoutException("level not found");
     }
-    return LevelData::LevelData(wad, &wad->levelsList[number]);
+    return LevelData::LevelData(wad, &wad->levelsList[number], getResourceFromWAD<ResourcesData::ResourcesData>());
 }
 
 

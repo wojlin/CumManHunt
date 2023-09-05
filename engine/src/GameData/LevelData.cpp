@@ -1,5 +1,7 @@
 #include "../../include/GameData/LevelData.h"
 #include "../../include/Utils/Info.h"
+#include "../../include/Utils/Exceptions.h"
+
 
 namespace LevelData
 {
@@ -12,7 +14,7 @@ namespace LevelData
      * @param path 
      * @param levelData 
      */
-    LevelData::LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData)
+    LevelData::LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData, ResourcesData::ResourcesData* lResources)
     {
         wad = wadObj;
         level = levelData;
@@ -20,7 +22,7 @@ namespace LevelData
         filePath = wad->filePath;
         levelName = level->name;
         
-
+        resources = lResources;
         things = loadThings(levelData->THINGS);
         linedefs = loadLinedefs(levelData->LINEDEFS);
         sidedefs = loadSidedefs(levelData->SIDEDEFS);
@@ -31,6 +33,7 @@ namespace LevelData
         sectors = loadSectors(levelData->SECTORS);
         rejectTable = loadReject(levelData->REJECT);
         blockmap = loadBlockmap(levelData->BLOCKMAP);
+        loadLevelResources();
         
     }
 
@@ -748,5 +751,169 @@ namespace LevelData
             return Blockmap();
         }
         return lBlockmap;
+    }
+
+    string LevelData::toUpper(string name)
+    {
+        for (char &c : name) {
+        c = std::toupper(c);
+        }
+        return name;
+    }
+
+    ResourcesData::Image LevelData::composeTexture(ResourcesData::maptexture_t mapTexture)
+    {
+        int width = mapTexture.width;
+        int height = mapTexture.height;
+        int patchCount = mapTexture.patchCount;
+        string name = mapTexture.name;
+
+        std::vector<ResourcesData::imageColumn_t> columns;
+
+        struct pixel_t
+        {
+            PlayPalData::color_t color;
+            bool blank = true;
+        };
+
+        vector<vector<pixel_t>> pixels;
+        
+
+        for(int x = 0; x < width; x++)
+        {
+            pixels.push_back(vector<pixel_t>());
+
+            for(int y = 0; y < height; y++)        
+            {
+                pixel_t pixel;
+                pixels[x].push_back(pixel);
+            }
+        }
+        
+
+        
+
+        for(int i =0; i < patchCount; i++)
+        {
+            ResourcesData::mappatch_t patchInfo = mapTexture.mapPatches[i];
+
+            int originX = patchInfo.originX;
+            int originY = patchInfo.originY;
+            int direction = patchInfo.stepDir;
+            int colormap = patchInfo.colorMap;
+            short patchId = patchInfo.patch;
+
+            string patchName = resources->getPNameByIndex(patchId);
+            cout << patchId << "-> \"" << patchName << "\"" << endl;
+            try
+            {
+                ResourcesData::Image patch = resources->readGamePatch(patchName);
+                std::vector<ResourcesData::imageColumn_t> patchColumns = patch.getColumns();
+                int patchWidth = patch.getWidth();
+                int patchHeight = patch.getHeight();
+                
+                /*
+                for(int x = 0; x < patchWidth; x++)
+                {
+
+                    ResourcesData::imageColumn_t patchColumn = patchColumns[x];
+
+                    for(int y = 0; y < patchColumn.pixelCount; y++)
+                    {      
+                        pixel_t pixel;
+                        pixel.blank = false;
+                        pixel.color = patchColumn.pixels[y + patchColumn.rowStart];
+                        pixels[originX + x][originY + y] = pixel;
+                    }
+
+                }
+                */
+
+            }
+            catch (const ResourceReadoutException& e)
+            {
+                string errorMessage = "\"" + patchName + "\" not found in WAD file!";
+                throw ResourceReadoutException(errorMessage);
+            }
+        }
+
+        ResourcesData::Image image = ResourcesData::Image(width, height, 0, 0, columns, width * height, name);
+        image.saveAsFile("/PROJECTS/CumManHunt/engine/" + name);
+        return image;
+    }
+
+    void LevelData::loadLevelResources()
+    {
+        std::set<std::string> textureNames;
+        std::set<std::string> flatsNames;
+
+        for(int i = 0; i < sidedefs.size(); i++)
+        {
+            textureNames.insert(toUpper(sidedefs[i].lowerTextureName));
+            textureNames.insert(toUpper(sidedefs[i].middleTextureName));
+            textureNames.insert(toUpper(sidedefs[i].upperTextureName));
+        }
+
+        for(int i = 0; i < sectors.size(); i++)
+        {
+            flatsNames.insert(sectors[i].floorTextureName);
+            flatsNames.insert(sectors[i].ceilingTextureName);
+        }
+
+        textureNames.erase("-");
+        flatsNames.erase("-");
+
+        std::vector<ResourcesData::textureX_t> textureX = resources->getTextureX();
+        
+        // reading textures first
+        for(string textureName: textureNames)
+        {
+            cout << "loading \"" << textureName << "\" texture..." << endl;
+
+            bool textureFound = false;
+            ResourcesData::maptexture_t mapTexture;
+
+            for(int x = 0; x < textureX.size(); x++)
+            {
+                for(int y =0; y < textureX[x].numTextures; y++)
+                {
+                    if(textureX[x].mapTextures[y].name == textureName)
+                    {
+                        textureFound = true;
+                        mapTexture = textureX[x].mapTextures[y];
+                    }
+                }
+            }
+
+            if(textureFound)
+            {   
+                ResourcesData::Image texture = composeTexture(mapTexture);
+                //textures[textureName] = texture;
+            }
+            else
+            {
+                string errorMessage = "\"" + textureName + "\" not found in WAD file!";
+                throw ResourceReadoutException(errorMessage);
+            }
+
+        }
+
+        // reading flats
+        for(string flatName: flatsNames)
+        {
+            cout << "loading \"" << flatName << "\" texture..." << endl;
+
+            try
+            {
+                ResourcesData::Image flat = resources->readFlat(flatName);
+                //textures[flatName] = flat;
+            }
+            catch (const ResourceReadoutException& e)
+            {
+                string errorMessage = "\"" + flatName + "\" not found in WAD file!";
+                throw ResourceReadoutException(errorMessage);
+            }
+            
+        }
     }
 }

@@ -2,7 +2,7 @@
 namespace ResourcesData
 {
 
-    Image::Image(uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize)
+    Image::Image(uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string lName)
     {
         width = w;
         height = h;
@@ -10,6 +10,7 @@ namespace ResourcesData
         topOffset = t;
         columns = c;
         size = lSize;
+        name = lName;
     }
 
     uint16_t Image::getWidth()
@@ -45,6 +46,11 @@ namespace ResourcesData
     vector<imageColumn_t> Image::getColumns()
     {
         return columns;
+    }
+
+    string Image::getName()
+    {
+        return name;
     }
 
     void Image::printInfo()
@@ -100,7 +106,6 @@ namespace ResourcesData
             cout << "reading \"" << lumps[i].name << "\" lump..." << endl;
             readTextureX(lumps[i]);
         }
-        
 
         file.close();
     }
@@ -118,8 +123,8 @@ namespace ResourcesData
 
         if(spriteInfo == 0)
         {
-            std::cout << "The '" << name << "' is not in the game resources." << std::endl;
-            exit(0);
+            string error = "The '" + name + "' is not in the game resources.";
+            throw ResourceReadoutException(error);
         }
 
         ifstream file(spriteInfo->path, std::ios::binary);
@@ -145,7 +150,7 @@ namespace ResourcesData
 
         file.close();
 
-        return Image(width, height, 0, 0, columns, spriteInfo->size);
+        return Image(width, height, 0, 0, columns, spriteInfo->size, name);
 
     }
 
@@ -178,8 +183,8 @@ namespace ResourcesData
 
         if(spriteInfo == 0)
         {
-            std::cout << "The '" << name << "' is not in the game resources." << std::endl;
-            exit(0);
+            string error = "The '" + name + "' is not in the game resources.";
+            throw ResourceReadoutException(error);
         }
 
         file.seekg(spriteInfo->filepos);
@@ -229,7 +234,7 @@ namespace ResourcesData
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size);
+        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
 
     }
 
@@ -262,8 +267,8 @@ namespace ResourcesData
 
         if(spriteInfo == 0)
         {
-            std::cout << "The '" << name << "' is not in the game resources." << std::endl;
-            exit(0);
+            string error = "The '" + name + "' is not in the game resources.";
+            throw ResourceReadoutException(error);
         }
 
         file.seekg(spriteInfo->filepos);
@@ -313,7 +318,7 @@ namespace ResourcesData
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size);
+        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
 
     }
 
@@ -348,7 +353,7 @@ namespace ResourcesData
 
         file.close();
 
-        return Image(width, height, 0, 0, columns, spriteInfo.size);
+        return Image(width, height, 0, 0, columns, spriteInfo.size, name);
 
     }
 
@@ -426,7 +431,7 @@ namespace ResourcesData
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size);
+        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
 
     }
     
@@ -503,7 +508,7 @@ namespace ResourcesData
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size);
+        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
 
     }
     
@@ -524,7 +529,7 @@ namespace ResourcesData
         return patchesAmount;
     }
 
-    char* ResourcesData::getPNameByIndex(int index)
+    string ResourcesData::getPNameByIndex(int index)
     {
         for(int i = 0; i < pnames.size(); i++)
         {
@@ -533,15 +538,15 @@ namespace ResourcesData
                 return pnames[i];
             }
         }
-        cout << "pname of index '"<< index << "' does not exist" << endl;
-        exit(0);
+        string error =  "pname of index '" + to_string(index) + "' does not exist";
+        throw ResourceReadoutException(error);
     }
 
-    int ResourcesData::getPNameIndexByName(char* name)
+    int ResourcesData::getPNameIndexByName(string name)
     {
         for(int i = 0; i < pnames.size(); i++)
         {
-            if(strcmp(pnames[i], name) == 0)
+            if(pnames[i] == name)
             {
                 return i;
             }
@@ -683,11 +688,26 @@ namespace ResourcesData
         {
             char name[8];
             file.read(reinterpret_cast<char*>(&name), sizeof(char[8])); 
-            pnames.push_back(name);
+            string convertedString = toUpper(charsToString(name, 8));
+            pnames.push_back(convertedString);
         } 
 
         file.close();
 
+    }
+
+     string ResourcesData::charsToString(char* chars, int size)
+    {   
+        string str(chars, size);
+        return str.c_str();
+    }
+
+    string ResourcesData::toUpper(string name)
+    {
+        for (char &c : name) {
+        c = std::toupper(c);
+        }
+        return name;
     }
 
     void ResourcesData::readSprites(WADStructure::WADStructure *wad)
@@ -749,8 +769,11 @@ namespace ResourcesData
             }
             else if(markerFound == true)
             {
-                patchesMap[wad->directory[i].name] = &(wad->directory[i]);
-                patchesAmount++;
+                if(wad->directory[i].size != 0)
+                {   
+                    patchesMap[wad->directory[i].name] = &(wad->directory[i]);
+                    patchesAmount++;
+                }   
             }
         }
         cout << "reading patches..." << endl;

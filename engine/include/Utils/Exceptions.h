@@ -5,6 +5,17 @@
 #include <exception>
 #include <string>
 
+class ResourceReadoutException : public std::exception {
+public:
+    ResourceReadoutException(const std::string& message) : errorMessage(message) {}
+
+    const char* what() const noexcept override {
+        return errorMessage.c_str(); // Use the correct member variable name here
+    }
+
+private:
+    std::string errorMessage;
+};
 
 class FileReadoutException : public std::exception {
 public:

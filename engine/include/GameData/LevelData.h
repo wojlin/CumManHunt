@@ -11,9 +11,12 @@
 #include <vector>
 #include <functional>
 #include <variant>
+#include <set>
+#include <cctype>
 
 #include "WadStructure.h"
 #include "Interfaces.h"
+#include "ResourcesData.h"
 
 namespace LevelData
 {
@@ -128,7 +131,7 @@ namespace LevelData
          * @param path 
          * @param levelData 
          */
-        LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData);
+        LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData, ResourcesData::ResourcesData* resources);
 
         /**
          * @brief Get the Level Name in string format
@@ -246,6 +249,7 @@ namespace LevelData
             string levelName;
             string filePath = "";
 
+            ResourcesData::ResourcesData* resources;
             vector<Thing> things;
             vector<Linedef> linedefs;
             vector<Sidedef> sidedefs;
@@ -260,6 +264,8 @@ namespace LevelData
             BLOCKMAPHeader blockmapHeader;
             vector<int16_t> blockmapOffsets;
             vector<vector<uint16_t>> blockmapBlockLists;
+
+            map<string, ResourcesData::Image> textures;
 
             string loadError = "ERROR: failed to load resource: ";
 
@@ -286,6 +292,12 @@ namespace LevelData
             vector<vector<bool>> loadReject(WADStructure::lumpInfo_t lump);
 
             Blockmap loadBlockmap(WADStructure::lumpInfo_t lump);
+
+            string toUpper(string name);
+
+            ResourcesData::Image composeTexture(ResourcesData::maptexture_t mapTexture);
+
+            void loadLevelResources();
 
     };
 }
