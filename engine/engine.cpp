@@ -4,7 +4,6 @@
 
 Engine::Engine()
 {
-
 }
 
 vertexs_bounds_t Engine::getVertexsBounds()
@@ -47,9 +46,19 @@ int* Engine::getWindowWidth()
     return &WINDOW_WIDTH;
 }
 
+int* Engine::getHalfWindowWidth()
+{
+    return &WINDOW_HALF_WIDTH;
+}
+
 int* Engine::getWindowHeight()
 {
     return &WINDOW_HEIGHT;
+}
+
+int* Engine::getHalfWindowHeight()
+{
+    return &WINDOW_HALF_HEIGHT;
 }
 
 int* Engine::getPlayerFOV()

@@ -55,7 +55,11 @@ class Engine
 
         int* getWindowWidth();
 
+        int* getHalfWindowWidth();
+
         int* getWindowHeight();
+
+        int* getHalfWindowHeight();
 
         int* getPlayerFOV();
 
@@ -83,6 +87,9 @@ class Engine
 
         int WINDOW_WIDTH = 1920; // in pixels
         int WINDOW_HEIGHT = 1000; // in pixels
+        int WINDOW_HALF_WIDTH = (int) WINDOW_WIDTH / 2;
+        int WINDOW_HALF_HEIGHT = (int) WINDOW_HEIGHT / 2;
+
         int FRAMERATE_LIMIT = 60;  // frames per second
         bool VSYNC = false;
 
