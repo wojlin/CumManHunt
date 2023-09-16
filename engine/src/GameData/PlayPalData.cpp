@@ -15,14 +15,14 @@ namespace PlayPalData
         readPlayPal();
     }
 
-    color_t PlayPalData::getColor(int palleteNumber, uint8_t index)
+    colorRGB_t PlayPalData::getColor(int palleteNumber, uint8_t index)
     {
         return pallete[palleteNumber][unsigned(index)];
     }
 
     void PlayPalData::printColor(int palleteNumber, uint8_t index)
     {
-        color_t color = pallete[palleteNumber][index];
+        colorRGB_t color = pallete[palleteNumber][index];
         cout << "r:" << unsigned(color.red) << ",   g:"<< unsigned(color.green) << ",   b:" << unsigned(color.blue) << endl;
     }
 
@@ -64,10 +64,10 @@ namespace PlayPalData
 
         for(int i = 0; i < PALLETES_AMOUNT; i++)
         {
-            pallete.push_back(vector<color_t>());
+            pallete.push_back(vector<colorRGB_t>());
             for(int x = 0; x < PALLETE_COLORS; x++)
             {
-                color_t color;
+                colorRGB_t color;
                 file.read(reinterpret_cast<char*>(&color), sizeof(color));  
                 pallete[i].push_back(color);
             }

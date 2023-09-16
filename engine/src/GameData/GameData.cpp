@@ -131,12 +131,13 @@ void GameData::compile()
  */
 LevelData::LevelData GameData::getLevelData(string name)
 {
+    PlayPalData::PlayPalData* playpal = getResourceFromWAD<PlayPalData::PlayPalData>();
     WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
     for(int x =0; x<wad->levelsList.size(); x++)
     {
         if(wad->levelsList[x].name == name)
         {
-            return LevelData::LevelData(wad, &wad->levelsList[0], getResourceFromWAD<ResourcesData::ResourcesData>());
+            return LevelData::LevelData(wad, &wad->levelsList[0], getResourceFromWAD<ResourcesData::ResourcesData>(), playpal);
         }
     }
     throw WADReadoutException("level not found");
@@ -150,12 +151,13 @@ LevelData::LevelData GameData::getLevelData(string name)
  */
 LevelData::LevelData GameData::getLevelData(int number)
 {
+    PlayPalData::PlayPalData* playpal = getResourceFromWAD<PlayPalData::PlayPalData>();
     WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
     if(number >= wad->levelsList.size())
     {
         throw WADReadoutException("level not found");
     }
-    return LevelData::LevelData(wad, &wad->levelsList[number], getResourceFromWAD<ResourcesData::ResourcesData>());
+    return LevelData::LevelData(wad, &wad->levelsList[number], getResourceFromWAD<ResourcesData::ResourcesData>(), playpal);
 }
 
 

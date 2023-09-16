@@ -2,7 +2,7 @@
 namespace ResourcesData
 {
 
-    Image::Image(uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string lName)
+    Image::Image(PlayPalData::PlayPalData*  playpalPointer, uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string lName)
     {
         width = w;
         height = h;
@@ -11,6 +11,8 @@ namespace ResourcesData
         columns = c;
         size = lSize;
         name = lName;
+        pallete = 0;
+        playpal = playpalPointer;
     }
 
     uint16_t Image::getWidth()
@@ -53,6 +55,16 @@ namespace ResourcesData
         return name;
     }
 
+    void Image::setPallete(int value)
+    {
+        pallete = value;
+    }
+
+    int Image::getPallete()
+    {
+        return pallete;
+    }
+
     void Image::printInfo()
     {
         printInfoHeader("H1", "IMAGE");
@@ -73,7 +85,8 @@ namespace ResourcesData
         {   
             for(int b = 0; b < columns[x].pixelCount; b++)
             {
-                PlayPalData::color_t pixel = columns[x].pixels[b];
+                uint8_t color = columns[x].pixels[b];
+                PlayPalData::colorRGB_t pixel = playpal->getColor(pallete, color);
                 image.setPixel(columns[x].column, columns[x].rowStart + b, pixel.red, pixel.green, pixel.blue, 255);
             }
 
@@ -143,14 +156,14 @@ namespace ResourcesData
                 file.seekg(spriteInfo->filepos + (width * y) + x);
                 uint8_t value;
                 file.read(reinterpret_cast<char*>(&value), sizeof(value));
-                column.pixels.push_back(playpal->getColor(0, value));
+                column.pixels.push_back(value);
             }
             columns.push_back(column);
         }
 
         file.close();
 
-        return Image(width, height, 0, 0, columns, spriteInfo->size, name);
+        return Image(playpal, width, height, 0, 0, columns, spriteInfo->size, name);
 
     }
 
@@ -226,15 +239,15 @@ namespace ResourcesData
                 {
                     uint8_t value = 0;
                     file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
-                    PlayPalData::color_t color = playpal->getColor(0, value);
-                    column.pixels.push_back(color);
+                    //PlayPalData::colorRGB_t color = playpal->getColor(0, value);
+                    column.pixels.push_back(value);
                 }
                 columns.push_back(column);
                 file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
+        return Image(playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
 
     }
 
@@ -310,15 +323,15 @@ namespace ResourcesData
                 {
                     uint8_t value = 0;
                     file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
-                    PlayPalData::color_t color = playpal->getColor(0, value);
-                    column.pixels.push_back(color);
+                    //PlayPalData::colorRGB_t color = playpal->getColor(0, value);
+                    column.pixels.push_back(value);
                 }
                 columns.push_back(column);
                 file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
+        return Image(playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
 
     }
 
@@ -346,14 +359,14 @@ namespace ResourcesData
                 file.seekg(spriteInfo.filepos + (width * y) + x);
                 uint8_t value;
                 file.read(reinterpret_cast<char*>(&value), sizeof(value));
-                column.pixels.push_back(playpal->getColor(0, value));
+                column.pixels.push_back(value);
             }
             columns.push_back(column);
         }
 
         file.close();
 
-        return Image(width, height, 0, 0, columns, spriteInfo.size, name);
+        return Image(playpal, width, height, 0, 0, columns, spriteInfo.size, name);
 
     }
 
@@ -423,15 +436,15 @@ namespace ResourcesData
                 {
                     uint8_t value = 0;
                     file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
-                    PlayPalData::color_t color = playpal->getColor(0, value);
-                    column.pixels.push_back(color);
+                    //PlayPalData::colorRGB_t color = playpal->getColor(0, value);
+                    column.pixels.push_back(value);
                 }
                 columns.push_back(column);
                 file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
+        return Image(playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
 
     }
     
@@ -500,15 +513,15 @@ namespace ResourcesData
                 {
                     uint8_t value = 0;
                     file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
-                    PlayPalData::color_t color = playpal->getColor(0, value);
-                    column.pixels.push_back(color);
+                    //PlayPalData::colorRGB_t color = playpal->getColor(0, value);
+                    column.pixels.push_back(value);
                 }
                 columns.push_back(column);
                 file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
+        return Image(playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
 
     }
     

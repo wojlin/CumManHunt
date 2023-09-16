@@ -26,7 +26,7 @@ namespace ResourcesData
         int column;
         int rowStart;
         int pixelCount;
-        vector<PlayPalData::color_t> pixels;
+        vector<uint8_t> pixels;
     };
 
 
@@ -63,7 +63,7 @@ namespace ResourcesData
     {
         public:
             
-            Image(uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string name);
+            Image(PlayPalData::PlayPalData*  playpalPointer, uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string name);
 
             uint16_t getWidth();
 
@@ -85,6 +85,10 @@ namespace ResourcesData
 
             string getName();
 
+            void setPallete(int value);
+
+            int getPallete();
+
         private:
             uint16_t width;
             uint16_t height;
@@ -92,7 +96,9 @@ namespace ResourcesData
             int16_t topOffset;
             int size;
             string name;
+            int pallete;
             vector<imageColumn_t> columns;
+            PlayPalData::PlayPalData*  playpal;
     };
 
 

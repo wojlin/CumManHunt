@@ -14,10 +14,11 @@ namespace LevelData
      * @param path 
      * @param levelData 
      */
-    LevelData::LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData, ResourcesData::ResourcesData* lResources)
+    LevelData::LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData, ResourcesData::ResourcesData* lResources, PlayPalData::PlayPalData*  playpalPointer)
     {
         wad = wadObj;
         level = levelData;
+        playpal = playpalPointer;
 
         filePath = wad->filePath;
         levelName = level->name;
@@ -772,7 +773,7 @@ namespace LevelData
 
         struct pixel_t
         {
-            PlayPalData::color_t color;
+            uint8_t value;
             bool blank = true;
         };
 
@@ -786,6 +787,8 @@ namespace LevelData
             for(int y = 0; y < height; y++)        
             {
                 pixel_t pixel;
+                pixel.value = 0;
+                pixel.blank = true;
                 pixels[x].push_back(pixel);
             }
         }
@@ -804,41 +807,97 @@ namespace LevelData
             short patchId = patchInfo.patch;
 
             string patchName = resources->getPNameByIndex(patchId);
-            cout << patchId << "-> \"" << patchName << "\"" << endl;
             try
             {
                 ResourcesData::Image patch = resources->readGamePatch(patchName);
                 std::vector<ResourcesData::imageColumn_t> patchColumns = patch.getColumns();
                 int patchWidth = patch.getWidth();
                 int patchHeight = patch.getHeight();
-                
-                /*
-                for(int x = 0; x < patchWidth; x++)
-                {
 
-                    ResourcesData::imageColumn_t patchColumn = patchColumns[x];
+                for(int i = 0; i < patchColumns.size(); i++)
+                {
+                    ResourcesData::imageColumn_t patchColumn = patchColumns[i];
 
                     for(int y = 0; y < patchColumn.pixelCount; y++)
                     {      
                         pixel_t pixel;
                         pixel.blank = false;
-                        pixel.color = patchColumn.pixels[y + patchColumn.rowStart];
-                        pixels[originX + x][originY + y] = pixel;
+                        uint8_t color = patchColumn.pixels[y];
+                        pixel.value = color;
+                        
+                        if(originX + patchColumn.column < pixels.size() && originY + y <= pixels[0].size())
+                        {
+                            pixels[originX + patchColumn.column][originY + y + patchColumn.rowStart] = pixel;
+                        }             
                     }
-
                 }
-                */
-
             }
             catch (const ResourceReadoutException& e)
             {
                 string errorMessage = "\"" + patchName + "\" not found in WAD file!";
                 throw ResourceReadoutException(errorMessage);
             }
+
+
+            for(int x = 0; x < pixels.size(); x++)  
+            {
+                ResourcesData::imageColumn_t column;
+                column.pixelCount = 0;
+                column.rowStart = 0;
+                column.column = x;
+                column.pixels = vector<uint8_t>();
+
+                int rowStart = 0;
+                bool startFound = false;
+
+
+                for(int y = 0; y < pixels[x].size(); y++)  
+                {
+
+                    if(pixels[x][y].blank == false && startFound == false)
+                    {
+                        startFound = true;
+                        column.rowStart = y;
+                        column.column = x;
+                    }
+
+                    if((pixels[x][y].blank == true && startFound == true ))
+                    {
+                        startFound = false;
+                        columns.push_back(column);
+                        column.pixelCount = 0;
+                        column.rowStart = 0;
+                        column.column = x;
+                        column.pixels = vector<uint8_t>();
+                        continue;
+                    }
+
+                    if(y >= pixels[x].size() - 1)
+                    {
+                        column.pixelCount++;
+                        column.pixels.push_back(pixels[x][y].value);
+                        startFound = false;
+                        columns.push_back(column);
+                        column.pixelCount = 0;
+                        column.rowStart = 0;
+                        column.column = x;
+                        column.pixels = vector<uint8_t>();
+                        continue;
+                    }
+
+                    if(startFound == true)
+                    {
+                        column.pixelCount++;
+                        column.pixels.push_back(pixels[x][y].value);
+                    }
+                    
+                }
+            }
+
         }
 
-        ResourcesData::Image image = ResourcesData::Image(width, height, 0, 0, columns, width * height, name);
-        image.saveAsFile("/PROJECTS/CumManHunt/engine/" + name);
+        ResourcesData::Image image = ResourcesData::Image(playpal, width, height, 0, 0, columns, width * height, name);
+        //image.saveAsFile("/PROJECTS/CumManHunt/engine/temp/" + name + ".bmp");
         return image;
     }
 
