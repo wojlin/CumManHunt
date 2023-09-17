@@ -452,7 +452,6 @@ void LevelRenderer::drawWallColumn(ResourcesData::Image* wallTexture, float text
         int textureWidth = wallTexture->getWidth();
         int textureHeight = wallTexture->getHeight();
         
-        cout << textureWidth << " " << textureHeight << endl;
         textureColumn = (int) modulo(textureColumn, textureWidth);
         float textureY = middleTexAlt +  (float) ( (float) y1 - (float) *(engine.getHalfWindowHeight())) * invScale;
 
@@ -470,7 +469,7 @@ void LevelRenderer::drawWallColumn(ResourcesData::Image* wallTexture, float text
                 yCoord = 0;
             }
 
-            PlayPalData::colorRGB_t color = wallTexture->getPixel( xCoord, yCoord);
+            PlayPalData::colorRGB_t color = wallTexture->getPixel( yCoord, xCoord);
             if(color.transparent == false)
             {
                 int red = (int) color.red; //* lightLevel;
@@ -486,7 +485,6 @@ void LevelRenderer::drawWallColumn(ResourcesData::Image* wallTexture, float text
             textureY += invScale; 
         }
     }
-    cout << "drawWallColumnEnd" << endl;
 }
 
 void LevelRenderer::drawData(vector<segmentDrawData>* drawData)
