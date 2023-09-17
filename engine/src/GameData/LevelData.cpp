@@ -38,6 +38,16 @@ namespace LevelData
         
     }
 
+
+    ResourcesData::Image* LevelData::getTexture(string Texturename)
+    {
+        if (textures.find(Texturename) != textures.end()) 
+        {
+            return &textures[Texturename];
+        }
+        return nullptr; // TODO error later
+    }
+
     /**
      * @brief Get the Level Name in string format
      * 
@@ -102,7 +112,7 @@ namespace LevelData
         {
             cout << setw(10) << linedefs[x].startVertex;
             cout << setw(10) << linedefs[x].endVertex;
-            cout << setw(10) << linedefs[x].flags;
+            //cout << setw(10) << linedefs[x].flags;
             cout << setw(10) << linedefs[x].specialType;
             cout << setw(10) << linedefs[x].sectorTag;
             cout << setw(10) << linedefs[x].frontSidedef;
@@ -389,17 +399,51 @@ namespace LevelData
     {
 
         vector<Linedef> lLinedefs;
+
+        struct rawLinedef_t
+        {
+            int16_t startVertex;
+            int16_t endVertex;
+            int16_t flags;
+            int16_t specialType;
+            int16_t sectorTag;
+            int16_t frontSidedef;
+            int16_t backSidedef;
+        };
             
         try
         {
             std::ifstream file(lump.path, std::ios::binary);
             file.seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Linedef);
+            std::size_t num = lump.size / sizeof(rawLinedef_t);
             for (std::size_t i = 0; i < num; ++i)
             {
-                Linedef linedef;
+                rawLinedef_t rawLinedef;
                 
-                file.read(reinterpret_cast<char*>(&linedef), sizeof(Linedef));
+                file.read(reinterpret_cast<char*>(&rawLinedef), sizeof(rawLinedef_t));
+
+                
+
+                LinedefFlags result;
+    
+                result.blockPlayerAndMonsters = (rawLinedef.flags & 0x0001) != 0;
+                result.blockMonsters = (rawLinedef.flags & 0x0002) != 0;
+                result.twoSided = (rawLinedef.flags & 0x0004) != 0;
+                result.unpeggedUpperTexture = (rawLinedef.flags & 0x0008) != 0;
+                result.unpeggedLowerTexture = (rawLinedef.flags & 0x0010) != 0;
+                result.secret = (rawLinedef.flags & 0x0020) != 0;
+                result.blockSound = (rawLinedef.flags & 0x0040) != 0;
+                result.dontShowOnMap = (rawLinedef.flags & 0x0080) != 0;
+                result.alwaysShowOnMap = (rawLinedef.flags & 0x0100) != 0;
+
+                Linedef linedef;
+                linedef.startVertex = rawLinedef.startVertex;
+                linedef.endVertex = rawLinedef.endVertex;
+                linedef.flags = result;
+                linedef.specialType = rawLinedef.specialType;
+                linedef.sectorTag = rawLinedef.sectorTag;
+                linedef.frontSidedef = rawLinedef.frontSidedef;
+                linedef.backSidedef = rawLinedef.backSidedef;
                 
                 lLinedefs.push_back(linedef);
             }
@@ -947,7 +991,7 @@ namespace LevelData
             if(textureFound)
             {   
                 ResourcesData::Image texture = composeTexture(mapTexture);
-                //textures[textureName] = texture;
+                textures[textureName] = texture;
             }
             else
             {
@@ -965,7 +1009,7 @@ namespace LevelData
             try
             {
                 ResourcesData::Image flat = resources->readFlat(flatName);
-                //textures[flatName] = flat;
+                textures[flatName] = flat;
             }
             catch (const ResourceReadoutException& e)
             {
@@ -975,4 +1019,6 @@ namespace LevelData
             
         }
     }
+
+
 }

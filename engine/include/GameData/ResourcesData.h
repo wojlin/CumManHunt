@@ -62,6 +62,8 @@ namespace ResourcesData
     class Image
     {
         public:
+
+            Image();
             
             Image(PlayPalData::PlayPalData*  playpalPointer, uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string name);
 
@@ -89,6 +91,8 @@ namespace ResourcesData
 
             int getPallete();
 
+            PlayPalData::colorRGB_t getPixel(int x, int y);
+
         private:
             uint16_t width;
             uint16_t height;
@@ -99,6 +103,7 @@ namespace ResourcesData
             int pallete;
             vector<imageColumn_t> columns;
             PlayPalData::PlayPalData*  playpal;
+            vector<vector<PlayPalData::colorRGB_t>> pixels;
     };
 
 

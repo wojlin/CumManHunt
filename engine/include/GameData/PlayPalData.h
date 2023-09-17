@@ -19,6 +19,14 @@ namespace PlayPalData
         uint8_t red;
         uint8_t green;
         uint8_t blue;
+        bool transparent = true;
+    };
+
+    struct rawColorRGB_t
+    {
+        uint8_t red;
+        uint8_t green;
+        uint8_t blue;
     };
 
 

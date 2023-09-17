@@ -31,16 +31,32 @@ namespace LevelData
         int16_t flags;
     };
 
+    struct LinedefFlags
+    {
+        bool blockPlayerAndMonsters;
+        bool blockMonsters;
+        bool twoSided;
+        bool unpeggedUpperTexture;
+        bool unpeggedLowerTexture;
+        bool secret;
+        bool blockSound;
+        bool dontShowOnMap;
+        bool alwaysShowOnMap;
+    };
+
     struct Linedef
     {
         int16_t startVertex;
         int16_t endVertex;
-        int16_t flags;
+        LinedefFlags flags;
         int16_t specialType;
         int16_t sectorTag;
         int16_t frontSidedef;
         int16_t backSidedef;
     };
+
+    
+
 
     struct Sidedef
     {
@@ -241,6 +257,8 @@ namespace LevelData
          * @return Blockmap
          */
         Blockmap getBlockmap();
+
+        ResourcesData::Image* getTexture(string Texturename);
 
         private:
             WADStructure::WADStructure* wad;

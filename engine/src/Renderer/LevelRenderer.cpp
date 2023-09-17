@@ -74,7 +74,7 @@ int  LevelRenderer::angleToX(double angle)
 vector<double> LevelRenderer::xtoAngle()
 {
     int windowWidth = *(engine.getWindowWidth());
-    double halfWindowWidth = static_cast<double>(windowWidth) / 2.0;
+    double halfWindowWidth = *(engine.getHalfWindowWidth());
     double screenDist = static_cast<double>(*(engine.getScreenDist()));
 
     vector<double> xToAngleTable;
@@ -82,7 +82,7 @@ vector<double> LevelRenderer::xtoAngle()
 
     for (int i = 0; i <= windowWidth; ++i)
     {
-        double angle = degrees(atan((halfWindowWidth - i) / screenDist));
+        double angle = degrees(atan((halfWindowWidth - (float) i) / screenDist));
         xToAngleTable.push_back(angle);
     }
 
@@ -243,7 +243,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
             }
 
             int wy1 = (int) max((double) (drawUpperWallY1), upperClip[x] + 1);
-            int wy2 = (int) min((double) (drawUpperWallY2), lowerClip[x] - 1);
+            int wy2 = min((double) (drawUpperWallY2), lowerClip[x] - 1);
             drawVerticalLine(x, wy1, wy2, upperWallColor);
 
             if(upperClip[x] < wy2)
@@ -324,16 +324,17 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
     LevelData::Vertex* startVertex = &vertexs[segment.segment.startVertex];
     LevelData::Vertex* endVertex = &vertexs[segment.segment.endVertex];
 
-    string wallTexture = side->middleTextureName;
-    string ceilTexture = sector->ceilingTextureName;
-    string floorTexture = sector->floorTextureName;
+    string wallTextureName = toUpper(side->middleTextureName);
+    string ceilTextureName = sector->ceilingTextureName;
+    string floorTextureName = sector->floorTextureName;
 
+    
 
     int lightLevel = sector->lightLevel;
 
-    sf::Color wallColor = getRandomColor(wallTexture, lightLevel);
-    sf::Color ceilColor = getRandomColor(ceilTexture, lightLevel);
-    sf::Color florColor = getRandomColor(floorTexture, lightLevel);
+    sf::Color wallColor = getRandomColor(wallTextureName, lightLevel);
+    sf::Color ceilColor = getRandomColor(ceilTextureName, lightLevel);
+    sf::Color florColor = getRandomColor(floorTextureName, lightLevel);
 
     //calculations
     double worldFrontZ1 = (double) (sector->ceilingHeight) - (double) (player->getHeight());
@@ -343,12 +344,20 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
     bool drawCeiling = worldFrontZ1 > 0; // decide if drawing ceiling is needed
     bool drawFloor = worldFrontZ2 < 0; // decide if drawing floor is needed
 
+    ResourcesData::Image* wallTexture = level->getTexture(wallTextureName);
+    ResourcesData::Image* ceilTexture = level->getTexture(ceilTextureName);
+    ResourcesData::Image* floorTexture = level->getTexture(floorTextureName);
+
     double rwNormalAngle = (double) segment.segment.angle + 90.0; 
     double offsetAngle = rwNormalAngle - (double) segment.rwAngle;
     double hypotenuse = calculateDistance( (double) player->getPosX(), (double) player->getPosY(), (double) startVertex->x, (double) startVertex->y);
     double rwDistance = hypotenuse * cos(radians(offsetAngle));
     double rwScale1 = scaleFromGlobalAngle(x1, rwNormalAngle, rwDistance);
     double rwScaleStep;
+
+    if (std::abs(std::fmod(offsetAngle, 360.0) - 90.0) <= 1.0e-6) {
+        rwScale1 *= 0.01;
+    }
 
     if(x1 < x2)
     {
@@ -359,9 +368,33 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
         rwScaleStep = 0.0;
     }
 
+    // -------------------------------------------------------------------------- //
+    // determine how the wall texture are vertically aligned
+    float vTop;
+    float middleTexAlt;
+    if(line->flags.unpeggedLowerTexture == true)
+    {
+        vTop = sector->floorHeight + wallTexture->getHeight();
+        middleTexAlt = vTop - player->getHeight();
+    }else
+    {
+        middleTexAlt = worldFrontZ1;  
+    }
+    
+    middleTexAlt += side->yOffset;
+
+
+    // determine how the wall textures are horizontally aligned
+
+    float rwOffset = hypotenuse * sin(radians(offsetAngle));
+    rwOffset += segment.segment.offset + side->xOffset;
+    float rwCenterAngle = rwNormalAngle - player-> getAngle();
+
+    // -------------------------------------------------------------------------- //
+
+    // determine where on the screen the wall is drawn
     double wallY1 = (double) (*(engine.getWindowHeight()) / 2.0) - (double) worldFrontZ1 * (double) rwScale1;
     double wallY1Step = (double) -rwScaleStep * (double) worldFrontZ1;
-
     double wallY2 = (double) (*(engine.getWindowHeight()) / 2.0) - (double) worldFrontZ2 * (double) rwScale1;
     double wallY2Step = (double) -rwScaleStep * (double) worldFrontZ2;
 
@@ -381,7 +414,18 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
         {
             int wy1 = (int) max((double)(drawWallY1), (double) (upperClip[i] + 1.0));
             int wy2 = (int) min((double)(drawWallY2), (double) (lowerClip[i] - 1.0)); 
-            drawVerticalLine(i, wy1, wy2, wallColor);                   
+
+            if(wy1 < wy2)
+            {
+                float angle = rwCenterAngle - xToAngleTable[i];
+                float textureColumn = rwDistance * tan(radians(angle)) - rwOffset;
+                float invScale = 1.0 / rwScale1;
+                //cout << "column: " << textureColumn << " i: " << i << " wy1: " << wy1 << " wy2: " << wy2 << endl;
+                //drawVerticalLine(i, wy1, wy2, wallColor);
+                drawWallColumn(wallTexture, textureColumn, i, wy1, wy2, middleTexAlt, invScale, lightLevel);
+                
+            }
+                  
         }
 
         if(drawFloor)
@@ -391,11 +435,58 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
             drawVerticalLine(i, fy1, fy2, florColor);
         }
 
+        rwScale1 += rwScaleStep;
         wallY1 += wallY1Step;
         wallY2 += wallY2Step;
 
     } 
 
+}
+
+void LevelRenderer::drawWallColumn(ResourcesData::Image* wallTexture, float textureColumn, int x, int y1, int y2, float middleTexAlt, float invScale, int lightLevel)
+{
+    cout << wallTexture->getName() << endl;
+    if(y1 < y2)
+    {
+        
+        int textureWidth = wallTexture->getWidth();
+        int textureHeight = wallTexture->getHeight();
+        
+        cout << textureWidth << " " << textureHeight << endl;
+        textureColumn = (int) modulo(textureColumn, textureWidth);
+        float textureY = middleTexAlt +  (float) ( (float) y1 - (float) *(engine.getHalfWindowHeight())) * invScale;
+
+        for(int iy = y1; iy < y2 + 1; iy++)
+        {
+            int xCoord =  (int) textureColumn;
+            int yCoord = (int) modulo(textureY, textureHeight);
+
+            if(xCoord > width || xCoord < 0)
+            {
+                xCoord = 0;
+            }
+            if(yCoord > height ||yCoord < 0)
+            {
+                yCoord = 0;
+            }
+
+            PlayPalData::colorRGB_t color = wallTexture->getPixel( xCoord, yCoord);
+            if(color.transparent == false)
+            {
+                int red = (int) color.red; //* lightLevel;
+                int green = (int) color.green; //* lightLevel;
+                int blue = (int) color.blue; //* lightLevel;
+                sf::Color sfColor;
+                sfColor.r = red;
+                sfColor.g = green;
+                sfColor.b = blue;
+                sfColor.a = 255;
+                drawPixel(x, iy, sfColor);
+            }
+            textureY += invScale; 
+        }
+    }
+    cout << "drawWallColumnEnd" << endl;
 }
 
 void LevelRenderer::drawData(vector<segmentDrawData>* drawData)
@@ -512,11 +603,11 @@ void LevelRenderer::drawVerticalLine(int posX, int bottomOffset, int topOffset, 
 
 void LevelRenderer::drawPixel(int x, int y, sf::Color color)
 {
-    int place = (width*y*4)+(x*4);
+    int place = (y * width + x) * 4;
     pixels[place] = color.r;
     pixels[place + 1] = color.g;
     pixels[place + 2] = color.b;
-    pixels[place + 3] = color.a; 
+    pixels[place + 3] = color.a;
 }
 
 void LevelRenderer::update()
@@ -539,15 +630,9 @@ void LevelRenderer::clearDrawingBoard()
 
 void LevelRenderer::setupDrawingBoard()
 {
-    pixels = new uint8_t[width*height*4];
-    texture.create(width, height); 
-
-    for(int i = 0; i < width*height*4; i += 4) {
-        pixels[i] = backgroundColor.r;
-        pixels[i+1] = backgroundColor.g;
-        pixels[i+2] = backgroundColor.b;
-        pixels[i+3] = backgroundColor.a;
-    }
+    pixels = new uint8_t[width * height * 4];
+    texture.create(width, height);
+    //clearDrawingBoard();
 
     texture.update(pixels);
     sprite.setTexture(texture);

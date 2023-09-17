@@ -92,6 +92,8 @@ class LevelRenderer
 
         void createClips();
 
+        void drawWallColumn(ResourcesData::Image* wallTexture, float textureColumn, int i, int wy1, int wy2, float middleTexAlt, float invScale, int lightLevel);
+
 };
 
 

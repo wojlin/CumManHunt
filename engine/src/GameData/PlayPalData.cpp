@@ -67,8 +67,12 @@ namespace PlayPalData
             pallete.push_back(vector<colorRGB_t>());
             for(int x = 0; x < PALLETE_COLORS; x++)
             {
+                rawColorRGB_t rawColor;
+                file.read(reinterpret_cast<char*>(&rawColor), sizeof(rawColor));  
                 colorRGB_t color;
-                file.read(reinterpret_cast<char*>(&color), sizeof(color));  
+                color.red = rawColor.red;
+                color.green = rawColor.green;
+                color.blue = rawColor.blue;
                 pallete[i].push_back(color);
             }
         }

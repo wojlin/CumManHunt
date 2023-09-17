@@ -1,6 +1,10 @@
 #include "../../include/GameData/ResourcesData.h"
 namespace ResourcesData
 {
+    Image::Image()
+    {
+
+    }
 
     Image::Image(PlayPalData::PlayPalData*  playpalPointer, uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string lName)
     {
@@ -13,6 +17,31 @@ namespace ResourcesData
         name = lName;
         pallete = 0;
         playpal = playpalPointer;
+
+        for(int x = 0; x < width; x++)
+        {
+            pixels.push_back(vector<PlayPalData::colorRGB_t>());
+
+            for(int y = 0; y < height; y++)
+            {
+                PlayPalData::colorRGB_t color;
+                color.red = 255;
+                color.green = 255;
+                color.blue = 255;
+                color.transparent = true;
+                pixels[x].push_back(color);
+            }
+        }
+
+        for(int c = 0; c < columns.size(); c++)
+        {
+            for(int i = 0; i < columns[c].pixelCount; i++)
+            {
+                PlayPalData::colorRGB_t color = playpal->getColor(pallete, columns[c].pixels[i]);
+                color.transparent = false;
+                pixels[columns[c].column][columns[c].rowStart + i] = color;
+            }              
+        }
     }
 
     uint16_t Image::getWidth()
@@ -63,6 +92,12 @@ namespace ResourcesData
     int Image::getPallete()
     {
         return pallete;
+    }
+
+    PlayPalData::colorRGB_t Image::getPixel(int x, int y)
+    {
+
+        return pixels[y][x];
     }
 
     void Image::printInfo()

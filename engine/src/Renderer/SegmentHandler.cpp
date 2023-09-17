@@ -170,7 +170,7 @@ void SegmentHandler::classifySegment(LevelData::Seg segment, int x1, int x2, flo
     LevelData::Linedef linedef = linedefs[linedefId];
 
 
-    bool twoSided = (linedef.flags >> 2) & 1;
+    bool twoSided = linedef.flags.twoSided;
 
     if(!twoSided)
     {

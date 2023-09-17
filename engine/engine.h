@@ -90,7 +90,7 @@ class Engine
         int WINDOW_HALF_WIDTH = (int) WINDOW_WIDTH / 2;
         int WINDOW_HALF_HEIGHT = (int) WINDOW_HEIGHT / 2;
 
-        int FRAMERATE_LIMIT = 250;  // frames per second
+        int FRAMERATE_LIMIT = 60;  // frames per second
         bool VSYNC = false;
 
         int MINIMAP_SIZE = 50; // in percents
