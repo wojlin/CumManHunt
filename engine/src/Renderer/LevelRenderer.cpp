@@ -172,7 +172,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
         frontSector->ceilingTextureName != backSector->ceilingTextureName)
     {
         bDrawUpperWall = frontSide->upperTextureName != "-" && worldBackZ1 < worldFrontZ1;
-        bDrawCeil = worldFrontZ1 >= 0;
+        bDrawCeil = worldFrontZ1 >= 0 || frontSector->ceilingTextureName == *(engine.getSkyId());
     }
 
     if((int) worldFrontZ2 != (int) worldBackZ2 ||
@@ -394,6 +394,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
         }
 
+        rwScale1 += rwScaleStep;
         wallY1 += wallY1Step;
         wallY2 += wallY2Step;
 
@@ -442,7 +443,7 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
     double worldFrontZ2 = (double) (sector->floorHeight) - (double) (player->getHeight());
 
     bool drawWall = side->middleTextureName != "-"; // decide if drawing wall is needed
-    bool drawCeiling = worldFrontZ1 > 0; // decide if drawing ceiling is needed
+    bool drawCeiling = worldFrontZ1 > 0 || sector->ceilingTextureName == *(engine.getSkyId()); // decide if drawing ceiling is needed
     bool drawFloor = worldFrontZ2 < 0; // decide if drawing floor is needed
 
     ResourcesData::Image* wallTexture = level->getTexture(wallTextureName);
@@ -556,7 +557,7 @@ void LevelRenderer::drawFlat(ResourcesData::Image* texture, int lightLevel, int 
             float skyTextureAlt = 100.0;
             ResourcesData::Image* skyTexture = level->getTexture(textureName);
             float textureColumn = 2.2 * ( player->getAngle() + xToAngleTable[x]);
-            drawWallColumn(skyTexture, textureColumn, x, y1, y2, skyTextureAlt, skyInvScale, 1.0);
+            drawWallColumn(skyTexture, textureColumn, x, y1, y2, skyTextureAlt, skyInvScale, 255);
         }else
         {
            drawFlatColumn(texture, x, y1, y2, lightLevel, worldZ, player->getAngle(), player->getPosX(), player->getPosY());
@@ -592,8 +593,7 @@ void LevelRenderer::drawFlatColumn(ResourcesData::Image* texture, int x, int y1,
         double ty = int(leftY + dy * x) & 63;
 
         PlayPalData::colorRGB_t color = texture->getPixel(ty, tx, lightLevel);
-        if(color.transparent == false)
-        {
+        
             int red = (int) color.red ;//* (lightLevel / 255.0);
             int green = (int) color.green;// * (lightLevel / 255.0);
             int blue = (int) color.blue;// * (lightLevel / 255.0);
@@ -603,7 +603,7 @@ void LevelRenderer::drawFlatColumn(ResourcesData::Image* texture, int x, int y1,
             sfColor.b = blue;
             sfColor.a = 255;
             drawPixel(x, iy, sfColor);
-        }
+        
     }     
 }
 
@@ -626,8 +626,7 @@ void LevelRenderer::drawWallColumn(ResourcesData::Image* wallTexture, float text
 
 
             PlayPalData::colorRGB_t color = wallTexture->getPixel( yCoord, xCoord, lightLevel );
-            if(color.transparent == false)
-            {
+            
                 int red = (int) color.red; //* (lightLevel / 255.0);
                 int green = (int) color.green;// * (lightLevel / 255.0);
                 int blue = (int) color.blue;// * (lightLevel / 255.0);
@@ -637,7 +636,7 @@ void LevelRenderer::drawWallColumn(ResourcesData::Image* wallTexture, float text
                 sfColor.b = blue;
                 sfColor.a = 255;
                 drawPixel(x, iy, sfColor);
-            }
+            
             textureY += invScale; 
         }
     }
