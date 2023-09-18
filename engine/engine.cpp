@@ -96,6 +96,16 @@ int* Engine::getScreenDist()
     return &SCREEN_DIST;
 }
 
+string* Engine::getSkyId()
+{
+    return &SKY_ID;
+}
+
+string* Engine::getSkyTextureName()
+{
+    return &SKY_TEXTURE_NAME;
+}
+
 
 BSP* Engine::getBSP()
 {

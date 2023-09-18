@@ -1001,6 +1001,9 @@ namespace LevelData
 
         }
 
+        string skyPlaceholder = "F_SKY1"; // TODO merge with engine variable sky
+        string actualSky = "RSKY1"; // TODO merge with engine variable sky
+
         // reading flats
         for(string flatName: flatsNames)
         {
@@ -1010,6 +1013,14 @@ namespace LevelData
             {
                 ResourcesData::Image flat = resources->readFlat(flatName);
                 textures[flatName] = flat;
+
+                if(flatName == skyPlaceholder)
+                {
+                    cout << "loading \"" << actualSky << "\" texture..." << endl;
+                    ResourcesData::Image patch = resources->readPatch(actualSky); 
+                    textures[actualSky] = patch;
+                }
+
             }
             catch (const ResourceReadoutException& e)
             {

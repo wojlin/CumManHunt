@@ -174,13 +174,27 @@ void SegmentHandler::classifySegment(LevelData::Seg segment, int x1, int x2, flo
 
     if(!twoSided)
     {
-        int frontSidedefId = linedef.frontSidedef;
         clipSolidWalls(segment, x1, x2, rwAngle);
         return;
     }
 
-    LevelData::Sidedef front = sidedefs[linedef.frontSidedef];
-    LevelData::Sidedef back = sidedefs[linedef.backSidedef];
+    LevelData::Sidedef front;
+    LevelData::Sidedef back;
+
+    
+    
+    if(segment.direction == 0)
+    {
+        front = sidedefs[linedef.frontSidedef];
+        back = sidedefs[linedef.backSidedef];
+    }
+    else
+    {
+        front = sidedefs[linedef.backSidedef];
+        back = sidedefs[linedef.frontSidedef];
+    }
+
+    
 
     LevelData::Sector frontSector = sectors[front.sectorNumber];
     LevelData::Sector backSector = sectors[back.sectorNumber];

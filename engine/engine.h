@@ -75,6 +75,10 @@ class Engine
 
         int* getScreenDist();
 
+        string* getSkyId();
+
+        string* getSkyTextureName();
+
         BSP* getBSP();
 
         sf::RenderWindow* getWindow();
@@ -84,6 +88,9 @@ class Engine
     private:
 
         string TITLE = "CumManHunt";
+
+        string SKY_ID = "F_SKY1";
+        string SKY_TEXTURE_NAME = "RSKY1";
 
         int WINDOW_WIDTH = 1920; // in pixels
         int WINDOW_HEIGHT = 1000; // in pixels
