@@ -65,7 +65,7 @@ namespace ResourcesData
 
             Image();
             
-            Image(PlayPalData::PlayPalData*  playpalPointer, uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string name);
+            Image(ColorMapData::ColorMapData*  colormapPointer, PlayPalData::PlayPalData*  playpalPointer, uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string name);
 
             uint16_t getWidth();
 
@@ -91,7 +91,7 @@ namespace ResourcesData
 
             int getPallete();
 
-            PlayPalData::colorRGB_t getPixel(int x, int y);
+            PlayPalData::colorRGB_t getPixel(int x, int y, int lightLevel = 255);
 
         private:
             uint16_t width;
@@ -103,7 +103,9 @@ namespace ResourcesData
             int pallete;
             vector<imageColumn_t> columns;
             PlayPalData::PlayPalData*  playpal;
+            ColorMapData::ColorMapData*  colormap;
             vector<vector<PlayPalData::colorRGB_t>> pixels;
+            vector<vector<uint8_t>> pixelsPlayPal;
     };
 
 
@@ -115,7 +117,7 @@ namespace ResourcesData
             
             ResourcesData();
 
-            ResourcesData(WADStructure::WADStructure *wad, PlayPalData::PlayPalData*  playpalPointer);
+            ResourcesData(WADStructure::WADStructure *wad, PlayPalData::PlayPalData*  playpalPointer, ColorMapData::ColorMapData* colormapPointer);
 
             Image readFlat(string name);
 
@@ -165,6 +167,7 @@ namespace ResourcesData
             int patchesAmount = 0;
 
             PlayPalData::PlayPalData* playpal;
+            ColorMapData::ColorMapData* colormap;
 
             string charsToString(char* chars, int size);
 

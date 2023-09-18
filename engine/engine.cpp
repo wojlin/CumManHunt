@@ -133,6 +133,8 @@ void Engine::run()
     SoundData::SoundData* sound = gameData.getResourceFromWAD<SoundData::SoundData>();
     DemoData::DemoData* demo = gameData.getResourceFromWAD<DemoData::DemoData>();
 
+    colormap->printInfo();
+
     gameData.printInfo();
 
     setupWindow();

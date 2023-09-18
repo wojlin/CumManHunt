@@ -116,7 +116,8 @@ void GameData::compile()
     classInstances[&typeid(PlayPalData::PlayPalData)] = new PlayPalData::PlayPalData(wad);
     classInstances[&typeid(ColorMapData::ColorMapData)] = new ColorMapData::ColorMapData(wad);
     PlayPalData::PlayPalData* playpal = getResourceFromWAD<PlayPalData::PlayPalData>();
-    classInstances[&typeid(ResourcesData::ResourcesData)] = new ResourcesData::ResourcesData(wad, playpal);
+    ColorMapData::ColorMapData* colormap = getResourceFromWAD<ColorMapData::ColorMapData>();
+    classInstances[&typeid(ResourcesData::ResourcesData)] = new ResourcesData::ResourcesData(wad, playpal, colormap);
     classInstances[&typeid(AudioInfoData::AudioInfoData)] = new AudioInfoData::AudioInfoData(wad);
     classInstances[&typeid(SoundData::SoundData)] = new SoundData::SoundData(wad);
     classInstances[&typeid(DemoData::DemoData)] = new DemoData::DemoData(wad);
@@ -132,12 +133,13 @@ void GameData::compile()
 LevelData::LevelData GameData::getLevelData(string name)
 {
     PlayPalData::PlayPalData* playpal = getResourceFromWAD<PlayPalData::PlayPalData>();
+    ColorMapData::ColorMapData* colormap = getResourceFromWAD<ColorMapData::ColorMapData>();
     WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
     for(int x =0; x<wad->levelsList.size(); x++)
     {
         if(wad->levelsList[x].name == name)
         {
-            return LevelData::LevelData(wad, &wad->levelsList[0], getResourceFromWAD<ResourcesData::ResourcesData>(), playpal);
+            return LevelData::LevelData(wad, &wad->levelsList[0], getResourceFromWAD<ResourcesData::ResourcesData>(), playpal, colormap);
         }
     }
     throw WADReadoutException("level not found");
@@ -152,12 +154,13 @@ LevelData::LevelData GameData::getLevelData(string name)
 LevelData::LevelData GameData::getLevelData(int number)
 {
     PlayPalData::PlayPalData* playpal = getResourceFromWAD<PlayPalData::PlayPalData>();
+    ColorMapData::ColorMapData* colormap = getResourceFromWAD<ColorMapData::ColorMapData>();
     WADStructure::WADStructure* wad = getResourceFromWAD<WADStructure::WADStructure>();
     if(number >= wad->levelsList.size())
     {
         throw WADReadoutException("level not found");
     }
-    return LevelData::LevelData(wad, &wad->levelsList[number], getResourceFromWAD<ResourcesData::ResourcesData>(), playpal);
+    return LevelData::LevelData(wad, &wad->levelsList[number], getResourceFromWAD<ResourcesData::ResourcesData>(), playpal, colormap);
 }
 
 

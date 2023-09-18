@@ -31,7 +31,7 @@ namespace ColorMapData
         for(int i = 0; i < COLORMAPS_AMOUNT; i++)
         {
             cout << "|COLORMAP " << i << "|" << endl;
-            for(int x = 0; x < COLORMAPS_AMOUNT; x++)
+            for(int x = 0; x < COLORMAP_SIZE; x++)
             {   
                 cout << x << ":   " << unsigned(colormap[i][x]) <<endl;
                 

@@ -591,12 +591,12 @@ void LevelRenderer::drawFlatColumn(ResourcesData::Image* texture, int x, int y1,
         double tx = int(leftX + dx * x) & 63;
         double ty = int(leftY + dy * x) & 63;
 
-        PlayPalData::colorRGB_t color = texture->getPixel(ty, tx);
+        PlayPalData::colorRGB_t color = texture->getPixel(ty, tx, lightLevel);
         if(color.transparent == false)
         {
-            int red = (int) color.red * (lightLevel / 255.0);
-            int green = (int) color.green * (lightLevel / 255.0);
-            int blue = (int) color.blue * (lightLevel / 255.0);
+            int red = (int) color.red ;//* (lightLevel / 255.0);
+            int green = (int) color.green;// * (lightLevel / 255.0);
+            int blue = (int) color.blue;// * (lightLevel / 255.0);
             sf::Color sfColor;
             sfColor.r = red;
             sfColor.g = green;
@@ -625,12 +625,12 @@ void LevelRenderer::drawWallColumn(ResourcesData::Image* wallTexture, float text
             int yCoord =  modulo( (int) textureY, textureHeight);
 
 
-            PlayPalData::colorRGB_t color = wallTexture->getPixel( yCoord, xCoord);
+            PlayPalData::colorRGB_t color = wallTexture->getPixel( yCoord, xCoord, lightLevel );
             if(color.transparent == false)
             {
-                int red = (int) color.red * (lightLevel / 255.0);
-                int green = (int) color.green * (lightLevel / 255.0);
-                int blue = (int) color.blue * (lightLevel / 255.0);
+                int red = (int) color.red; //* (lightLevel / 255.0);
+                int green = (int) color.green;// * (lightLevel / 255.0);
+                int blue = (int) color.blue;// * (lightLevel / 255.0);
                 sf::Color sfColor;
                 sfColor.r = red;
                 sfColor.g = green;

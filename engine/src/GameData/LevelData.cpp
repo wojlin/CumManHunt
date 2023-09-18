@@ -14,11 +14,12 @@ namespace LevelData
      * @param path 
      * @param levelData 
      */
-    LevelData::LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData, ResourcesData::ResourcesData* lResources, PlayPalData::PlayPalData*  playpalPointer)
+    LevelData::LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData, ResourcesData::ResourcesData* lResources, PlayPalData::PlayPalData*  playpalPointer, ColorMapData::ColorMapData*  colormapPointer)
     {
         wad = wadObj;
         level = levelData;
         playpal = playpalPointer;
+        colormap = colormapPointer;
 
         filePath = wad->filePath;
         levelName = level->name;
@@ -940,7 +941,7 @@ namespace LevelData
 
         }
 
-        ResourcesData::Image image = ResourcesData::Image(playpal, width, height, 0, 0, columns, width * height, name);
+        ResourcesData::Image image = ResourcesData::Image(colormap, playpal, width, height, 0, 0, columns, width * height, name);
         //image.saveAsFile("/PROJECTS/CumManHunt/engine/temp/" + name + ".bmp");
         return image;
     }

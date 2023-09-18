@@ -147,7 +147,7 @@ namespace LevelData
          * @param path 
          * @param levelData 
          */
-        LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData, ResourcesData::ResourcesData* resources, PlayPalData::PlayPalData*  playpalPointer);
+        LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData, ResourcesData::ResourcesData* resources, PlayPalData::PlayPalData*  playpalPointer, ColorMapData::ColorMapData*  colorPointer);
 
         /**
          * @brief Get the Level Name in string format
@@ -264,6 +264,7 @@ namespace LevelData
             WADStructure::WADStructure* wad;
             WADStructure::levelInfo_t* level;
             PlayPalData::PlayPalData* playpal;
+            ColorMapData::ColorMapData* colormap;
 
             string levelName;
             string filePath = "";

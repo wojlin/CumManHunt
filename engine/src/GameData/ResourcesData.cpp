@@ -6,7 +6,7 @@ namespace ResourcesData
 
     }
 
-    Image::Image(PlayPalData::PlayPalData*  playpalPointer, uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string lName)
+    Image::Image(ColorMapData::ColorMapData*  colormapPointer, PlayPalData::PlayPalData*  playpalPointer, uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string lName)
     {
         width = w;
         height = h;
@@ -17,10 +17,12 @@ namespace ResourcesData
         name = lName;
         pallete = 0;
         playpal = playpalPointer;
+        colormap = colormapPointer;
 
         for(int x = 0; x < width; x++)
         {
             pixels.push_back(vector<PlayPalData::colorRGB_t>());
+            pixelsPlayPal.push_back(vector<uint8_t>());
 
             for(int y = 0; y < height; y++)
             {
@@ -30,6 +32,7 @@ namespace ResourcesData
                 color.blue = 255;
                 color.transparent = true;
                 pixels[x].push_back(color);
+                pixelsPlayPal[x].push_back(255);
             }
         }
 
@@ -40,6 +43,7 @@ namespace ResourcesData
                 PlayPalData::colorRGB_t color = playpal->getColor(pallete, columns[c].pixels[i]);
                 color.transparent = false;
                 pixels[columns[c].column][columns[c].rowStart + i] = color;
+                pixelsPlayPal[columns[c].column][columns[c].rowStart + i] = columns[c].pixels[i];
             }              
         }
     }
@@ -94,10 +98,14 @@ namespace ResourcesData
         return pallete;
     }
 
-    PlayPalData::colorRGB_t Image::getPixel(int x, int y)
+    PlayPalData::colorRGB_t Image::getPixel(int x, int y, int lightLevel)
     {
-
-        return pixels[y][x];
+        int colormapIndex = 31 - static_cast<int>((static_cast<double>(lightLevel) / 255) * 31);
+        uint8_t color = pixelsPlayPal[y][x];
+        uint8_t remappedColor = colormap->getColor(colormapIndex, color);
+        PlayPalData::colorRGB_t newColor = playpal->getColor(pallete, remappedColor);
+        newColor.transparent = false;
+        return newColor;
     }
 
     void Image::printInfo()
@@ -137,7 +145,7 @@ namespace ResourcesData
 
     }
 
-    ResourcesData::ResourcesData(WADStructure::WADStructure *wad, PlayPalData::PlayPalData*  playpalPointer): filePath(wad->filePath), playpal(playpalPointer)
+    ResourcesData::ResourcesData(WADStructure::WADStructure *wad, PlayPalData::PlayPalData*  playpalPointer, ColorMapData::ColorMapData*  colormapPointer): filePath(wad->filePath), playpal(playpalPointer), colormap(colormapPointer)
     {
         wadStructure = wad;
         filePath = wad->filePath;
@@ -198,7 +206,7 @@ namespace ResourcesData
 
         file.close();
 
-        return Image(playpal, width, height, 0, 0, columns, spriteInfo->size, name);
+        return Image(colormap, playpal, width, height, 0, 0, columns, spriteInfo->size, name);
 
     }
 
@@ -282,7 +290,7 @@ namespace ResourcesData
             }
         }
         file.close();
-        return Image(playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
+        return Image(colormap, playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
 
     }
 
@@ -366,7 +374,7 @@ namespace ResourcesData
             }
         }
         file.close();
-        return Image(playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
+        return Image(colormap, playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
 
     }
 
@@ -401,7 +409,7 @@ namespace ResourcesData
 
         file.close();
 
-        return Image(playpal, width, height, 0, 0, columns, spriteInfo.size, name);
+        return Image(colormap, playpal, width, height, 0, 0, columns, spriteInfo.size, name);
 
     }
 
@@ -479,7 +487,7 @@ namespace ResourcesData
             }
         }
         file.close();
-        return Image(playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
+        return Image(colormap, playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
 
     }
     
@@ -556,7 +564,7 @@ namespace ResourcesData
             }
         }
         file.close();
-        return Image(playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
+        return Image(colormap, playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
 
     }
     
