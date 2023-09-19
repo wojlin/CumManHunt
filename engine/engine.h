@@ -92,8 +92,8 @@ class Engine
         string SKY_ID = "F_SKY1";
         string SKY_TEXTURE_NAME = "RSKY1";
 
-        int WINDOW_WIDTH = 1920; // in pixels
-        int WINDOW_HEIGHT = 1000; // in pixels
+        int WINDOW_WIDTH = 800;//1920; // in pixels
+        int WINDOW_HEIGHT = 600;//1000; // in pixels
         int WINDOW_HALF_WIDTH = (int) WINDOW_WIDTH / 2;
         int WINDOW_HALF_HEIGHT = (int) WINDOW_HEIGHT / 2;
 

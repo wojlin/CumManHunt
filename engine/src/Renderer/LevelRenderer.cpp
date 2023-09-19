@@ -565,7 +565,7 @@ void LevelRenderer::drawFlat(ResourcesData::Image* texture, int lightLevel, int 
     }
 }                         
 
-void LevelRenderer::drawFlatColumn(ResourcesData::Image* texture, int x, int y1, int y2, int lightLevel, int worldZ, int playerAngle, float playerX, float playerY)
+void LevelRenderer::drawFlatColumn(ResourcesData::Image* texture, int x, int y1, int y2, int lightLevel, float worldZ, float playerAngle, float playerX, float playerY)
 {
     float H_WIDTH = *(engine.getHalfWindowWidth());
     float H_HEIGHT = *(engine.getHalfWindowHeight());
@@ -576,7 +576,7 @@ void LevelRenderer::drawFlatColumn(ResourcesData::Image* texture, int x, int y1,
 
     for(int iy = y1; iy < y2 + 1; iy++)
     {
-        int z = H_WIDTH * worldZ / (H_HEIGHT - iy);
+        double z =  (float) H_WIDTH * (float) worldZ / ((float) H_HEIGHT - (float) iy);
 
         double px = playerDirX * z + playerX;
         double py = playerDirY * z + playerY;
