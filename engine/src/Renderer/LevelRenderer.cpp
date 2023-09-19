@@ -389,7 +389,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
             if(lowerClip[x] > drawWallY2 + 1)
             {
-                lowerClip[x] = fy2;
+                lowerClip[x] = fy1;
             }
 
         }
