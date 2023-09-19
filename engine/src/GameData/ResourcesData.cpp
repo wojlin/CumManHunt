@@ -104,7 +104,7 @@ namespace ResourcesData
         uint8_t color = pixelsPlayPal[y][x];
         uint8_t remappedColor = colormap->getColor(colormapIndex, color);
         PlayPalData::colorRGB_t newColor = playpal->getColor(pallete, remappedColor);
-        newColor.transparent = false;
+        newColor.transparent = pixels[y][x].transparent;
         return newColor;
     }
 

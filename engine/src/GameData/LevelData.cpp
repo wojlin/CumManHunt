@@ -426,6 +426,8 @@ namespace LevelData
                 
 
                 LinedefFlags result;
+
+                
     
                 result.blockPlayerAndMonsters = (rawLinedef.flags & 0x0001) != 0;
                 result.blockMonsters = (rawLinedef.flags & 0x0002) != 0;

@@ -201,6 +201,8 @@ void Engine::run()
     
         minimapRenderer.update();
 
+        //cout << "angle:" << players[currentPlayer].getAngle() << " posX: " << players[currentPlayer].getPosX() << " posY: " << players[currentPlayer].getPosY() << endl;
+
         window.draw(*levelRenderer.getScene());
         window.draw(*minimapRenderer.getMinimap());
         window.draw(fpsText);

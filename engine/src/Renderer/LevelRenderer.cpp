@@ -166,6 +166,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
     bool bDrawCeil = false;
     bool bDrawLowerWall = false;
     bool bDrawFloor = false;
+    bool bDrawMiddleWall = false;
 
     if( (int) worldFrontZ1 != (int) worldBackZ1 ||
         frontSector->lightLevel != backSector->lightLevel ||
@@ -183,8 +184,14 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
         bDrawFloor = worldFrontZ2 <= 0;
     }
 
+    if(frontSide->middleTextureName != "-")
+    {
+        bDrawMiddleWall = true;
+    }
+
+
     // if nothing must be rendered, we can skip this seg
-    if(!bDrawUpperWall && !bDrawCeil && !bDrawLowerWall && !bDrawFloor)
+    if(!bDrawUpperWall && !bDrawCeil && !bDrawLowerWall && !bDrawFloor && !bDrawMiddleWall)
     {
         return;
     }
@@ -212,7 +219,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
     float vTop;
     if(bDrawUpperWall)
     {
-        if(line->flags.unpeggedUpperTexture == true)
+        if(line->flags.unpeggedUpperTexture != true)
         {
             upperTexAlt = worldFrontZ1;
         }
@@ -225,7 +232,7 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
     }
     if(bDrawLowerWall)
     {
-        if(line->flags.unpeggedLowerTexture == true)
+        if(line->flags.unpeggedLowerTexture != true)
         {
             lowerTexAlt = worldFrontZ1;
         }
@@ -256,6 +263,8 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
         rwOffset += segment.segment.offset + frontSide->xOffset;
         rwCenterAngle = rwNormalAngle - player->getAngle();
     }
+
+    
             
 
     // the y positions of the top / bottom edges of the wall on the screen
@@ -394,6 +403,25 @@ void LevelRenderer::drawPortalWall(segmentDrawData segment)
 
         }
 
+
+        if(bDrawMiddleWall) // TODO this dont work, find a method to display bars on the middle
+        {
+            
+            ResourcesData::Image* middleWallTexture = level->getTexture(frontSide->middleTextureName);
+
+            float middleTexAlt = 0;
+
+            int wy1 = 200;
+            int wy2 = 400;
+
+            if(wy1 < wy2)
+            {
+                //drawWallColumn(middleWallTexture, textureColumn, x, wy1, wy2, middleTexAlt, invScale, lightLevel);      
+            }
+
+            
+        }
+
         rwScale1 += rwScaleStep;
         wallY1 += wallY1Step;
         wallY2 += wallY2Step;
@@ -429,8 +457,6 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
     string wallTextureName = toUpper(side->middleTextureName);
     string ceilTextureName = sector->ceilingTextureName;
     string floorTextureName = sector->floorTextureName;
-
-    
 
     int lightLevel = sector->lightLevel;
 
@@ -474,7 +500,7 @@ void LevelRenderer::drawSolidWall(segmentDrawData segment)
     // determine how the wall texture are vertically aligned
     float vTop;
     float middleTexAlt;
-    if(line->flags.unpeggedLowerTexture == true)
+    if(line->flags.unpeggedLowerTexture != true)
     {
         vTop = sector->floorHeight + wallTexture->getHeight();
         middleTexAlt = vTop - player->getHeight();
@@ -593,7 +619,8 @@ void LevelRenderer::drawFlatColumn(ResourcesData::Image* texture, int x, int y1,
         double ty = int(leftY + dy * x) & 63;
 
         PlayPalData::colorRGB_t color = texture->getPixel(ty, tx, lightLevel);
-        
+        if(color.transparent == false)
+        {
             int red = (int) color.red ;//* (lightLevel / 255.0);
             int green = (int) color.green;// * (lightLevel / 255.0);
             int blue = (int) color.blue;// * (lightLevel / 255.0);
@@ -603,7 +630,7 @@ void LevelRenderer::drawFlatColumn(ResourcesData::Image* texture, int x, int y1,
             sfColor.b = blue;
             sfColor.a = 255;
             drawPixel(x, iy, sfColor);
-        
+        }
     }     
 }
 
@@ -616,8 +643,8 @@ void LevelRenderer::drawWallColumn(ResourcesData::Image* wallTexture, float text
         int textureWidth = wallTexture->getWidth();
         int textureHeight = wallTexture->getHeight();
         
-        textureColumn = modulo( (int) textureColumn, textureWidth);
-        float textureY = middleTexAlt +  (float) ( (float) y1 - (float) *(engine.getHalfWindowHeight())) * invScale;
+        textureColumn = modulo( (float) textureColumn, (float) textureWidth);
+        float textureY = (float) middleTexAlt +  (float) ( (float) y1 - (float) *(engine.getHalfWindowHeight())) * (float) invScale;
 
         for(int iy = y1; iy < y2 + 1; iy++)
         {
@@ -627,6 +654,8 @@ void LevelRenderer::drawWallColumn(ResourcesData::Image* wallTexture, float text
 
             PlayPalData::colorRGB_t color = wallTexture->getPixel( yCoord, xCoord, lightLevel );
             
+            if(color.transparent == false)
+            {
                 int red = (int) color.red; //* (lightLevel / 255.0);
                 int green = (int) color.green;// * (lightLevel / 255.0);
                 int blue = (int) color.blue;// * (lightLevel / 255.0);
@@ -636,7 +665,7 @@ void LevelRenderer::drawWallColumn(ResourcesData::Image* wallTexture, float text
                 sfColor.b = blue;
                 sfColor.a = 255;
                 drawPixel(x, iy, sfColor);
-            
+            }
             textureY += invScale; 
         }
     }
