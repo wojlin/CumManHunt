@@ -1,5 +1,7 @@
 #include "../../include/GameData/LevelData.h"
 #include "../../include/Utils/Info.h"
+#include "../../include/Utils/Exceptions.h"
+
 
 namespace LevelData
 {
@@ -12,15 +14,17 @@ namespace LevelData
      * @param path 
      * @param levelData 
      */
-    LevelData::LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData)
+    LevelData::LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData, ResourcesData::ResourcesData* lResources, PlayPalData::PlayPalData*  playpalPointer, ColorMapData::ColorMapData*  colormapPointer)
     {
         wad = wadObj;
         level = levelData;
+        playpal = playpalPointer;
+        colormap = colormapPointer;
 
         filePath = wad->filePath;
         levelName = level->name;
         
-
+        resources = lResources;
         things = loadThings(levelData->THINGS);
         linedefs = loadLinedefs(levelData->LINEDEFS);
         sidedefs = loadSidedefs(levelData->SIDEDEFS);
@@ -31,7 +35,18 @@ namespace LevelData
         sectors = loadSectors(levelData->SECTORS);
         rejectTable = loadReject(levelData->REJECT);
         blockmap = loadBlockmap(levelData->BLOCKMAP);
+        loadLevelResources();
         
+    }
+
+
+    ResourcesData::Image* LevelData::getTexture(string Texturename)
+    {
+        if (textures.find(Texturename) != textures.end()) 
+        {
+            return &textures[Texturename];
+        }
+        return nullptr; // TODO error later
     }
 
     /**
@@ -98,7 +113,7 @@ namespace LevelData
         {
             cout << setw(10) << linedefs[x].startVertex;
             cout << setw(10) << linedefs[x].endVertex;
-            cout << setw(10) << linedefs[x].flags;
+            //cout << setw(10) << linedefs[x].flags;
             cout << setw(10) << linedefs[x].specialType;
             cout << setw(10) << linedefs[x].sectorTag;
             cout << setw(10) << linedefs[x].frontSidedef;
@@ -385,17 +400,53 @@ namespace LevelData
     {
 
         vector<Linedef> lLinedefs;
+
+        struct rawLinedef_t
+        {
+            int16_t startVertex;
+            int16_t endVertex;
+            int16_t flags;
+            int16_t specialType;
+            int16_t sectorTag;
+            int16_t frontSidedef;
+            int16_t backSidedef;
+        };
             
         try
         {
             std::ifstream file(lump.path, std::ios::binary);
             file.seekg(lump.filepos);
-            std::size_t num = lump.size / sizeof(Linedef);
+            std::size_t num = lump.size / sizeof(rawLinedef_t);
             for (std::size_t i = 0; i < num; ++i)
             {
-                Linedef linedef;
+                rawLinedef_t rawLinedef;
                 
-                file.read(reinterpret_cast<char*>(&linedef), sizeof(Linedef));
+                file.read(reinterpret_cast<char*>(&rawLinedef), sizeof(rawLinedef_t));
+
+                
+
+                LinedefFlags result;
+
+                
+    
+                result.blockPlayerAndMonsters = (rawLinedef.flags & 0x0001) != 0;
+                result.blockMonsters = (rawLinedef.flags & 0x0002) != 0;
+                result.twoSided = (rawLinedef.flags & 0x0004) != 0;
+                result.unpeggedUpperTexture = (rawLinedef.flags & 0x0008) != 0;
+                result.unpeggedLowerTexture = (rawLinedef.flags & 0x0010) != 0;
+                result.secret = (rawLinedef.flags & 0x0020) != 0;
+                result.blockSound = (rawLinedef.flags & 0x0040) != 0;
+                result.dontShowOnMap = (rawLinedef.flags & 0x0080) != 0;
+                result.alwaysShowOnMap = (rawLinedef.flags & 0x0100) != 0;
+
+                Linedef linedef;
+                linedef.startVertex = rawLinedef.startVertex;
+                linedef.endVertex = rawLinedef.endVertex;
+                linedef.flags = result;
+                linedef.specialType = rawLinedef.specialType;
+                linedef.sectorTag = rawLinedef.sectorTag;
+                linedef.frontSidedef = rawLinedef.frontSidedef;
+                linedef.backSidedef = rawLinedef.backSidedef;
                 
                 lLinedefs.push_back(linedef);
             }
@@ -749,4 +800,239 @@ namespace LevelData
         }
         return lBlockmap;
     }
+
+    string LevelData::toUpper(string name)
+    {
+        for (char &c : name) {
+        c = std::toupper(c);
+        }
+        return name;
+    }
+
+    ResourcesData::Image LevelData::composeTexture(ResourcesData::maptexture_t mapTexture)
+    {
+        int width = mapTexture.width;
+        int height = mapTexture.height;
+        int patchCount = mapTexture.patchCount;
+        string name = mapTexture.name;
+
+        std::vector<ResourcesData::imageColumn_t> columns;
+
+        struct pixel_t
+        {
+            uint8_t value;
+            bool blank = true;
+        };
+
+        vector<vector<pixel_t>> pixels;
+        
+
+        for(int x = 0; x < width; x++)
+        {
+            pixels.push_back(vector<pixel_t>());
+
+            for(int y = 0; y < height; y++)        
+            {
+                pixel_t pixel;
+                pixel.value = 0;
+                pixel.blank = true;
+                pixels[x].push_back(pixel);
+            }
+        }
+        
+
+        
+
+        for(int i =0; i < patchCount; i++)
+        {
+            ResourcesData::mappatch_t patchInfo = mapTexture.mapPatches[i];
+
+            int originX = patchInfo.originX;
+            int originY = patchInfo.originY;
+            int direction = patchInfo.stepDir;
+            int colormap = patchInfo.colorMap;
+            short patchId = patchInfo.patch;
+
+            string patchName = resources->getPNameByIndex(patchId);
+            try
+            {
+                ResourcesData::Image patch = resources->readGamePatch(patchName);
+                std::vector<ResourcesData::imageColumn_t> patchColumns = patch.getColumns();
+                int patchWidth = patch.getWidth();
+                int patchHeight = patch.getHeight();
+
+                for(int i = 0; i < patchColumns.size(); i++)
+                {
+                    ResourcesData::imageColumn_t patchColumn = patchColumns[i];
+
+                    for(int y = 0; y < patchColumn.pixelCount; y++)
+                    {      
+                        pixel_t pixel;
+                        pixel.blank = false;
+                        uint8_t color = patchColumn.pixels[y];
+                        pixel.value = color;
+                        
+                        if(originX + patchColumn.column < pixels.size() && originY + y <= pixels[0].size())
+                        {
+                            pixels[originX + patchColumn.column][originY + y + patchColumn.rowStart] = pixel;
+                        }             
+                    }
+                }
+            }
+            catch (const ResourceReadoutException& e)
+            {
+                string errorMessage = "\"" + patchName + "\" not found in WAD file!";
+                throw ResourceReadoutException(errorMessage);
+            }
+
+
+            for(int x = 0; x < pixels.size(); x++)  
+            {
+                ResourcesData::imageColumn_t column;
+                column.pixelCount = 0;
+                column.rowStart = 0;
+                column.column = x;
+                column.pixels = vector<uint8_t>();
+
+                int rowStart = 0;
+                bool startFound = false;
+
+
+                for(int y = 0; y < pixels[x].size(); y++)  
+                {
+
+                    if(pixels[x][y].blank == false && startFound == false)
+                    {
+                        startFound = true;
+                        column.rowStart = y;
+                        column.column = x;
+                    }
+
+                    if((pixels[x][y].blank == true && startFound == true ))
+                    {
+                        startFound = false;
+                        columns.push_back(column);
+                        column.pixelCount = 0;
+                        column.rowStart = 0;
+                        column.column = x;
+                        column.pixels = vector<uint8_t>();
+                        continue;
+                    }
+
+                    if(y >= pixels[x].size() - 1)
+                    {
+                        column.pixelCount++;
+                        column.pixels.push_back(pixels[x][y].value);
+                        startFound = false;
+                        columns.push_back(column);
+                        column.pixelCount = 0;
+                        column.rowStart = 0;
+                        column.column = x;
+                        column.pixels = vector<uint8_t>();
+                        continue;
+                    }
+
+                    if(startFound == true)
+                    {
+                        column.pixelCount++;
+                        column.pixels.push_back(pixels[x][y].value);
+                    }
+                    
+                }
+            }
+
+        }
+
+        ResourcesData::Image image = ResourcesData::Image(colormap, playpal, width, height, 0, 0, columns, width * height, name);
+        //image.saveAsFile("/PROJECTS/CumManHunt/engine/temp/" + name + ".bmp");
+        return image;
+    }
+
+    void LevelData::loadLevelResources()
+    {
+        std::set<std::string> textureNames;
+        std::set<std::string> flatsNames;
+
+        for(int i = 0; i < sidedefs.size(); i++)
+        {
+            textureNames.insert(toUpper(sidedefs[i].lowerTextureName));
+            textureNames.insert(toUpper(sidedefs[i].middleTextureName));
+            textureNames.insert(toUpper(sidedefs[i].upperTextureName));
+        }
+
+        for(int i = 0; i < sectors.size(); i++)
+        {
+            flatsNames.insert(sectors[i].floorTextureName);
+            flatsNames.insert(sectors[i].ceilingTextureName);
+        }
+
+        textureNames.erase("-");
+        flatsNames.erase("-");
+
+        std::vector<ResourcesData::textureX_t> textureX = resources->getTextureX();
+        
+        // reading textures first
+        for(string textureName: textureNames)
+        {
+            cout << "loading \"" << textureName << "\" texture..." << endl;
+
+            bool textureFound = false;
+            ResourcesData::maptexture_t mapTexture;
+
+            for(int x = 0; x < textureX.size(); x++)
+            {
+                for(int y =0; y < textureX[x].numTextures; y++)
+                {
+                    if(textureX[x].mapTextures[y].name == textureName)
+                    {
+                        textureFound = true;
+                        mapTexture = textureX[x].mapTextures[y];
+                    }
+                }
+            }
+
+            if(textureFound)
+            {   
+                ResourcesData::Image texture = composeTexture(mapTexture);
+                textures[textureName] = texture;
+            }
+            else
+            {
+                string errorMessage = "\"" + textureName + "\" not found in WAD file!";
+                throw ResourceReadoutException(errorMessage);
+            }
+
+        }
+
+        string skyPlaceholder = "F_SKY1"; // TODO merge with engine variable sky
+        string actualSky = "RSKY1"; // TODO merge with engine variable sky
+
+        // reading flats
+        for(string flatName: flatsNames)
+        {
+            cout << "loading \"" << flatName << "\" texture..." << endl;
+
+            try
+            {
+                ResourcesData::Image flat = resources->readFlat(flatName);
+                textures[flatName] = flat;
+
+                if(flatName == skyPlaceholder)
+                {
+                    cout << "loading \"" << actualSky << "\" texture..." << endl;
+                    ResourcesData::Image patch = resources->readPatch(actualSky); 
+                    textures[actualSky] = patch;
+                }
+
+            }
+            catch (const ResourceReadoutException& e)
+            {
+                string errorMessage = "\"" + flatName + "\" not found in WAD file!";
+                throw ResourceReadoutException(errorMessage);
+            }
+            
+        }
+    }
+
+
 }

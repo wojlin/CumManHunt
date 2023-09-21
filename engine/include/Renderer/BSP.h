@@ -20,9 +20,9 @@ class SegmentHandler;
 struct bspFov
 {
     bool visible;
-    int x1;
-    int x2;
-    int rw_angle1;
+    float x1;
+    float x2;
+    float rw_angle1;
 };
 
 class BSP

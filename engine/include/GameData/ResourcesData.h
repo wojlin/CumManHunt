@@ -12,6 +12,7 @@
 #include "WadStructure.h"
 #include "../Utils/BMPImage.h"
 #include "../Utils/Info.h"
+#include "../Utils/Exceptions.h"
 
 #include "../../include/GameData/ColorMapData.h"
 #include "../../include/GameData/PlayPalData.h"
@@ -25,7 +26,7 @@ namespace ResourcesData
         int column;
         int rowStart;
         int pixelCount;
-        vector<PlayPalData::color_t> pixels;
+        vector<uint8_t> pixels;
     };
 
 
@@ -61,8 +62,10 @@ namespace ResourcesData
     class Image
     {
         public:
+
+            Image();
             
-            Image(uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize);
+            Image(ColorMapData::ColorMapData*  colormapPointer, PlayPalData::PlayPalData*  playpalPointer, uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string name);
 
             uint16_t getWidth();
 
@@ -82,13 +85,27 @@ namespace ResourcesData
 
             void saveAsFile(string filePath);
 
+            string getName();
+
+            void setPallete(int value);
+
+            int getPallete();
+
+            PlayPalData::colorRGB_t getPixel(int x, int y, int lightLevel = 255);
+
         private:
             uint16_t width;
             uint16_t height;
             int16_t leftOffset;
             int16_t topOffset;
             int size;
+            string name;
+            int pallete;
             vector<imageColumn_t> columns;
+            PlayPalData::PlayPalData*  playpal;
+            ColorMapData::ColorMapData*  colormap;
+            vector<vector<PlayPalData::colorRGB_t>> pixels;
+            vector<vector<uint8_t>> pixelsPlayPal;
     };
 
 
@@ -100,7 +117,7 @@ namespace ResourcesData
             
             ResourcesData();
 
-            ResourcesData(WADStructure::WADStructure *wad, PlayPalData::PlayPalData*  playpalPointer);
+            ResourcesData(WADStructure::WADStructure *wad, PlayPalData::PlayPalData*  playpalPointer, ColorMapData::ColorMapData* colormapPointer);
 
             Image readFlat(string name);
 
@@ -120,9 +137,9 @@ namespace ResourcesData
 
             int getPatchesAmount();
 
-            char* getPNameByIndex(int index);
+            string getPNameByIndex(int index);
 
-            int getPNameIndexByName(char* name);
+            int getPNameIndexByName(string name);
 
             int getPNamesAmount();
 
@@ -140,7 +157,7 @@ namespace ResourcesData
             map<std::string, WADStructure::lumpInfo_t*> flatsMap;
             map<std::string, WADStructure::lumpInfo_t*> patchesMap;
 
-            vector<char*> pnames;
+            vector<string> pnames;
             vector<textureX_t> textureX;
 
             int32_t numMapPatches;
@@ -150,7 +167,11 @@ namespace ResourcesData
             int patchesAmount = 0;
 
             PlayPalData::PlayPalData* playpal;
+            ColorMapData::ColorMapData* colormap;
 
+            string charsToString(char* chars, int size);
+
+            string toUpper(string name);
 
             void readTextureX(WADStructure::lumpInfo_t lump);
             

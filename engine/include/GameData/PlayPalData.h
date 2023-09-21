@@ -14,7 +14,15 @@
 namespace PlayPalData
 {
 
-    struct color_t
+    struct colorRGB_t
+    {
+        uint8_t red;
+        uint8_t green;
+        uint8_t blue;
+        bool transparent = true;
+    };
+
+    struct rawColorRGB_t
     {
         uint8_t red;
         uint8_t green;
@@ -30,7 +38,7 @@ namespace PlayPalData
 
             PlayPalData(WADStructure::WADStructure *wad);
 
-            color_t getColor(int, uint8_t);
+            colorRGB_t getColor(int, uint8_t);
 
             void printColor(int, uint8_t);
 
@@ -45,7 +53,7 @@ namespace PlayPalData
             int PALLETE_COLORS = 255;
             int PALLETES_AMOUNT;
 
-            vector<vector<color_t>> pallete;
+            vector<vector<colorRGB_t>> pallete;
 
             void readPlayPal();
     };

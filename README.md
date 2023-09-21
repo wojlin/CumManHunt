@@ -39,7 +39,7 @@ compile & build:
 #### manual:
 
     ```bash
-    g++ *.cpp src/GameData/*.cpp src/Controller/*.cpp src/Renderer/*.cpp src/Utils/*.cpp -o game -lm -lasound -lSDL2 -lSDL2main -lsfml-graphics -lsfml-window -lsfml-system
+    g++ -O3 *.cpp src/GameData/*.cpp src/Controller/*.cpp src/Renderer/*.cpp src/Utils/*.cpp -o game -lm -lasound -lSDL2 -lSDL2main -lsfml-graphics -lsfml-window -lsfml-system
     ```
 
     run:
@@ -53,7 +53,7 @@ compile & build:
     3.
     ```json
     "code-runner.executorMap": {
-        "cpp": "cd $dir && g++ *.cpp src/GameData/*.cpp src/Controller/*.cpp src/Renderer/*.cpp src/Utils/*.cpp -o $fileNameWithoutExt -lm -lasound -lSDL2 -lSDL2main -lsfml-graphics -lsfml-window -lsfml-system && $dir$fileNameWithoutExt"
+        "cpp": "cd $dir && g++ -O3 *.cpp src/GameData/*.cpp src/Controller/*.cpp src/Renderer/*.cpp src/Utils/*.cpp -o $fileNameWithoutExt -lm -lasound -lSDL2 -lSDL2main -lsfml-graphics -lsfml-window -lsfml-system && $dir$fileNameWithoutExt"
     }
     ```
 

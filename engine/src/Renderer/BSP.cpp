@@ -69,7 +69,7 @@ bspFov BSP::addSegmentToFOV(pair<int, int> vertex1, pair<int, int> vertex2)
         return result;
     }else
     {
-        int rw_angle1 = static_cast<int>(angle1);
+        float rw_angle1 = angle1;
 
         angle1 -= (float) player->getAngle();
         angle2 -= (float) player->getAngle();

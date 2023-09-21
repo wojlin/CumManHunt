@@ -28,6 +28,7 @@ void SegmentHandler::initScreenRange()
 void SegmentHandler::clipPortalWalls(LevelData::Seg segment, int x_start, int x_end, float rwAngle)
 {
     //create set filled with all the segment width on the screen
+
     std::set<int> currentWall;
     for (int i = x_start; i < x_end; i++) 
     {
@@ -48,7 +49,7 @@ void SegmentHandler::clipPortalWalls(LevelData::Seg segment, int x_start, int x_
             data.x1 = x_start;
             data.x2 = x_end - 1;
             data.rwAngle = rwAngle;
-            data.isPortal = true;
+            data.isPortal = true;  
             drawData.push_back(data);
         } 
         else 
@@ -84,6 +85,7 @@ void SegmentHandler::clipPortalWalls(LevelData::Seg segment, int x_start, int x_
 
 void SegmentHandler::clipSolidWalls(LevelData::Seg segment, int x_start, int x_end, float rwAngle)
 {   
+
     // no need to calculate futher if all the screen is covered
     if(!screenRange.empty())
     {   
@@ -170,24 +172,54 @@ void SegmentHandler::classifySegment(LevelData::Seg segment, int x1, int x2, flo
     LevelData::Linedef linedef = linedefs[linedefId];
 
 
-    bool twoSided = (linedef.flags >> 2) & 1;
+    bool twoSided = linedef.flags.twoSided;
+
+    
+
+    
 
     if(!twoSided)
     {
-        int frontSidedefId = linedef.frontSidedef;
         clipSolidWalls(segment, x1, x2, rwAngle);
         return;
     }
+    /*else
+    {
+        LevelData::Sidedef backSide = sidedefs[linedef.backSidedef];
+        LevelData::Sidedef frontSide = sidedefs[linedef.frontSidedef];
 
-    LevelData::Sidedef front = sidedefs[linedef.frontSidedef];
-    LevelData::Sidedef back = sidedefs[linedef.backSidedef];
+        if(frontSide.middleTextureName != "-" && backSide.middleTextureName == "-" && backSide.upperTextureName == "-" && backSide.lowerTextureName == "-")
+        {
+            clipSolidWalls(segment, x1, x2, rwAngle);
+            return;
+        }
+    }
+    */
+
+    LevelData::Sidedef front;
+    LevelData::Sidedef back;
+
+    
+    
+    if(segment.direction == 0)
+    {
+        front = sidedefs[linedef.frontSidedef];
+        back = sidedefs[linedef.backSidedef];
+    }
+    else
+    {
+        front = sidedefs[linedef.backSidedef];
+        back = sidedefs[linedef.frontSidedef];
+    }
+
+    
 
     LevelData::Sector frontSector = sectors[front.sectorNumber];
     LevelData::Sector backSector = sectors[back.sectorNumber];
-    
+
 
     if((frontSector.ceilingHeight != backSector.ceilingHeight) || (frontSector.floorHeight != backSector.floorHeight))
-    {
+    {   
         clipPortalWalls(segment, x1, x2, rwAngle);
         return;
     }

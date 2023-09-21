@@ -4,7 +4,6 @@
 
 Engine::Engine()
 {
-
 }
 
 vertexs_bounds_t Engine::getVertexsBounds()
@@ -47,9 +46,19 @@ int* Engine::getWindowWidth()
     return &WINDOW_WIDTH;
 }
 
+int* Engine::getHalfWindowWidth()
+{
+    return &WINDOW_HALF_WIDTH;
+}
+
 int* Engine::getWindowHeight()
 {
     return &WINDOW_HEIGHT;
+}
+
+int* Engine::getHalfWindowHeight()
+{
+    return &WINDOW_HALF_HEIGHT;
 }
 
 int* Engine::getPlayerFOV()
@@ -85,6 +94,16 @@ int* Engine::getPlayerRotationSpeed()
 int* Engine::getScreenDist()
 {
     return &SCREEN_DIST;
+}
+
+string* Engine::getSkyId()
+{
+    return &SKY_ID;
+}
+
+string* Engine::getSkyTextureName()
+{
+    return &SKY_TEXTURE_NAME;
 }
 
 
@@ -181,6 +200,8 @@ void Engine::run()
         //}
     
         minimapRenderer.update();
+
+        //cout << "angle:" << players[currentPlayer].getAngle() << " posX: " << players[currentPlayer].getPosX() << " posY: " << players[currentPlayer].getPosY() << endl;
 
         window.draw(*levelRenderer.getScene());
         window.draw(*minimapRenderer.getMinimap());

@@ -11,9 +11,12 @@
 #include <vector>
 #include <functional>
 #include <variant>
+#include <set>
+#include <cctype>
 
 #include "WadStructure.h"
 #include "Interfaces.h"
+#include "ResourcesData.h"
 
 namespace LevelData
 {
@@ -28,16 +31,32 @@ namespace LevelData
         int16_t flags;
     };
 
+    struct LinedefFlags
+    {
+        bool blockPlayerAndMonsters;
+        bool blockMonsters;
+        bool twoSided;
+        bool unpeggedUpperTexture;
+        bool unpeggedLowerTexture;
+        bool secret;
+        bool blockSound;
+        bool dontShowOnMap;
+        bool alwaysShowOnMap;
+    };
+
     struct Linedef
     {
         int16_t startVertex;
         int16_t endVertex;
-        int16_t flags;
+        LinedefFlags flags;
         int16_t specialType;
         int16_t sectorTag;
         int16_t frontSidedef;
         int16_t backSidedef;
     };
+
+    
+
 
     struct Sidedef
     {
@@ -128,7 +147,7 @@ namespace LevelData
          * @param path 
          * @param levelData 
          */
-        LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData);
+        LevelData(WADStructure::WADStructure *wadObj, WADStructure::levelInfo_t *levelData, ResourcesData::ResourcesData* resources, PlayPalData::PlayPalData*  playpalPointer, ColorMapData::ColorMapData*  colorPointer);
 
         /**
          * @brief Get the Level Name in string format
@@ -239,13 +258,18 @@ namespace LevelData
          */
         Blockmap getBlockmap();
 
+        ResourcesData::Image* getTexture(string Texturename);
+
         private:
             WADStructure::WADStructure* wad;
             WADStructure::levelInfo_t* level;
+            PlayPalData::PlayPalData* playpal;
+            ColorMapData::ColorMapData* colormap;
 
             string levelName;
             string filePath = "";
 
+            ResourcesData::ResourcesData* resources;
             vector<Thing> things;
             vector<Linedef> linedefs;
             vector<Sidedef> sidedefs;
@@ -260,6 +284,8 @@ namespace LevelData
             BLOCKMAPHeader blockmapHeader;
             vector<int16_t> blockmapOffsets;
             vector<vector<uint16_t>> blockmapBlockLists;
+
+            map<string, ResourcesData::Image> textures;
 
             string loadError = "ERROR: failed to load resource: ";
 
@@ -286,6 +312,12 @@ namespace LevelData
             vector<vector<bool>> loadReject(WADStructure::lumpInfo_t lump);
 
             Blockmap loadBlockmap(WADStructure::lumpInfo_t lump);
+
+            string toUpper(string name);
+
+            ResourcesData::Image composeTexture(ResourcesData::maptexture_t mapTexture);
+
+            void loadLevelResources();
 
     };
 }

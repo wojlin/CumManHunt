@@ -74,7 +74,7 @@ class LevelRenderer
         sf::Color backgroundColor = sf::Color::Black;
 
         double MAX_SEG_SCALE = 64.0;
-        double MIN_SEG_SCALE = 0.00001;//0.00390625;
+        double MIN_SEG_SCALE = 0.00390625;
 
         int angleToX(double angle);
         
@@ -91,6 +91,12 @@ class LevelRenderer
         size_t hashString(const std::string& str);
 
         void createClips();
+
+        void drawFlat(ResourcesData::Image* texture, int lightLevel, int x, int y1, int y2, int worldZ);
+
+        void drawFlatColumn(ResourcesData::Image* texture, int x, int y1, int y2, int lightLevel, float worldZ, float playerAngle, float playerX, float playerY);
+
+        void drawWallColumn(ResourcesData::Image* wallTexture, float textureColumn, int i, int wy1, int wy2, float middleTexAlt, float invScale, int lightLevel);
 
 };
 

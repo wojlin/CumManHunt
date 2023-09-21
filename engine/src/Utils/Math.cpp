@@ -35,3 +35,16 @@ double calculateDistance(double  x1, double  y1, double  x2, double  y2) {
     double  dy = y1 - y2;
     return std::sqrt(dx * dx + dy * dy);
 }
+
+int modulo(int a, int b)
+{
+    return (a % b + b) % b;
+}
+
+std::string toUpper(std::string name)
+{
+    for (char &c : name) {
+    c = std::toupper(c);
+    }
+    return name;
+}

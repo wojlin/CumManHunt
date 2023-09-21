@@ -1,8 +1,12 @@
 #include "../../include/GameData/ResourcesData.h"
 namespace ResourcesData
 {
+    Image::Image()
+    {
 
-    Image::Image(uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize)
+    }
+
+    Image::Image(ColorMapData::ColorMapData*  colormapPointer, PlayPalData::PlayPalData*  playpalPointer, uint16_t w,  uint16_t h,  int16_t l,  int16_t t, vector<imageColumn_t> c, int lSize, string lName)
     {
         width = w;
         height = h;
@@ -10,6 +14,38 @@ namespace ResourcesData
         topOffset = t;
         columns = c;
         size = lSize;
+        name = lName;
+        pallete = 0;
+        playpal = playpalPointer;
+        colormap = colormapPointer;
+
+        for(int x = 0; x < width; x++)
+        {
+            pixels.push_back(vector<PlayPalData::colorRGB_t>());
+            pixelsPlayPal.push_back(vector<uint8_t>());
+
+            for(int y = 0; y < height; y++)
+            {
+                PlayPalData::colorRGB_t color;
+                color.red = 255;
+                color.green = 255;
+                color.blue = 255;
+                color.transparent = true;
+                pixels[x].push_back(color);
+                pixelsPlayPal[x].push_back(255);
+            }
+        }
+
+        for(int c = 0; c < columns.size(); c++)
+        {
+            for(int i = 0; i < columns[c].pixelCount; i++)
+            {
+                PlayPalData::colorRGB_t color = playpal->getColor(pallete, columns[c].pixels[i]);
+                color.transparent = false;
+                pixels[columns[c].column][columns[c].rowStart + i] = color;
+                pixelsPlayPal[columns[c].column][columns[c].rowStart + i] = columns[c].pixels[i];
+            }              
+        }
     }
 
     uint16_t Image::getWidth()
@@ -47,6 +83,31 @@ namespace ResourcesData
         return columns;
     }
 
+    string Image::getName()
+    {
+        return name;
+    }
+
+    void Image::setPallete(int value)
+    {
+        pallete = value;
+    }
+
+    int Image::getPallete()
+    {
+        return pallete;
+    }
+
+    PlayPalData::colorRGB_t Image::getPixel(int x, int y, int lightLevel)
+    {
+        int colormapIndex = 31 - static_cast<int>((static_cast<double>(lightLevel) / 255) * 31);
+        uint8_t color = pixelsPlayPal[y][x];
+        uint8_t remappedColor = colormap->getColor(colormapIndex, color);
+        PlayPalData::colorRGB_t newColor = playpal->getColor(pallete, remappedColor);
+        newColor.transparent = pixels[y][x].transparent;
+        return newColor;
+    }
+
     void Image::printInfo()
     {
         printInfoHeader("H1", "IMAGE");
@@ -67,7 +128,8 @@ namespace ResourcesData
         {   
             for(int b = 0; b < columns[x].pixelCount; b++)
             {
-                PlayPalData::color_t pixel = columns[x].pixels[b];
+                uint8_t color = columns[x].pixels[b];
+                PlayPalData::colorRGB_t pixel = playpal->getColor(pallete, color);
                 image.setPixel(columns[x].column, columns[x].rowStart + b, pixel.red, pixel.green, pixel.blue, 255);
             }
 
@@ -83,7 +145,7 @@ namespace ResourcesData
 
     }
 
-    ResourcesData::ResourcesData(WADStructure::WADStructure *wad, PlayPalData::PlayPalData*  playpalPointer): filePath(wad->filePath), playpal(playpalPointer)
+    ResourcesData::ResourcesData(WADStructure::WADStructure *wad, PlayPalData::PlayPalData*  playpalPointer, ColorMapData::ColorMapData*  colormapPointer): filePath(wad->filePath), playpal(playpalPointer), colormap(colormapPointer)
     {
         wadStructure = wad;
         filePath = wad->filePath;
@@ -100,7 +162,6 @@ namespace ResourcesData
             cout << "reading \"" << lumps[i].name << "\" lump..." << endl;
             readTextureX(lumps[i]);
         }
-        
 
         file.close();
     }
@@ -118,8 +179,8 @@ namespace ResourcesData
 
         if(spriteInfo == 0)
         {
-            std::cout << "The '" << name << "' is not in the game resources." << std::endl;
-            exit(0);
+            string error = "The '" + name + "' is not in the game resources.";
+            throw ResourceReadoutException(error);
         }
 
         ifstream file(spriteInfo->path, std::ios::binary);
@@ -138,14 +199,14 @@ namespace ResourcesData
                 file.seekg(spriteInfo->filepos + (width * y) + x);
                 uint8_t value;
                 file.read(reinterpret_cast<char*>(&value), sizeof(value));
-                column.pixels.push_back(playpal->getColor(0, value));
+                column.pixels.push_back(value);
             }
             columns.push_back(column);
         }
 
         file.close();
 
-        return Image(width, height, 0, 0, columns, spriteInfo->size);
+        return Image(colormap, playpal, width, height, 0, 0, columns, spriteInfo->size, name);
 
     }
 
@@ -178,8 +239,8 @@ namespace ResourcesData
 
         if(spriteInfo == 0)
         {
-            std::cout << "The '" << name << "' is not in the game resources." << std::endl;
-            exit(0);
+            string error = "The '" + name + "' is not in the game resources.";
+            throw ResourceReadoutException(error);
         }
 
         file.seekg(spriteInfo->filepos);
@@ -221,15 +282,15 @@ namespace ResourcesData
                 {
                     uint8_t value = 0;
                     file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
-                    PlayPalData::color_t color = playpal->getColor(0, value);
-                    column.pixels.push_back(color);
+                    //PlayPalData::colorRGB_t color = playpal->getColor(0, value);
+                    column.pixels.push_back(value);
                 }
                 columns.push_back(column);
                 file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size);
+        return Image(colormap, playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
 
     }
 
@@ -262,8 +323,8 @@ namespace ResourcesData
 
         if(spriteInfo == 0)
         {
-            std::cout << "The '" << name << "' is not in the game resources." << std::endl;
-            exit(0);
+            string error = "The '" + name + "' is not in the game resources.";
+            throw ResourceReadoutException(error);
         }
 
         file.seekg(spriteInfo->filepos);
@@ -305,15 +366,15 @@ namespace ResourcesData
                 {
                     uint8_t value = 0;
                     file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
-                    PlayPalData::color_t color = playpal->getColor(0, value);
-                    column.pixels.push_back(color);
+                    //PlayPalData::colorRGB_t color = playpal->getColor(0, value);
+                    column.pixels.push_back(value);
                 }
                 columns.push_back(column);
                 file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size);
+        return Image(colormap, playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo->size, name);
 
     }
 
@@ -341,14 +402,14 @@ namespace ResourcesData
                 file.seekg(spriteInfo.filepos + (width * y) + x);
                 uint8_t value;
                 file.read(reinterpret_cast<char*>(&value), sizeof(value));
-                column.pixels.push_back(playpal->getColor(0, value));
+                column.pixels.push_back(value);
             }
             columns.push_back(column);
         }
 
         file.close();
 
-        return Image(width, height, 0, 0, columns, spriteInfo.size);
+        return Image(colormap, playpal, width, height, 0, 0, columns, spriteInfo.size, name);
 
     }
 
@@ -418,15 +479,15 @@ namespace ResourcesData
                 {
                     uint8_t value = 0;
                     file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
-                    PlayPalData::color_t color = playpal->getColor(0, value);
-                    column.pixels.push_back(color);
+                    //PlayPalData::colorRGB_t color = playpal->getColor(0, value);
+                    column.pixels.push_back(value);
                 }
                 columns.push_back(column);
                 file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size);
+        return Image(colormap, playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
 
     }
     
@@ -495,15 +556,15 @@ namespace ResourcesData
                 {
                     uint8_t value = 0;
                     file.read(reinterpret_cast<char*>(&value), sizeof(value));                      
-                    PlayPalData::color_t color = playpal->getColor(0, value);
-                    column.pixels.push_back(color);
+                    //PlayPalData::colorRGB_t color = playpal->getColor(0, value);
+                    column.pixels.push_back(value);
                 }
                 columns.push_back(column);
                 file.read(reinterpret_cast<char*>(&dummy), sizeof(dummy));
             }
         }
         file.close();
-        return Image(spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size);
+        return Image(colormap, playpal, spriteData.width, spriteData.height, spriteData.leftOffset, spriteData.topOffset, columns, spriteInfo.size, name);
 
     }
     
@@ -524,7 +585,7 @@ namespace ResourcesData
         return patchesAmount;
     }
 
-    char* ResourcesData::getPNameByIndex(int index)
+    string ResourcesData::getPNameByIndex(int index)
     {
         for(int i = 0; i < pnames.size(); i++)
         {
@@ -533,15 +594,15 @@ namespace ResourcesData
                 return pnames[i];
             }
         }
-        cout << "pname of index '"<< index << "' does not exist" << endl;
-        exit(0);
+        string error =  "pname of index '" + to_string(index) + "' does not exist";
+        throw ResourceReadoutException(error);
     }
 
-    int ResourcesData::getPNameIndexByName(char* name)
+    int ResourcesData::getPNameIndexByName(string name)
     {
         for(int i = 0; i < pnames.size(); i++)
         {
-            if(strcmp(pnames[i], name) == 0)
+            if(pnames[i] == name)
             {
                 return i;
             }
@@ -683,11 +744,26 @@ namespace ResourcesData
         {
             char name[8];
             file.read(reinterpret_cast<char*>(&name), sizeof(char[8])); 
-            pnames.push_back(name);
+            string convertedString = toUpper(charsToString(name, 8));
+            pnames.push_back(convertedString);
         } 
 
         file.close();
 
+    }
+
+     string ResourcesData::charsToString(char* chars, int size)
+    {   
+        string str(chars, size);
+        return str.c_str();
+    }
+
+    string ResourcesData::toUpper(string name)
+    {
+        for (char &c : name) {
+        c = std::toupper(c);
+        }
+        return name;
     }
 
     void ResourcesData::readSprites(WADStructure::WADStructure *wad)
@@ -749,8 +825,11 @@ namespace ResourcesData
             }
             else if(markerFound == true)
             {
-                patchesMap[wad->directory[i].name] = &(wad->directory[i]);
-                patchesAmount++;
+                if(wad->directory[i].size != 0)
+                {   
+                    patchesMap[wad->directory[i].name] = &(wad->directory[i]);
+                    patchesAmount++;
+                }   
             }
         }
         cout << "reading patches..." << endl;
